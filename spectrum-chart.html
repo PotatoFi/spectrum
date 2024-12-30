@@ -40,6 +40,37 @@
             .button:active {
                 background-color: rgba(255, 255, 255, 1);
                 transform: translateY(1px);
+                .controls-dropdown {
+                    position: fixed;
+                    top: 120px;
+                    right: 20px;
+                    z-index: 1000;
+                }
+            }
+
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                right: 0;
+                background-color: white;
+                min-width: 200px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                border-radius: 8px;
+                padding: 10px;
+            }
+
+            .controls-dropdown:hover .dropdown-content {
+                display: block;
+            }
+
+            .dropdown-content label {
+                display: block;
+                padding: 5px;
+                cursor: pointer;
+            }
+
+            .dropdown-content label:hover {
+                background-color: #f0f0f0;
             }
         </style>
     </head>
@@ -48,32 +79,172 @@
         <div class="zoom-controls">
             <button class="button" id="zoom-in">+</button>
             <button class="button" id="zoom-minus">−</button>
+            <div class="controls-dropdown">
+                <button class="button" id="settings">⚙️</button>
+                <div class="dropdown-content">
+                    <label
+                        ><input type="checkbox" id="show-channels" checked />
+                        Show Channel Numbers</label
+                    >
+                    <label
+                        ><input type="checkbox" id="show-frequencies" checked />
+                        Show Center Frequencies</label
+                    >
+                    <label
+                        ><input type="checkbox" id="show-overlapping" /> Show
+                        Channel Overlap</label
+                    >
+                </div>
+            </div>
         </div>
         <script>
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
+            let showChannels = true;
+            let showFrequencies = true;
+            let showOverlapping = false;
 
             const wifiChannels = {
                 "2.4 GHz": [
-                    { channel: 36, frequency: 2412, width: 20 },
-                    { channel: 2, frequency: 2417, width: 20 },
-                    { channel: 3, frequency: 2422, width: 20 },
-                    { channel: 4, frequency: 2427, width: 20 },
-                    { channel: 5, frequency: 2432, width: 20 },
+                    { channel: 1, frequency: 2412, width: 20 },
+                    {
+                        channel: 2,
+                        frequency: 2417,
+                        width: 20,
+                        overlapping: true,
+                    },
+                    {
+                        channel: 3,
+                        frequency: 2422,
+                        width: 20,
+                        overlapping: true,
+                    },
+                    {
+                        channel: 4,
+                        frequency: 2427,
+                        width: 20,
+                        overlapping: true,
+                    },
+                    {
+                        channel: 5,
+                        frequency: 2432,
+                        width: 20,
+                        overlapping: true,
+                    },
                     { channel: 6, frequency: 2437, width: 20 },
-                    { channel: 7, frequency: 2442, width: 20 },
-                    { channel: 8, frequency: 2447, width: 20 },
-                    { channel: 9, frequency: 2452, width: 20 },
-                    { channel: 10, frequency: 2457, width: 20 },
+                    {
+                        channel: 7,
+                        frequency: 2442,
+                        width: 20,
+                        overlapping: true,
+                    },
+                    {
+                        channel: 8,
+                        frequency: 2447,
+                        width: 20,
+                        overlapping: true,
+                    },
+                    {
+                        channel: 9,
+                        frequency: 2452,
+                        width: 20,
+                        overlapping: true,
+                    },
+                    {
+                        channel: 10,
+                        frequency: 2457,
+                        width: 20,
+                        overlapping: true,
+                    },
                     { channel: 11, frequency: 2462, width: 20 },
                 ],
                 "5 GHz": [
                     { channel: 36, frequency: 5180, width: 20 },
                     { channel: 40, frequency: 5200, width: 20 },
-                    { channel: 44, frequency: 5240, width: 20 },
-                    { channel: 48, frequency: 5260, width: 20 },
-                    { channel: 52, frequency: 5280, width: 20 },
-                    { channel: 56, frequency: 5300, width: 20 },
+                    { channel: 44, frequency: 5220, width: 20 },
+                    { channel: 48, frequency: 5240, width: 20 },
+                    { channel: 52, frequency: 5260, width: 20 },
+                    { channel: 56, frequency: 5280, width: 20 },
+                    { channel: 60, frequency: 5300, width: 20 },
+                    { channel: 64, frequency: 5320, width: 20 },
+                    { channel: 100, frequency: 5500, width: 20 },
+                    { channel: 104, frequency: 5520, width: 20 },
+                    { channel: 108, frequency: 5540, width: 20 },
+                    { channel: 112, frequency: 5560, width: 20 },
+                    { channel: 116, frequency: 5580, width: 20 },
+                    { channel: 120, frequency: 5600, width: 20 },
+                    { channel: 124, frequency: 5620, width: 20 },
+                    { channel: 128, frequency: 5640, width: 20 },
+                    { channel: 132, frequency: 5660, width: 20 },
+                    { channel: 136, frequency: 5680, width: 20 },
+                    { channel: 140, frequency: 5700, width: 20 },
+                    { channel: 144, frequency: 5720, width: 20 },
+                    { channel: 149, frequency: 5745, width: 20 },
+                    { channel: 153, frequency: 5765, width: 20 },
+                    { channel: 157, frequency: 5785, width: 20 },
+                    { channel: 161, frequency: 5805, width: 20 },
+                    { channel: 165, frequency: 5825, width: 20 },
+                ],
+                "6 GHz": [
+                    { channel: "1E", frequency: 5955, width: 20 },
+                    { channel: "5E", frequency: 5975, width: 20 },
+                    { channel: "9E", frequency: 5995, width: 20 },
+                    { channel: "13E", frequency: 6015, width: 20 },
+                    { channel: "17E", frequency: 6035, width: 20 },
+                    { channel: "21E", frequency: 6055, width: 20 },
+                    { channel: "25E", frequency: 6075, width: 20 },
+                    { channel: "29E", frequency: 6095, width: 20 },
+                    { channel: "33E", frequency: 6115, width: 20 },
+                    { channel: "37E", frequency: 6135, width: 20 },
+                    { channel: "41E", frequency: 6155, width: 20 },
+                    { channel: "45E", frequency: 6175, width: 20 },
+                    { channel: "49E", frequency: 6195, width: 20 },
+                    { channel: "53E", frequency: 6215, width: 20 },
+                    { channel: "57E", frequency: 6235, width: 20 },
+                    { channel: "61E", frequency: 6255, width: 20 },
+                    { channel: "65E", frequency: 6275, width: 20 },
+                    { channel: "69E", frequency: 6295, width: 20 },
+                    { channel: "73E", frequency: 6315, width: 20 },
+                    { channel: "77E", frequency: 6335, width: 20 },
+                    { channel: "81E", frequency: 6355, width: 20 },
+                    { channel: "85E", frequency: 6375, width: 20 },
+                    { channel: "89E", frequency: 6395, width: 20 },
+                    { channel: "93E", frequency: 6415, width: 20 },
+                    { channel: "97E", frequency: 6435, width: 20 },
+                    { channel: "101E", frequency: 6455, width: 20 },
+                    { channel: "105E", frequency: 6475, width: 20 },
+                    { channel: "109E", frequency: 6495, width: 20 },
+                    { channel: "113E", frequency: 6515, width: 20 },
+                    { channel: "117E", frequency: 6535, width: 20 },
+                    { channel: "121E", frequency: 6555, width: 20 },
+                    { channel: "125E", frequency: 6575, width: 20 },
+                    { channel: "129E", frequency: 6595, width: 20 },
+                    { channel: "133E", frequency: 6615, width: 20 },
+                    { channel: "137E", frequency: 6635, width: 20 },
+                    { channel: "141E", frequency: 6655, width: 20 },
+                    { channel: "145E", frequency: 6675, width: 20 },
+                    { channel: "149E", frequency: 6695, width: 20 },
+                    { channel: "153E", frequency: 6715, width: 20 },
+                    { channel: "157E", frequency: 6735, width: 20 },
+                    { channel: "161E", frequency: 6755, width: 20 },
+                    { channel: "165E", frequency: 6775, width: 20 },
+                    { channel: "169E", frequency: 6795, width: 20 },
+                    { channel: "173E", frequency: 6815, width: 20 },
+                    { channel: "177E", frequency: 6835, width: 20 },
+                    { channel: "181E", frequency: 6855, width: 20 },
+                    { channel: "185E", frequency: 6875, width: 20 },
+                    { channel: "189E", frequency: 6895, width: 20 },
+                    { channel: "193E", frequency: 6915, width: 20 },
+                    { channel: "197E", frequency: 6935, width: 20 },
+                    { channel: "201E", frequency: 6955, width: 20 },
+                    { channel: "205E", frequency: 6975, width: 20 },
+                    { channel: "209E", frequency: 6995, width: 20 },
+                    { channel: "213E", frequency: 7015, width: 20 },
+                    { channel: "217E", frequency: 7035, width: 20 },
+                    { channel: "221E", frequency: 7055, width: 20 },
+                    { channel: "225E", frequency: 7075, width: 20 },
+                    { channel: "229E", frequency: 7095, width: 20 },
+                    { channel: "233E", frequency: 7115, width: 20 },
                 ],
             };
 
@@ -109,50 +280,155 @@
                 ctx.translate(canvas.width / 2 + offset.x, canvas.height / 2);
                 ctx.scale(scale, scale);
 
-                // Draw Wi-Fi channels
-                const channels = wifiChannels["2.4 GHz"];
-                const totalWidth = channels.length * chartSettings.channelWidth;
-                const startX = -totalWidth / 2;
+                // Function to convert frequency to x position
+                function frequencyToX(freq) {
+                    // Scale factor to make the chart readable
+                    // You may need to adjust this value to get the right spacing
+                    const scaleFactor = 2;
+                    return (freq - 2400) * scaleFactor; // For 2.4 GHz band
+                }
 
-                // Draw baseline
-                ctx.beginPath();
-                ctx.moveTo(startX, chartSettings.channelHeight);
-                ctx.lineTo(startX + totalWidth, chartSettings.channelHeight);
-                ctx.strokeStyle = "black";
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                // Draw both bands
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.save();
 
-                // Draw channels
-                channels.forEach((channel, index) => {
-                    const x = startX + index * chartSettings.channelWidth;
+                    // Apply transformations
+                    ctx.translate(
+                        canvas.width / 2 + offset.x,
+                        canvas.height / 2,
+                    );
+                    ctx.scale(scale, scale);
 
-                    // Draw trapezoid
+                    // MHz to pixels conversion
+                    function mhzToPixels(mhz) {
+                        const pixelsPerMhz = 2; // Reduced from 5 to 2 to fit the wider range
+                        return (mhz - 2400) * pixelsPerMhz;
+                    }
+
+                    // Draw baseline for entire frequency range
                     ctx.beginPath();
-                    ctx.moveTo(x, 0); // Top left
-                    ctx.lineTo(x + chartSettings.channelWidth, 0); // Top right
-                    ctx.lineTo(
-                        x + chartSettings.channelWidth,
-                        chartSettings.channelHeight,
-                    ); // Bottom right
-                    ctx.lineTo(x, chartSettings.channelHeight); // Bottom left
-                    ctx.closePath();
-
-                    // Style for channel
-                    ctx.strokeStyle = "#0066cc";
-                    ctx.lineWidth = 2;
+                    ctx.moveTo(mhzToPixels(2400), chartSettings.channelHeight);
+                    ctx.lineTo(mhzToPixels(7125), chartSettings.channelHeight); // Changed from 5400 to 7125
+                    ctx.strokeStyle = "black";
+                    ctx.lineWidth = 1;
                     ctx.stroke();
 
-                    // Draw channel number
-                    ctx.font = `${chartSettings.textSize}px Arial`;
-                    ctx.fillStyle = "black";
-                    ctx.textAlign = "center";
-                    ctx.fillText(
-                        `CH${channel.channel}`,
-                        x + chartSettings.channelWidth / 2,
-                        chartSettings.channelHeight +
-                            chartSettings.baselineOffset,
-                    );
-                });
+                    function drawOverlappingChannels(ctx, centerX, channel) {
+                        if (!showOverlapping || channel.frequency > 3000)
+                            return; // Only for 2.4 GHz
+
+                        // Draw overlapping channels
+                        const overlapWidth = 70; // Width of overlap indicator
+                        ctx.beginPath();
+                        ctx.strokeStyle = "rgba(255, 0, 0, 0.2)"; // Semi-transparent red
+                        ctx.fillStyle = "rgba(255, 0, 0, 0.1)";
+
+                        // Draw rectangle showing overlap range
+                        ctx.fillRect(
+                            centerX - overlapWidth / 2,
+                            0,
+                            overlapWidth,
+                            chartSettings.channelHeight,
+                        );
+                        ctx.strokeRect(
+                            centerX - overlapWidth / 2,
+                            0,
+                            overlapWidth,
+                            chartSettings.channelHeight,
+                        );
+                    }
+
+                    // Draw all bands
+                    ["2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
+                        const channels = wifiChannels[band];
+
+                        // Draw band label
+                        ctx.font = `${chartSettings.textSize + 4}px Arial`;
+                        ctx.fillStyle = "black";
+                        ctx.textAlign = "left";
+                        const labelX = mhzToPixels(
+                            band === "2.4 GHz"
+                                ? 2400
+                                : band === "5 GHz"
+                                  ? 5100
+                                  : 5955, // Starting frequency for 6 GHz
+                        );
+                        ctx.fillText(band, labelX, -10);
+
+                        // Draw channels
+                        channels.forEach((channel) => {
+                            // Skip overlapping channels (2, 3, 4, 5, 7, 8, 9, 10) in 2.4 GHz when showOverlapping is false
+                            if (band === "2.4 GHz" && !showOverlapping) {
+                                if (![1, 6, 11].includes(channel.channel)) {
+                                    return;
+                                }
+                            }
+                            const centerX = mhzToPixels(channel.frequency);
+                            const channelWidthPx = channel.width * 2; // Convert MHz to pixels
+
+                            // Calculate trapezoid points
+                            const topWidth = channelWidthPx * 0.8;
+
+                            // Draw trapezoid
+                            ctx.beginPath();
+                            // Left line
+                            ctx.moveTo(centerX - topWidth / 2, 0);
+                            ctx.lineTo(
+                                centerX - channelWidthPx / 2,
+                                chartSettings.channelHeight,
+                            );
+
+                            // Right line
+                            ctx.moveTo(centerX + topWidth / 2, 0);
+                            ctx.lineTo(
+                                centerX + channelWidthPx / 2,
+                                chartSettings.channelHeight,
+                            );
+
+                            // Top line
+                            ctx.moveTo(centerX - topWidth / 2, 0);
+                            ctx.lineTo(centerX + topWidth / 2, 0);
+
+                            ctx.strokeStyle = "#0066cc";
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+
+                            const labelSpacing = 15; // Spacing between labels
+                            let currentY =
+                                chartSettings.channelHeight +
+                                chartSettings.baselineOffset;
+
+                            // Draw channel number
+                            if (showChannels) {
+                                ctx.font = `${chartSettings.textSize}px Arial`;
+                                ctx.fillStyle = "black";
+                                ctx.textAlign = "center";
+                                ctx.fillText(
+                                    `${channel.channel}`,
+                                    centerX,
+                                    currentY,
+                                );
+                                currentY += labelSpacing;
+                            }
+
+                            // Draw frequency
+                            if (showFrequencies) {
+                                ctx.font = `${chartSettings.textSize}px Arial`;
+                                ctx.fillStyle = "black";
+                                ctx.textAlign = "center";
+                                ctx.fillText(
+                                    `${channel.frequency}`,
+                                    centerX,
+                                    currentY,
+                                );
+                            }
+                        });
+                    });
+
+                    ctx.restore();
+                    requestAnimationFrame(draw);
+                }
 
                 ctx.restore();
                 requestAnimationFrame(draw);
@@ -254,6 +530,24 @@
                 .addEventListener("click", () => {
                     scale *= 0.8;
                     scale = Math.min(Math.max(0.1, scale), 5);
+                });
+
+            document
+                .getElementById("show-channels")
+                .addEventListener("change", (e) => {
+                    showChannels = e.target.checked;
+                });
+
+            document
+                .getElementById("show-frequencies")
+                .addEventListener("change", (e) => {
+                    showFrequencies = e.target.checked;
+                });
+
+            document
+                .getElementById("show-overlapping")
+                .addEventListener("change", (e) => {
+                    showOverlapping = e.target.checked;
                 });
 
             // Start the animation
