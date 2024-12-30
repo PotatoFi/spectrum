@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Spectrum Chart</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                touch-action: none;
+            }
+            #canvas {
+                touch-action: none;
+            }
+            .zoom-controls {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                z-index: 1000;
+            }
+            .button {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                border: none;
+                background-color: rgba(255, 255, 255, 0.8);
+                cursor: pointer;
+                font-size: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.2s;
+            }
+            .button:hover {
+                background-color: rgba(255, 255, 255, 0.9);
+            }
+            .button:active {
+                background-color: rgba(255, 255, 255, 1);
+                transform: translateY(1px);
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+        <div class="zoom-controls">
+            <button class="button" id="zoom-in">+</button>
+            <button class="button" id="zoom-minus">−</button>
+        </div>
+        <script>
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const wifiChannels = {
+                "2.4 GHz": [
+                    { channel: 36, frequency: 2412, width: 20 },
+                    { channel: 2, frequency: 2417, width: 20 },
+                    { channel: 3, frequency: 2422, width: 20 },
+                    { channel: 4, frequency: 2427, width: 20 },
+                    { channel: 5, frequency: 2432, width: 20 },
+                    { channel: 6, frequency: 2437, width: 20 },
+                    { channel: 7, frequency: 2442, width: 20 },
+                    { channel: 8, frequency: 2447, width: 20 },
+                    { channel: 9, frequency: 2452, width: 20 },
+                    { channel: 10, frequency: 2457, width: 20 },
+                    { channel: 11, frequency: 2462, width: 20 },
+                ],
+                "5 GHz": [
+                    { channel: 36, frequency: 5180, width: 20 },
+                    { channel: 40, frequency: 5200, width: 20 },
+                    { channel: 44, frequency: 5240, width: 20 },
+                    { channel: 48, frequency: 5260, width: 20 },
+                    { channel: 52, frequency: 5280, width: 20 },
+                    { channel: 56, frequency: 5300, width: 20 },
+                ],
+            };
+
+            // Visual settings
+            const chartSettings = {
+                channelWidth: 100, // Visual width of each channel
+                channelHeight: 80, // Height of the trapezoid
+                baselineOffset: 20, // Distance from trapezoid to channel numbers
+                channelGap: 20, // Gap between channels
+                textSize: 12,
+            };
+
+            // Set canvas size to window size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
+
+            // Transform state
+            let offset = { x: 0, y: 0 };
+            let scale = 1;
+            let isDragging = false;
+            let lastPosition = { x: 0, y: 0 };
+
+            // Drawing function
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+
+                // Apply transformations
+                ctx.translate(canvas.width / 2 + offset.x, canvas.height / 2);
+                ctx.scale(scale, scale);
+
+                // Draw Wi-Fi channels
+                const channels = wifiChannels["2.4 GHz"];
+                const totalWidth = channels.length * chartSettings.channelWidth;
+                const startX = -totalWidth / 2;
+
+                // Draw baseline
+                ctx.beginPath();
+                ctx.moveTo(startX, chartSettings.channelHeight);
+                ctx.lineTo(startX + totalWidth, chartSettings.channelHeight);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw channels
+                channels.forEach((channel, index) => {
+                    const x = startX + index * chartSettings.channelWidth;
+
+                    // Draw trapezoid
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0); // Top left
+                    ctx.lineTo(x + chartSettings.channelWidth, 0); // Top right
+                    ctx.lineTo(
+                        x + chartSettings.channelWidth,
+                        chartSettings.channelHeight,
+                    ); // Bottom right
+                    ctx.lineTo(x, chartSettings.channelHeight); // Bottom left
+                    ctx.closePath();
+
+                    // Style for channel
+                    ctx.strokeStyle = "#0066cc";
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Draw channel number
+                    ctx.font = `${chartSettings.textSize}px Arial`;
+                    ctx.fillStyle = "black";
+                    ctx.textAlign = "center";
+                    ctx.fillText(
+                        `CH${channel.channel}`,
+                        x + chartSettings.channelWidth / 2,
+                        chartSettings.channelHeight +
+                            chartSettings.baselineOffset,
+                    );
+                });
+
+                ctx.restore();
+                requestAnimationFrame(draw);
+            }
+
+            // Mouse events for panning
+            canvas.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                lastPosition = { x: e.clientX, y: e.clientY };
+            });
+
+            canvas.addEventListener("mousemove", (e) => {
+                if (isDragging) {
+                    offset.x += e.clientX - lastPosition.x;
+                    offset.y += e.clientY - lastPosition.y;
+                    lastPosition = { x: e.clientX, y: e.clientY };
+                }
+            });
+
+            canvas.addEventListener("mouseup", () => {
+                isDragging = false;
+            });
+
+            canvas.addEventListener("mouseleave", () => {
+                isDragging = false;
+            });
+
+            // Touch events for panning
+            canvas.addEventListener("touchstart", (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    lastPosition = {
+                        x: e.touches[0].clientX,
+                        y: e.touches[0].clientY,
+                    };
+                }
+            });
+
+            canvas.addEventListener("touchmove", (e) => {
+                // Handle pinch-to-zoom
+                if (e.touches.length === 2) {
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const currentDistance = Math.hypot(
+                        touch1.clientX - touch2.clientX,
+                        touch1.clientY - touch2.clientY,
+                    );
+
+                    if (lastPinchDistance) {
+                        const delta = currentDistance - lastPinchDistance;
+                        scale *= 1 + delta * 0.01;
+                        // Limit minimum and maximum zoom
+                        scale = Math.min(Math.max(0.1, scale), 5);
+                    }
+                    lastPinchDistance = currentDistance;
+                }
+                // Handle panning
+                else if (e.touches.length === 1 && isDragging) {
+                    offset.x += e.touches[0].clientX - lastPosition.x;
+                    offset.y += e.touches[0].clientY - lastPosition.y;
+                    lastPosition = {
+                        x: e.touches[0].clientX,
+                        y: e.touches[0].clientY,
+                    };
+                }
+            });
+
+            canvas.addEventListener("touchend", () => {
+                isDragging = false;
+                lastPinchDistance = null;
+            });
+
+            // Mouse wheel handling for both pan and zoom
+            let lastPinchDistance = null;
+            canvas.addEventListener("wheel", (e) => {
+                e.preventDefault();
+
+                // Handle vertical scrolling as zoom
+                if (Math.abs(e.deltaY) > 0) {
+                    const zoomDelta = e.deltaY * -0.001;
+                    scale *= 1 + zoomDelta;
+                    scale = Math.min(Math.max(0.1, scale), 5);
+                }
+
+                // Handle horizontal scrolling as pan
+                if (Math.abs(e.deltaX) > 0) {
+                    offset.x -= e.deltaX;
+                }
+            });
+
+            // Zoom button controls
+            document.getElementById("zoom-in").addEventListener("click", () => {
+                scale *= 1.2;
+                scale = Math.min(Math.max(0.1, scale), 5);
+            });
+
+            document
+                .getElementById("zoom-minus")
+                .addEventListener("click", () => {
+                    scale *= 0.8;
+                    scale = Math.min(Math.max(0.1, scale), 5);
+                });
+
+            // Start the animation
+            draw();
+        </script>
+    </body>
+</html>
