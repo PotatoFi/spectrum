@@ -92,17 +92,46 @@
                     >
                     <label
                         ><input type="checkbox" id="show-overlapping" /> Show
-                        Channel Overlap</label
+                        Show overlapping channels</label
                     >
+                    <label>
+                        Height:
+                        <input
+                            type="range"
+                            id="height-slider"
+                            min="20"
+                            max="200"
+                            value="80"
+                        />
+                    </label>
                 </div>
             </div>
         </div>
         <script>
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
+            const heightSlider = document.getElementById("height-slider");
+
+            // State variables
             let showChannels = true;
             let showFrequencies = true;
             let showOverlapping = false;
+            let offset = { x: 0, y: 0 };
+            let scale = 1;
+            let isDragging = false;
+            let lastPosition = { x: 0, y: 0 };
+            let lastPinchDistance = null;
+            let isSpacebarDown = false;
+            let lockX, lockY;
+
+            // Visual settings
+            const chartSettings = {
+                channelWidth: 100,
+                channelHeight: 80, // Default height
+                baselineOffset: 20,
+                channelGap: 20, // I don't like that this is static
+                textSize: 12,
+            };
 
             const wifiChannels = {
                 "2.4 GHz": [
@@ -248,15 +277,6 @@
                 ],
             };
 
-            // Visual settings
-            const chartSettings = {
-                channelWidth: 100, // Visual width of each channel
-                channelHeight: 80, // Height of the trapezoid
-                baselineOffset: 20, // Distance from trapezoid to channel numbers
-                channelGap: 20, // Gap between channels
-                textSize: 12,
-            };
-
             // Set canvas size to window size
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
@@ -265,172 +285,100 @@
             resizeCanvas();
             window.addEventListener("resize", resizeCanvas);
 
-            // Transform state
-            let offset = { x: 0, y: 0 };
-            let scale = 1;
-            let isDragging = false;
-            let lastPosition = { x: 0, y: 0 };
-
             // Drawing function
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.save();
 
-                // Apply transformations
-                ctx.translate(canvas.width / 2 + offset.x, canvas.height / 2);
-                ctx.scale(scale, scale);
-
-                // Function to convert frequency to x position
-                function frequencyToX(freq) {
-                    // Scale factor to make the chart readable
-                    // You may need to adjust this value to get the right spacing
-                    const scaleFactor = 2;
-                    return (freq - 2400) * scaleFactor; // For 2.4 GHz band
-                }
-
-                // Draw both bands
-                function draw() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.save();
-
-                    // Apply transformations
-                    ctx.translate(
-                        canvas.width / 2 + offset.x,
-                        canvas.height / 2,
+                // Convert MHz to screen pixels, taking zoom into account
+                function mhzToScreenX(mhz) {
+                    const pixelsPerMhz = 2 * scale;
+                    return (
+                        (mhz - 2400) * pixelsPerMhz +
+                        canvas.width / 2 +
+                        offset.x
                     );
-                    ctx.scale(scale, scale);
-
-                    // MHz to pixels conversion
-                    function mhzToPixels(mhz) {
-                        const pixelsPerMhz = 2; // Reduced from 5 to 2 to fit the wider range
-                        return (mhz - 2400) * pixelsPerMhz;
-                    }
-
-                    // Draw baseline for entire frequency range
-                    ctx.beginPath();
-                    ctx.moveTo(mhzToPixels(2400), chartSettings.channelHeight);
-                    ctx.lineTo(mhzToPixels(7125), chartSettings.channelHeight); // Changed from 5400 to 7125
-                    ctx.strokeStyle = "black";
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-
-                    function drawOverlappingChannels(ctx, centerX, channel) {
-                        if (!showOverlapping || channel.frequency > 3000)
-                            return; // Only for 2.4 GHz
-
-                        // Draw overlapping channels
-                        const overlapWidth = 70; // Width of overlap indicator
-                        ctx.beginPath();
-                        ctx.strokeStyle = "rgba(255, 0, 0, 0.2)"; // Semi-transparent red
-                        ctx.fillStyle = "rgba(255, 0, 0, 0.1)";
-
-                        // Draw rectangle showing overlap range
-                        ctx.fillRect(
-                            centerX - overlapWidth / 2,
-                            0,
-                            overlapWidth,
-                            chartSettings.channelHeight,
-                        );
-                        ctx.strokeRect(
-                            centerX - overlapWidth / 2,
-                            0,
-                            overlapWidth,
-                            chartSettings.channelHeight,
-                        );
-                    }
-
-                    // Draw all bands
-                    ["2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
-                        const channels = wifiChannels[band];
-
-                        // Draw band label
-                        ctx.font = `${chartSettings.textSize + 4}px Arial`;
-                        ctx.fillStyle = "black";
-                        ctx.textAlign = "left";
-                        const labelX = mhzToPixels(
-                            band === "2.4 GHz"
-                                ? 2400
-                                : band === "5 GHz"
-                                  ? 5100
-                                  : 5955, // Starting frequency for 6 GHz
-                        );
-                        ctx.fillText(band, labelX, -10);
-
-                        // Draw channels
-                        channels.forEach((channel) => {
-                            // Skip overlapping channels (2, 3, 4, 5, 7, 8, 9, 10) in 2.4 GHz when showOverlapping is false
-                            if (band === "2.4 GHz" && !showOverlapping) {
-                                if (![1, 6, 11].includes(channel.channel)) {
-                                    return;
-                                }
-                            }
-                            const centerX = mhzToPixels(channel.frequency);
-                            const channelWidthPx = channel.width * 2; // Convert MHz to pixels
-
-                            // Calculate trapezoid points
-                            const topWidth = channelWidthPx * 0.8;
-
-                            // Draw trapezoid
-                            ctx.beginPath();
-                            // Left line
-                            ctx.moveTo(centerX - topWidth / 2, 0);
-                            ctx.lineTo(
-                                centerX - channelWidthPx / 2,
-                                chartSettings.channelHeight,
-                            );
-
-                            // Right line
-                            ctx.moveTo(centerX + topWidth / 2, 0);
-                            ctx.lineTo(
-                                centerX + channelWidthPx / 2,
-                                chartSettings.channelHeight,
-                            );
-
-                            // Top line
-                            ctx.moveTo(centerX - topWidth / 2, 0);
-                            ctx.lineTo(centerX + topWidth / 2, 0);
-
-                            ctx.strokeStyle = "#0066cc";
-                            ctx.lineWidth = 2;
-                            ctx.stroke();
-
-                            const labelSpacing = 15; // Spacing between labels
-                            let currentY =
-                                chartSettings.channelHeight +
-                                chartSettings.baselineOffset;
-
-                            // Draw channel number
-                            if (showChannels) {
-                                ctx.font = `${chartSettings.textSize}px Arial`;
-                                ctx.fillStyle = "black";
-                                ctx.textAlign = "center";
-                                ctx.fillText(
-                                    `${channel.channel}`,
-                                    centerX,
-                                    currentY,
-                                );
-                                currentY += labelSpacing;
-                            }
-
-                            // Draw frequency
-                            if (showFrequencies) {
-                                ctx.font = `${chartSettings.textSize}px Arial`;
-                                ctx.fillStyle = "black";
-                                ctx.textAlign = "center";
-                                ctx.fillText(
-                                    `${channel.frequency}`,
-                                    centerX,
-                                    currentY,
-                                );
-                            }
-                        });
-                    });
-
-                    ctx.restore();
-                    requestAnimationFrame(draw);
                 }
 
-                ctx.restore();
+                // Draw baseline
+                ctx.beginPath();
+                ctx.moveTo(mhzToScreenX(2400), canvas.height / 2);
+                ctx.lineTo(mhzToScreenX(7125), canvas.height / 2);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw all bands
+                ["2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
+                    const channels = wifiChannels[band];
+
+                    channels.forEach((channel) => {
+                        // Skip overlapping 2.4 GHz channels if not enabled
+                        if (band === "2.4 GHz" && !showOverlapping) {
+                            if (![1, 6, 11].includes(channel.channel)) {
+                                return;
+                            }
+                        }
+
+                        const centerX = mhzToScreenX(channel.frequency);
+                        const channelWidthScreen = channel.width * 2 * scale;
+                        const topWidth = channelWidthScreen * 0.8;
+                        const centerY = canvas.height / 2;
+
+                        // Draw ziggurat
+                        ctx.beginPath();
+                        ctx.moveTo(
+                            centerX - topWidth / 2,
+                            centerY - chartSettings.channelHeight,
+                        );
+                        ctx.lineTo(centerX - channelWidthScreen / 2, centerY);
+                        ctx.moveTo(
+                            centerX + topWidth / 2,
+                            centerY - chartSettings.channelHeight,
+                        );
+                        ctx.lineTo(centerX + channelWidthScreen / 2, centerY);
+                        ctx.moveTo(
+                            centerX - topWidth / 2,
+                            centerY - chartSettings.channelHeight,
+                        );
+                        ctx.lineTo(
+                            centerX + topWidth / 2,
+                            centerY - chartSettings.channelHeight,
+                        );
+                        ctx.strokeStyle = "#0066cc";
+                        ctx.lineWidth = 2;
+                        ctx.lineCap = "round";
+                        ctx.stroke();
+
+                        const labelSpacing = 15;
+                        let currentY = centerY + chartSettings.baselineOffset;
+
+                        // Draw channel number
+                        if (showChannels) {
+                            ctx.font = `${chartSettings.textSize}px Arial`;
+                            ctx.fillStyle = "black";
+                            ctx.textAlign = "center";
+                            ctx.fillText(
+                                `${channel.channel}`,
+                                centerX,
+                                currentY,
+                            );
+                            currentY += labelSpacing;
+                        }
+
+                        // Draw frequency
+                        if (showFrequencies) {
+                            ctx.font = `${chartSettings.textSize}px Arial`;
+                            ctx.fillStyle = "black";
+                            ctx.textAlign = "center";
+                            ctx.fillText(
+                                `${channel.frequency}`,
+                                centerX,
+                                currentY,
+                            );
+                        }
+                    });
+                });
+
                 requestAnimationFrame(draw);
             }
 
@@ -440,11 +388,11 @@
                 lastPosition = { x: e.clientX, y: e.clientY };
             });
 
+            // Mouse events for panning - restrict to horizontal only
             canvas.addEventListener("mousemove", (e) => {
                 if (isDragging) {
                     offset.x += e.clientX - lastPosition.x;
-                    offset.y += e.clientY - lastPosition.y;
-                    lastPosition = { x: e.clientX, y: e.clientY };
+                    lastPosition.x = e.clientX;
                 }
             });
 
@@ -467,32 +415,35 @@
                 }
             });
 
+            // For touch pinch zooming
             canvas.addEventListener("touchmove", (e) => {
-                // Handle pinch-to-zoom
                 if (e.touches.length === 2) {
                     const touch1 = e.touches[0];
                     const touch2 = e.touches[1];
-                    const currentDistance = Math.hypot(
+
+                    // Calculate center of pinch
+                    const pinchCenterX = (touch1.clientX + touch2.clientX) / 2;
+                    const rect = canvas.getBoundingClientRect();
+                    const centerX = pinchCenterX - rect.left - canvas.width / 2;
+
+                    // Calculate new scale based on pinch distance
+                    const currentDistance = Math.abs(
                         touch1.clientX - touch2.clientX,
-                        touch1.clientY - touch2.clientY,
                     );
 
                     if (lastPinchDistance) {
-                        const delta = currentDistance - lastPinchDistance;
-                        scale *= 1 + delta * 0.01;
-                        // Limit minimum and maximum zoom
+                        const oldScale = scale;
+                        scale *= currentDistance / lastPinchDistance;
                         scale = Math.min(Math.max(0.1, scale), 5);
+
+                        // Adjust offset to zoom towards pinch center
+                        offset.x -= centerX / oldScale - centerX / scale;
                     }
+
                     lastPinchDistance = currentDistance;
-                }
-                // Handle panning
-                else if (e.touches.length === 1 && isDragging) {
+                } else if (e.touches.length === 1 && isDragging) {
                     offset.x += e.touches[0].clientX - lastPosition.x;
-                    offset.y += e.touches[0].clientY - lastPosition.y;
-                    lastPosition = {
-                        x: e.touches[0].clientX,
-                        y: e.touches[0].clientY,
-                    };
+                    lastPosition.x = e.touches[0].clientX;
                 }
             });
 
@@ -501,20 +452,27 @@
                 lastPinchDistance = null;
             });
 
-            // Mouse wheel handling for both pan and zoom
-            let lastPinchDistance = null;
+            // For mouse wheel zooming
             canvas.addEventListener("wheel", (e) => {
                 e.preventDefault();
 
-                // Handle vertical scrolling as zoom
-                if (Math.abs(e.deltaY) > 0) {
-                    const zoomDelta = e.deltaY * -0.001;
-                    scale *= 1 + zoomDelta;
-                    scale = Math.min(Math.max(0.1, scale), 5);
+                if (e.deltaY !== 0) {
+                    // Calculate mouse position relative to canvas
+                    const rect = canvas.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left - canvas.width / 2;
+                    const mouseY = e.clientY - rect.top - canvas.height / 2; // Add this line
+
+                    // Calculate new scale
+                    const oldScale = scale;
+                    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                    scale = Math.min(Math.max(0.1, scale * zoomFactor), 5);
+
+                    // Adjust offset to zoom towards mouse position for both X and Y
+                    offset.x -= mouseX / oldScale - mouseX / scale;
+                    offset.y -= mouseY / oldScale - mouseY / scale; // Add this line
                 }
 
-                // Handle horizontal scrolling as pan
-                if (Math.abs(e.deltaX) > 0) {
+                if (e.deltaX !== 0) {
                     offset.x -= e.deltaX;
                 }
             });
@@ -549,6 +507,27 @@
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
                 });
+
+            heightSlider.addEventListener("input", (e) => {
+                chartSettings.channelHeight = parseInt(e.target.value);
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.code === "Space" && !isSpacebarDown) {
+                    isSpacebarDown = true;
+                    e.preventDefault();
+                    canvas.style.cursor = "grab";
+                }
+            });
+
+            document.addEventListener("keyup", (e) => {
+                if (e.code === "Space") {
+                    isSpacebarDown = false;
+                    canvas.style.cursor = "default";
+                    lockX = undefined;
+                    lockY = undefined;
+                }
+            });
 
             // Start the animation
             draw();

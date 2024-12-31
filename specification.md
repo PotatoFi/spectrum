@@ -50,14 +50,13 @@ This menu will give the user the ability to hide and show various layers.
   * Show channel markers
   * Show frequency markers
 
-# Milestones
+# To-Do
 
-## Milestone 1
-
-* Create and read from a simple JSON structure that defines 20 MHz Wi-Fi channels
-* Draw ziggurats for each 20 MHz channel
-* Pan horizontally, and zoom
-
-## Milestone 2
-
-* Zooming to a certain point shows subcarriers
+* Get zooming working correctly
+  * I need to write a function for each item to draw
+  * Call a main draw function, which calls all of the secondary item draw functions
+  * //then// do the various save, setTransform, stuff
+* Limit panning. The edge of the viewawble spectrum should not pan past the center of the screen.
+* Show subcarriers at a certain zoom level
+* Proper band labels
+* Proper secondary (UNII) band labels
