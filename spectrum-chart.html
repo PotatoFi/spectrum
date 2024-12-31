@@ -53,7 +53,7 @@
                 position: absolute;
                 right: 0;
                 background-color: white;
-                min-width: 200px;
+                min-width: 300px;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
                 border-radius: 8px;
                 padding: 10px;
@@ -72,6 +72,20 @@
             .dropdown-content label:hover {
                 background-color: #f0f0f0;
             }
+
+            .dropdown-content hr {
+                border: none;
+                height: 1px;
+                background-color: #ddd;
+                margin: 8px 0;
+            }
+
+            .dropdown-content h4 {
+                margin: 5px 0;
+                color: #666;
+                font-size: 12px;
+                padding: 0 5px;
+            }
         </style>
     </head>
     <body>
@@ -82,30 +96,61 @@
             <div class="controls-dropdown">
                 <button class="button" id="settings">⚙️</button>
                 <div class="dropdown-content">
+                    <h4>Wi-Fi</h4>
+                    <label
+                        ><input type="checkbox" id="show-wifi" checked />
+                        Wi-Fi</label
+                    >
                     <label
                         ><input type="checkbox" id="show-channels" checked />
-                        Show Channel Numbers</label
+                        Channel Numbers</label
                     >
                     <label
                         ><input type="checkbox" id="show-frequencies" checked />
-                        Show Center Frequencies</label
+                        Center Frequencies</label
                     >
                     <label
-                        ><input type="checkbox" id="show-overlapping" /> Show
+                        ><input type="checkbox" id="show-overlapping" /> 2.4 GHz
                         overlapping channels</label
                     >
+                    <h4>Bluetooth</h4>
                     <label
                         ><input type="checkbox" id="show-bluetooth" checked />
-                        Show Bluetooth Channels</label
+                        Bluetooth</label
                     >
+                    <label
+                        ><input type="checkbox" id="show-bluetooth-channels" />
+                        Channel Numbers</label
+                    >
+                    <label
+                        ><input
+                            type="checkbox"
+                            id="show-bluetooth-frequencies"
+                        />
+                        Center Frequencies</label
+                    >
+                    <h4>Zigbee</h4>
+                    <label
+                        ><input type="checkbox" id="show-zigbee" checked />
+                        Zigbee</label
+                    >
+                    <label
+                        ><input type="checkbox" id="show-zigbee-channels" />
+                        Channel Numbers</label
+                    >
+                    <label
+                        ><input type="checkbox" id="show-zigbee-frequencies" />
+                        Center Frequencies</label
+                    >
+                    <h4>General</h4>
                     <label>
                         Height:
                         <input
                             type="range"
                             id="height-slider"
                             min="20"
-                            max="200"
-                            value="80"
+                            max="400"
+                            value="100"
                         />
                     </label>
                 </div>
@@ -116,11 +161,22 @@
             const ctx = canvas.getContext("2d");
             const heightSlider = document.getElementById("height-slider");
 
-            // State variables
-            let showChannels = true;
-            let showFrequencies = true;
+            const minZoom = 0.2;
+            const maxZoom = 30;
+
+            // Setting state variables
+            let showWifi = true;
+            let showWifiChannels = true;
+            let showWifiFrequencies = true;
             let showOverlapping = false;
             let showBluetooth = true;
+            let showBluetoothChannels = false;
+            let showBluetoothFrequencies = false;
+            let showZigbee = true;
+            let showZigbeeChannels = false;
+            let showZigbeeFrequencies = false;
+
+            // Other variables
             let offset = { x: 0, y: 0 };
             let scale = 1;
             let isDragging = false;
@@ -131,10 +187,8 @@
 
             // Visual settings
             const chartSettings = {
-                channelWidth: 100,
-                channelHeight: 80, // Default height
-                baselineOffset: 20,
-                channelGap: 20, // I don't like that this is static
+                channelHeight: 100, // Default signature height
+                baselineOffset: 20, // Offsets the text below the baseline
                 textSize: 12,
             };
 
@@ -409,6 +463,7 @@
                 channel,
                 frequency,
                 style,
+                technology,
             ) {
                 const labelSpacing = 15;
                 let currentY = centerY + chartSettings.baselineOffset;
@@ -417,12 +472,21 @@
                 ctx.fillStyle = style.textColor || style.color;
                 ctx.textAlign = "center";
 
-                if (showChannels) {
+                // Check which labels to show based on technology
+                if (
+                    (technology === "wifi" && showWifiChannels) ||
+                    (technology === "bluetooth" && showBluetoothChannels) ||
+                    (technology === "zigbee" && showZigbeeChannels)
+                ) {
                     ctx.fillText(`${channel}`, centerX, currentY);
                     currentY += labelSpacing;
                 }
 
-                if (showFrequencies) {
+                if (
+                    (technology === "wifi" && showWifiFrequencies) ||
+                    (technology === "bluetooth" && showBluetoothFrequencies) ||
+                    (technology === "zigbee" && showZigbeeFrequencies)
+                ) {
                     ctx.fillText(`${frequency}`, centerX, currentY);
                 }
             }
@@ -434,7 +498,7 @@
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.channelHeight;
                 const style = {
-                    color: "red",
+                    color: "#339933",
                     lineWidth: 3,
                     textColor: "black",
                 };
@@ -447,6 +511,7 @@
                     channel.channel,
                     channel.frequency,
                     style,
+                    "wifi",
                 );
             }
 
@@ -456,9 +521,9 @@
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.channelHeight;
                 const style = {
-                    color: "blue",
-                    lineWidth: 1,
-                    textColor: "black",
+                    color: "#1486FC",
+                    lineWidth: 2,
+                    textColor: "#1486FC",
                 };
 
                 drawSignatureBase(centerX, centerY, width, height, style);
@@ -469,10 +534,33 @@
                     channel.channel,
                     channel.frequency,
                     style,
+                    "bluetooth",
                 );
             }
 
-            // In your draw function, modify the drawing calls:
+            function drawZigbeeChannel(channel, scale) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.channelHeight;
+                const style = {
+                    color: "#EF3453",
+                    lineWidth: 3,
+                    textColor: "#EF3453",
+                };
+
+                drawSignatureBase(centerX, centerY, width, height, style);
+                drawParabolaSignature(centerX, centerY, width, height);
+                drawChannelLabels(
+                    centerX,
+                    centerY,
+                    channel.channel,
+                    channel.frequency,
+                    style,
+                    "zigbee",
+                );
+            }
+
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -486,24 +574,33 @@
                 ctx.stroke();
 
                 // Draw WiFi channels
-                ["2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
-                    wifiChannels[band].forEach((channel) => {
-                        if (
-                            !(
-                                band === "2.4 GHz" &&
-                                channel.overlapping &&
-                                !showOverlapping
-                            )
-                        ) {
-                            drawWiFiChannel(channel, scale);
-                        }
+                if (showWifi) {
+                    ["2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
+                        wifiChannels[band].forEach((channel) => {
+                            if (
+                                !(
+                                    band === "2.4 GHz" &&
+                                    channel.overlapping &&
+                                    !showOverlapping
+                                )
+                            ) {
+                                drawWiFiChannel(channel, scale);
+                            }
+                        });
                     });
-                });
+                }
 
                 // Draw Bluetooth channels
                 if (showBluetooth) {
                     bluetoothChannels["2.4 GHz"].forEach((channel) => {
                         drawBluetoothChannel(channel, scale);
+                    });
+                }
+
+                // Draw Zigbee channels
+                if (showZigbee) {
+                    zigbeeChannels["2.4 GHz"].forEach((channel) => {
+                        drawZigbeeChannel(channel, scale);
                     });
                 }
 
@@ -562,7 +659,7 @@
                         const scaleChange = currentDistance / lastPinchDistance;
                         const oldScale = scale;
                         scale *= scaleChange;
-                        scale = Math.min(Math.max(0.1, scale), 5);
+                        scale = Math.min(Math.max(minZoom, scale), maxZoom);
 
                         // Adjust offset to zoom towards pinch center
                         const centerFreq = screenXToMhz(pinchCenterX);
@@ -594,7 +691,10 @@
                     // Calculate new scale
                     const oldScale = scale;
                     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-                    scale = Math.min(Math.max(0.1, scale * zoomFactor), 5);
+                    scale = Math.min(
+                        Math.max(minZoom, scale * zoomFactor),
+                        maxZoom,
+                    );
 
                     // Adjust offset to zoom towards mouse position
                     const newMouseX = mhzToScreenX(centerFreq);
@@ -611,7 +711,7 @@
                 const centerFreq = screenXToMhz(canvas.width / 2);
                 const oldScale = scale;
                 scale *= 1.2;
-                scale = Math.min(Math.max(0.1, scale), 5);
+                scale = Math.min(Math.max(minZoom, scale), maxZoom);
                 const newCenterX = mhzToScreenX(centerFreq);
                 offset.x += canvas.width / 2 - newCenterX;
             });
@@ -622,22 +722,29 @@
                     const centerFreq = screenXToMhz(canvas.width / 2);
                     const oldScale = scale;
                     scale *= 0.8;
-                    scale = Math.min(Math.max(0.1, scale), 5);
+                    scale = Math.min(Math.max(minZoom, scale), maxZoom);
                     const newCenterX = mhzToScreenX(centerFreq);
                     offset.x += canvas.width / 2 - newCenterX;
                 });
 
-            // Event listeners for checkboxes
+            // Wi-Fi Checkboxes
+
+            document
+                .getElementById("show-wifi")
+                .addEventListener("change", (e) => {
+                    showWifi = e.target.checked;
+                });
+
             document
                 .getElementById("show-channels")
                 .addEventListener("change", (e) => {
-                    showChannels = e.target.checked;
+                    showWifiChannels = e.target.checked;
                 });
 
             document
                 .getElementById("show-frequencies")
                 .addEventListener("change", (e) => {
-                    showFrequencies = e.target.checked;
+                    showWifiFrequencies = e.target.checked;
                 });
 
             document
@@ -646,11 +753,47 @@
                     showOverlapping = e.target.checked;
                 });
 
+            // Bluetooth checkboxes
+
             document
                 .getElementById("show-bluetooth")
                 .addEventListener("change", (e) => {
                     showBluetooth = e.target.checked;
                 });
+
+            document
+                .getElementById("show-bluetooth-channels")
+                .addEventListener("change", (e) => {
+                    showBluetoothChannels = e.target.checked;
+                });
+
+            document
+                .getElementById("show-bluetooth-frequencies")
+                .addEventListener("change", (e) => {
+                    showBluetoothFrequencies = e.target.checked;
+                });
+
+            // Zigbee checkboxes
+
+            document
+                .getElementById("show-zigbee")
+                .addEventListener("change", (e) => {
+                    showZigbee = e.target.checked;
+                });
+
+            document
+                .getElementById("show-zigbee-channels")
+                .addEventListener("change", (e) => {
+                    showZigbeeChannels = e.target.checked;
+                });
+
+            document
+                .getElementById("show-zigbee-frequencies")
+                .addEventListener("change", (e) => {
+                    showZigbeeFrequencies = e.target.checked;
+                });
+
+            // General
 
             heightSlider.addEventListener("input", (e) => {
                 chartSettings.channelHeight = parseInt(e.target.value);
