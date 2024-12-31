@@ -430,6 +430,14 @@
                 return canvas.height / 2;
             }
 
+            // Set the line thickenss depending in the scale
+            function getLineThickness(scale) {
+                if (scale < 0.5) return 0.5;
+                if (scale < 8) return 1;
+                if (scale < 16) return 2;
+                return 3;
+            }
+
             function drawSignatureBase(centerX, centerY, width, height, style) {
                 ctx.strokeStyle = style.color;
                 ctx.lineWidth = style.lineWidth || 2;
@@ -514,7 +522,7 @@
                 const height = chartSettings.channelHeight;
                 const style = {
                     color: "#339933",
-                    lineWidth: 3,
+                    lineWidth: getLineThickness(scale),
                     textColor: "black",
                 };
 
@@ -537,7 +545,7 @@
                 const height = chartSettings.channelHeight;
                 const style = {
                     color: "#1486FC",
-                    lineWidth: 2,
+                    lineWidth: getLineThickness(scale),
                     textColor: "#1486FC",
                 };
 
@@ -560,7 +568,7 @@
                 const height = chartSettings.channelHeight;
                 const style = {
                     color: "#EF3453",
-                    lineWidth: 3,
+                    lineWidth: getLineThickness(scale),
                     textColor: "#EF3453",
                 };
 
@@ -578,15 +586,6 @@
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Draw baseline
-                const baselineY = getBaselineY();
-                ctx.beginPath();
-                ctx.moveTo(mhzToScreenX(2400), baselineY);
-                ctx.lineTo(mhzToScreenX(7125), baselineY);
-                ctx.strokeStyle = "black";
-                ctx.lineWidth = 2;
-                ctx.stroke();
 
                 // Draw WiFi channels
                 if (showWifi) {
@@ -618,6 +617,15 @@
                         drawZigbeeChannel(channel, scale);
                     });
                 }
+
+                // Draw baseline
+                const baselineY = getBaselineY();
+                ctx.beginPath();
+                ctx.moveTo(mhzToScreenX(2400), baselineY);
+                ctx.lineTo(mhzToScreenX(7125), baselineY);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
 
                 requestAnimationFrame(draw);
             }
