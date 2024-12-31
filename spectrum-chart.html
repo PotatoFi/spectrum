@@ -92,7 +92,11 @@
                     >
                     <label
                         ><input type="checkbox" id="show-overlapping" /> Show
-                        Show overlapping channels</label
+                        overlapping channels</label
+                    >
+                    <label
+                        ><input type="checkbox" id="show-bluetooth" checked />
+                        Show Bluetooth Channels</label
                     >
                     <label>
                         Height:
@@ -116,6 +120,7 @@
             let showChannels = true;
             let showFrequencies = true;
             let showOverlapping = false;
+            let showBluetooth = true;
             let offset = { x: 0, y: 0 };
             let scale = 1;
             let isDragging = false;
@@ -131,6 +136,72 @@
                 baselineOffset: 20,
                 channelGap: 20, // I don't like that this is static
                 textSize: 12,
+            };
+
+            const zigbeeChannels = {
+                "2.4 GHz": [
+                    { channel: 11, frequency: 2405, width: 2 },
+                    { channel: 12, frequency: 2410, width: 2 },
+                    { channel: 13, frequency: 2415, width: 2 },
+                    { channel: 14, frequency: 2420, width: 2 },
+                    { channel: 15, frequency: 2425, width: 2 },
+                    { channel: 16, frequency: 2430, width: 2 },
+                    { channel: 17, frequency: 2435, width: 2 },
+                    { channel: 18, frequency: 2440, width: 2 },
+                    { channel: 19, frequency: 2445, width: 2 },
+                    { channel: 20, frequency: 2450, width: 2 },
+                    { channel: 21, frequency: 2455, width: 2 },
+                    { channel: 22, frequency: 2460, width: 2 },
+                    { channel: 23, frequency: 2465, width: 2 },
+                    { channel: 24, frequency: 2470, width: 2 },
+                    { channel: 25, frequency: 2475, width: 2 },
+                    { channel: 26, frequency: 2480, width: 2 },
+                ],
+            };
+
+            const bluetoothChannels = {
+                "2.4 GHz": [
+                    { channel: 0, frequency: 2402, width: 2 },
+                    { channel: 1, frequency: 2404, width: 2 },
+                    { channel: 2, frequency: 2406, width: 2 },
+                    { channel: 3, frequency: 2408, width: 2 },
+                    { channel: 4, frequency: 2410, width: 2 },
+                    { channel: 5, frequency: 2412, width: 2 },
+                    { channel: 6, frequency: 2414, width: 2 },
+                    { channel: 7, frequency: 2416, width: 2 },
+                    { channel: 8, frequency: 2418, width: 2 },
+                    { channel: 9, frequency: 2420, width: 2 },
+                    { channel: 10, frequency: 2422, width: 2 },
+                    { channel: 11, frequency: 2424, width: 2 },
+                    { channel: 12, frequency: 2426, width: 2 },
+                    { channel: 13, frequency: 2428, width: 2 },
+                    { channel: 14, frequency: 2430, width: 2 },
+                    { channel: 15, frequency: 2432, width: 2 },
+                    { channel: 16, frequency: 2434, width: 2 },
+                    { channel: 17, frequency: 2436, width: 2 },
+                    { channel: 18, frequency: 2438, width: 2 },
+                    { channel: 19, frequency: 2440, width: 2 },
+                    { channel: 20, frequency: 2442, width: 2 },
+                    { channel: 21, frequency: 2444, width: 2 },
+                    { channel: 22, frequency: 2446, width: 2 },
+                    { channel: 23, frequency: 2448, width: 2 },
+                    { channel: 24, frequency: 2450, width: 2 },
+                    { channel: 25, frequency: 2452, width: 2 },
+                    { channel: 26, frequency: 2454, width: 2 },
+                    { channel: 27, frequency: 2456, width: 2 },
+                    { channel: 28, frequency: 2458, width: 2 },
+                    { channel: 29, frequency: 2460, width: 2 },
+                    { channel: 30, frequency: 2462, width: 2 },
+                    { channel: 31, frequency: 2464, width: 2 },
+                    { channel: 32, frequency: 2466, width: 2 },
+                    { channel: 33, frequency: 2468, width: 2 },
+                    { channel: 34, frequency: 2470, width: 2 },
+                    { channel: 35, frequency: 2472, width: 2 },
+                    { channel: 36, frequency: 2474, width: 2 },
+                    { channel: 37, frequency: 2476, width: 2 },
+                    { channel: 38, frequency: 2478, width: 2 },
+                    { channel: 39, frequency: 2480, width: 2 },
+                ],
             };
 
             const wifiChannels = {
@@ -285,105 +356,156 @@
             resizeCanvas();
             window.addEventListener("resize", resizeCanvas);
 
-            // Drawing function
+            // Common drawing utilities
+            function getBaselineY() {
+                return canvas.height / 2;
+            }
+
+            function drawSignatureBase(centerX, centerY, width, height, style) {
+                ctx.strokeStyle = style.color;
+                ctx.lineWidth = style.lineWidth || 2;
+                ctx.lineCap = "round";
+            }
+
+            function drawZigguratSignature(centerX, centerY, width, height) {
+                const topWidth = width * 0.8;
+
+                ctx.beginPath();
+                // Left side
+                ctx.moveTo(centerX - topWidth / 2, centerY - height);
+                ctx.lineTo(centerX - width / 2, centerY);
+                // Right side
+                ctx.moveTo(centerX + topWidth / 2, centerY - height);
+                ctx.lineTo(centerX + width / 2, centerY);
+                // Top line
+                ctx.moveTo(centerX - topWidth / 2, centerY - height);
+                ctx.lineTo(centerX + topWidth / 2, centerY - height);
+                ctx.stroke();
+            }
+
+            function drawParabolaSignature(centerX, centerY, width, height) {
+                ctx.beginPath();
+                const points = 20;
+
+                // Start from the baseline
+                ctx.moveTo(centerX - width / 2, centerY);
+
+                // Draw parabola points
+                for (let i = 0; i <= points; i++) {
+                    const x = (i / points) * width - width / 2;
+                    // Simplified parabola equation that reaches exactly the same height
+                    const y = height * (1 - Math.pow((2 * x) / width, 2));
+                    ctx.lineTo(centerX + x, centerY - y);
+                }
+
+                // End at baseline
+                ctx.lineTo(centerX + width / 2, centerY);
+                ctx.stroke();
+            }
+
+            function drawChannelLabels(
+                centerX,
+                centerY,
+                channel,
+                frequency,
+                style,
+            ) {
+                const labelSpacing = 15;
+                let currentY = centerY + chartSettings.baselineOffset;
+
+                ctx.font = `${chartSettings.textSize}px Arial`;
+                ctx.fillStyle = style.textColor || style.color;
+                ctx.textAlign = "center";
+
+                if (showChannels) {
+                    ctx.fillText(`${channel}`, centerX, currentY);
+                    currentY += labelSpacing;
+                }
+
+                if (showFrequencies) {
+                    ctx.fillText(`${frequency}`, centerX, currentY);
+                }
+            }
+
+            // Technology-specific drawing functions
+            function drawWiFiChannel(channel, scale) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.channelHeight;
+                const style = {
+                    color: "red",
+                    lineWidth: 3,
+                    textColor: "black",
+                };
+
+                drawSignatureBase(centerX, centerY, width, height, style);
+                drawZigguratSignature(centerX, centerY, width, height);
+                drawChannelLabels(
+                    centerX,
+                    centerY,
+                    channel.channel,
+                    channel.frequency,
+                    style,
+                );
+            }
+
+            function drawBluetoothChannel(channel, scale) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.channelHeight;
+                const style = {
+                    color: "blue",
+                    lineWidth: 1,
+                    textColor: "black",
+                };
+
+                drawSignatureBase(centerX, centerY, width, height, style);
+                drawParabolaSignature(centerX, centerY, width, height);
+                drawChannelLabels(
+                    centerX,
+                    centerY,
+                    channel.channel,
+                    channel.frequency,
+                    style,
+                );
+            }
+
+            // In your draw function, modify the drawing calls:
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Convert MHz to screen pixels, taking zoom into account
-                function mhzToScreenX(mhz) {
-                    const pixelsPerMhz = 2 * scale;
-                    return (
-                        (mhz - 2400) * pixelsPerMhz +
-                        canvas.width / 2 +
-                        offset.x
-                    );
-                }
-
                 // Draw baseline
+                const baselineY = getBaselineY();
                 ctx.beginPath();
-                ctx.moveTo(mhzToScreenX(2400), canvas.height / 2);
-                ctx.lineTo(mhzToScreenX(7125), canvas.height / 2);
+                ctx.moveTo(mhzToScreenX(2400), baselineY);
+                ctx.lineTo(mhzToScreenX(7125), baselineY);
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Draw all bands
+                // Draw WiFi channels
                 ["2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
-                    const channels = wifiChannels[band];
-
-                    channels.forEach((channel) => {
-                        // Skip overlapping 2.4 GHz channels if not enabled
+                    wifiChannels[band].forEach((channel) => {
                         if (
-                            band === "2.4 GHz" &&
-                            channel.overlapping &&
-                            !showOverlapping
+                            !(
+                                band === "2.4 GHz" &&
+                                channel.overlapping &&
+                                !showOverlapping
+                            )
                         ) {
-                            // Changed the condition to check the overlapping property
-                            return;
-                        }
-
-                        const centerX = mhzToScreenX(channel.frequency);
-                        const channelWidthScreen = channel.width * 2 * scale;
-                        const topWidth = channelWidthScreen * 0.8;
-                        const centerY = canvas.height / 2;
-
-                        // Use chartSettings.channelHeight for the height
-                        const channelHeight = chartSettings.channelHeight; // Get current height setting
-
-                        // Draw ziggurat with dynamic height
-                        ctx.beginPath();
-                        ctx.moveTo(
-                            centerX - topWidth / 2,
-                            centerY - channelHeight,
-                        );
-                        ctx.lineTo(centerX - channelWidthScreen / 2, centerY);
-                        ctx.moveTo(
-                            centerX + topWidth / 2,
-                            centerY - channelHeight,
-                        );
-                        ctx.lineTo(centerX + channelWidthScreen / 2, centerY);
-                        ctx.moveTo(
-                            centerX - topWidth / 2,
-                            centerY - channelHeight,
-                        );
-                        ctx.lineTo(
-                            centerX + topWidth / 2,
-                            centerY - channelHeight,
-                        );
-                        ctx.strokeStyle = "#0066cc";
-                        ctx.lineWidth = 2;
-                        ctx.lineCap = "round";
-                        ctx.stroke();
-
-                        const labelSpacing = 15;
-                        let currentY = centerY + chartSettings.baselineOffset;
-
-                        // Draw channel number
-                        if (showChannels) {
-                            ctx.font = `${chartSettings.textSize}px Arial`;
-                            ctx.fillStyle = "black";
-                            ctx.textAlign = "center";
-                            ctx.fillText(
-                                `${channel.channel}`,
-                                centerX,
-                                currentY,
-                            );
-                            currentY += labelSpacing;
-                        }
-
-                        // Draw frequency
-                        if (showFrequencies) {
-                            ctx.font = `${chartSettings.textSize}px Arial`;
-                            ctx.fillStyle = "black";
-                            ctx.textAlign = "center";
-                            ctx.fillText(
-                                `${channel.frequency}`,
-                                centerX,
-                                currentY,
-                            );
+                            drawWiFiChannel(channel, scale);
                         }
                     });
                 });
+
+                // Draw Bluetooth channels
+                if (showBluetooth) {
+                    bluetoothChannels["2.4 GHz"].forEach((channel) => {
+                        drawBluetoothChannel(channel, scale);
+                    });
+                }
 
                 requestAnimationFrame(draw);
             }
@@ -522,6 +644,12 @@
                 .getElementById("show-overlapping")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
+                });
+
+            document
+                .getElementById("show-bluetooth")
+                .addEventListener("change", (e) => {
+                    showBluetooth = e.target.checked;
                 });
 
             heightSlider.addEventListener("input", (e) => {
