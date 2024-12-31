@@ -1,12 +1,26 @@
 <!doctype html>
 <html>
     <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
+            rel="stylesheet"
+        />
+
         <title>Spectrum Chart</title>
         <style>
             body {
                 margin: 0;
                 overflow: hidden;
                 touch-action: none;
+                font-family: "Quicksand", sans-serif;
+            }
+            * {
+                font-family: "Quicksand", sans-serif;
+                font-optical-sizing: auto;
+                font-weight: 500;
+                font-style: normal;
             }
             #canvas {
                 touch-action: none;
@@ -83,6 +97,7 @@
             .dropdown-content h4 {
                 margin: 5px 0;
                 color: #666;
+                font-weight: 700;
                 font-size: 12px;
                 padding: 0 5px;
             }
@@ -111,7 +126,7 @@
                     >
                     <label
                         ><input type="checkbox" id="show-overlapping" /> 2.4 GHz
-                        overlapping channels</label
+                        Overlapping Channels</label
                     >
                     <h4>Bluetooth</h4>
                     <label
@@ -468,7 +483,7 @@
                 const labelSpacing = 15;
                 let currentY = centerY + chartSettings.baselineOffset;
 
-                ctx.font = `${chartSettings.textSize}px Arial`;
+                ctx.font = `${chartSettings.textSize}px Quicksand`;
                 ctx.fillStyle = style.textColor || style.color;
                 ctx.textAlign = "center";
 

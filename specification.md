@@ -52,11 +52,12 @@ This menu will give the user the ability to hide and show various layers.
 
 # To-Do
 
-* Get zooming working correctly
-  * I need to write a function for each item to draw
-  * Call a main draw function, which calls all of the secondary item draw functions
-  * //then// do the various save, setTransform, stuff
+* Change signature line widths depending on zoom level
+* Add frequency markers
+* Add transparent fill to signatures
+* Refactor JSON - each technology should contain a group of channels with the same width
+* Stack labels correctly
 * Limit panning. The edge of the viewawble spectrum should not pan past the center of the screen.
 * Show subcarriers at a certain zoom level
-* Proper band labels
+* Implement primary band labels
 * Proper secondary (UNII) band labels
