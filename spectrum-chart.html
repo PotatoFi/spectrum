@@ -313,10 +313,13 @@
 
                     channels.forEach((channel) => {
                         // Skip overlapping 2.4 GHz channels if not enabled
-                        if (band === "2.4 GHz" && !showOverlapping) {
-                            if (![1, 6, 11].includes(channel.channel)) {
-                                return;
-                            }
+                        if (
+                            band === "2.4 GHz" &&
+                            channel.overlapping &&
+                            !showOverlapping
+                        ) {
+                            // Changed the condition to check the overlapping property
+                            return;
                         }
 
                         const centerX = mhzToScreenX(channel.frequency);
@@ -324,28 +327,31 @@
                         const topWidth = channelWidthScreen * 0.8;
                         const centerY = canvas.height / 2;
 
-                        // Draw ziggurat
+                        // Use chartSettings.channelHeight for the height
+                        const channelHeight = chartSettings.channelHeight; // Get current height setting
+
+                        // Draw ziggurat with dynamic height
                         ctx.beginPath();
                         ctx.moveTo(
                             centerX - topWidth / 2,
-                            centerY - chartSettings.channelHeight,
+                            centerY - channelHeight,
                         );
                         ctx.lineTo(centerX - channelWidthScreen / 2, centerY);
                         ctx.moveTo(
                             centerX + topWidth / 2,
-                            centerY - chartSettings.channelHeight,
+                            centerY - channelHeight,
                         );
                         ctx.lineTo(centerX + channelWidthScreen / 2, centerY);
                         ctx.moveTo(
                             centerX - topWidth / 2,
-                            centerY - chartSettings.channelHeight,
+                            centerY - channelHeight,
                         );
                         ctx.lineTo(
                             centerX + topWidth / 2,
-                            centerY - chartSettings.channelHeight,
+                            centerY - channelHeight,
                         );
-                        ctx.strokeStyle = "#00BFFF";
-                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = "#0066cc";
+                        ctx.lineWidth = 2;
                         ctx.lineCap = "round";
                         ctx.stroke();
 
@@ -388,7 +394,6 @@
                 lastPosition = { x: e.clientX, y: e.clientY };
             });
 
-            // Mouse events for panning - restrict to horizontal only
             canvas.addEventListener("mousemove", (e) => {
                 if (isDragging) {
                     offset.x += e.clientX - lastPosition.x;
@@ -404,7 +409,7 @@
                 isDragging = false;
             });
 
-            // Touch events for panning
+            // Touch events for panning and pinch zooming
             canvas.addEventListener("touchstart", (e) => {
                 if (e.touches.length === 1) {
                     isDragging = true;
@@ -415,9 +420,9 @@
                 }
             });
 
-            // For touch pinch zooming
             canvas.addEventListener("touchmove", (e) => {
                 if (e.touches.length === 2) {
+                    // Handle pinch zooming
                     const touch1 = e.touches[0];
                     const touch2 = e.touches[1];
 
@@ -432,12 +437,14 @@
                     );
 
                     if (lastPinchDistance) {
+                        const scaleChange = currentDistance / lastPinchDistance;
                         const oldScale = scale;
-                        scale *= currentDistance / lastPinchDistance;
+                        scale *= scaleChange;
                         scale = Math.min(Math.max(0.1, scale), 5);
 
                         // Adjust offset to zoom towards pinch center
-                        offset.x -= centerX / oldScale - centerX / scale;
+                        const centerFreq = screenXToMhz(pinchCenterX);
+                        offset.x = pinchCenterX - mhzToScreenX(centerFreq);
                     }
 
                     lastPinchDistance = currentDistance;
@@ -452,24 +459,24 @@
                 lastPinchDistance = null;
             });
 
-            // For mouse wheel zooming
+            // Mouse wheel zooming
             canvas.addEventListener("wheel", (e) => {
                 e.preventDefault();
 
                 if (e.deltaY !== 0) {
-                    // Calculate mouse position relative to canvas
+                    // Get mouse position and convert to frequency
                     const rect = canvas.getBoundingClientRect();
-                    const mouseX = e.clientX - rect.left - canvas.width / 2;
-                    const mouseY = e.clientY - rect.top - canvas.height / 2; // Add this line
+                    const mouseX = e.clientX - rect.left;
+                    const centerFreq = screenXToMhz(mouseX);
 
                     // Calculate new scale
                     const oldScale = scale;
                     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
                     scale = Math.min(Math.max(0.1, scale * zoomFactor), 5);
 
-                    // Adjust offset to zoom towards mouse position for both X and Y
-                    offset.x -= mouseX / oldScale - mouseX / scale;
-                    offset.y -= mouseY / oldScale - mouseY / scale; // Add this line
+                    // Adjust offset to zoom towards mouse position
+                    const newMouseX = mhzToScreenX(centerFreq);
+                    offset.x += mouseX - newMouseX;
                 }
 
                 if (e.deltaX !== 0) {
@@ -477,19 +484,28 @@
                 }
             });
 
-            // Zoom button controls
+            // Zoom buttons
             document.getElementById("zoom-in").addEventListener("click", () => {
+                const centerFreq = screenXToMhz(canvas.width / 2);
+                const oldScale = scale;
                 scale *= 1.2;
                 scale = Math.min(Math.max(0.1, scale), 5);
+                const newCenterX = mhzToScreenX(centerFreq);
+                offset.x += canvas.width / 2 - newCenterX;
             });
 
             document
                 .getElementById("zoom-minus")
                 .addEventListener("click", () => {
+                    const centerFreq = screenXToMhz(canvas.width / 2);
+                    const oldScale = scale;
                     scale *= 0.8;
                     scale = Math.min(Math.max(0.1, scale), 5);
+                    const newCenterX = mhzToScreenX(centerFreq);
+                    offset.x += canvas.width / 2 - newCenterX;
                 });
 
+            // Event listeners for checkboxes
             document
                 .getElementById("show-channels")
                 .addEventListener("change", (e) => {
@@ -512,22 +528,21 @@
                 chartSettings.channelHeight = parseInt(e.target.value);
             });
 
-            document.addEventListener("keydown", (e) => {
-                if (e.code === "Space" && !isSpacebarDown) {
-                    isSpacebarDown = true;
-                    e.preventDefault();
-                    canvas.style.cursor = "grab";
-                }
-            });
+            // Helper functions for coordinate conversion
+            function mhzToScreenX(mhz) {
+                const pixelsPerMhz = 2 * scale;
+                return (
+                    (mhz - 2400) * pixelsPerMhz + canvas.width / 2 + offset.x
+                );
+            }
 
-            document.addEventListener("keyup", (e) => {
-                if (e.code === "Space") {
-                    isSpacebarDown = false;
-                    canvas.style.cursor = "default";
-                    lockX = undefined;
-                    lockY = undefined;
-                }
-            });
+            function screenXToMhz(screenX) {
+                const pixelsPerMhz = 2 * scale;
+                return (
+                    (screenX - canvas.width / 2 - offset.x) / pixelsPerMhz +
+                    2400
+                );
+            }
 
             // Start the animation
             draw();
