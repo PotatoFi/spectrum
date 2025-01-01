@@ -218,6 +218,7 @@
             let isSpacebarDown = false;
             let lockX, lockY;
             let lastScale = scale; // For scale tuning purposes
+            const labelPositions = new Map(); // Tracks positions of labels for each x-coordinate
 
             // Movement variables (incomplete, there are some above)
             let scrollDirection = null;
@@ -231,6 +232,19 @@
                 baselineOffset: 20, // Offsets the text below the baseline
                 textSize: 12,
             };
+
+            const LABEL_ROWS = {
+                FREQUENCY_MARKERS: 0,
+                WIFI_CHANNEL: 1,
+                WIFI_FREQ: 2,
+                BLUETOOTH_CHANNEL: 3,
+                BLUETOOTH_FREQ: 4,
+                ZIGBEE_CHANNEL: 5,
+                ZIGBEE_FREQ: 6,
+            };
+
+            const LABEL_SPACING = 20; // vertical spacing between labels
+            const BASE_LABEL_OFFSET = 20; // initial offset from baseline
 
             // Zoom teirs
             const zoomTiers = {
@@ -592,29 +606,51 @@
                 style,
                 technology,
             ) {
-                const labelSpacing = 15;
-                let currentY = centerY + chartSettings.baselineOffset;
+                let channelRow, frequencyRow;
 
-                ctx.font = `${chartSettings.textSize}px Quicksand`;
-                ctx.fillStyle = style.textColor || style.color;
-                ctx.textAlign = "center";
+                switch (technology) {
+                    case "wifi":
+                        channelRow = LABEL_ROWS.WIFI_CHANNEL;
+                        frequencyRow = LABEL_ROWS.WIFI_FREQ;
+                        break;
+                    case "bluetooth":
+                        channelRow = LABEL_ROWS.BLUETOOTH_CHANNEL;
+                        frequencyRow = LABEL_ROWS.BLUETOOTH_FREQ;
+                        break;
+                    case "zigbee":
+                        channelRow = LABEL_ROWS.ZIGBEE_CHANNEL;
+                        frequencyRow = LABEL_ROWS.ZIGBEE_FREQ;
+                        break;
+                }
 
-                // Check which labels to show based on technology
+                // Draw channel number if enabled
                 if (
                     (technology === "wifi" && showWifiChannels) ||
                     (technology === "bluetooth" && showBluetoothChannels) ||
                     (technology === "zigbee" && showZigbeeChannels)
                 ) {
-                    ctx.fillText(`${channel}`, centerX, currentY);
-                    currentY += labelSpacing;
+                    drawLabel(
+                        centerX,
+                        centerY,
+                        `${channel}`,
+                        channelRow,
+                        style.textColor || style.color,
+                    );
                 }
 
+                // Draw frequency if enabled
                 if (
                     (technology === "wifi" && showWifiFrequencies) ||
                     (technology === "bluetooth" && showBluetoothFrequencies) ||
                     (technology === "zigbee" && showZigbeeFrequencies)
                 ) {
-                    ctx.fillText(`${frequency}`, centerX, currentY);
+                    drawLabel(
+                        centerX,
+                        centerY,
+                        `${frequency}`,
+                        frequencyRow,
+                        style.textColor || style.color,
+                    );
                 }
             }
 
@@ -705,7 +741,6 @@
                 const config = tier.frequency;
                 const baselineY = getBaselineY();
 
-                // Clamp the viewport start and end to the allowed range
                 viewportStart = Math.max(0, Math.min(8000, viewportStart));
                 viewportEnd = Math.max(0, Math.min(8000, viewportEnd));
 
@@ -724,17 +759,25 @@
                     freq <= endFreq;
                     freq += config.step
                 ) {
-                    // Only draw if within allowed range
                     if (freq >= 0 && freq <= 8000) {
                         const x = mhzToScreenX(freq);
 
+                        // Draw tick mark
                         ctx.moveTo(x, baselineY);
                         ctx.lineTo(x, baselineY + 10);
 
+                        // Draw frequency label using the label system
                         const label = config.showAsGHz
                             ? `${(freq / 1000).toFixed(config.ghzDecimals)} GHz`
                             : `${freq} MHz`;
-                        ctx.fillText(label, x, baselineY + 25);
+
+                        drawLabel(
+                            x,
+                            baselineY,
+                            label,
+                            LABEL_ROWS.FREQUENCY_MARKERS,
+                            "#666666",
+                        );
 
                         // Draw minor ticks
                         for (
@@ -750,7 +793,6 @@
                         }
                     }
                 }
-
                 ctx.stroke();
             }
 
@@ -824,7 +866,9 @@
             }
 
             function draw() {
+                // Clear the canvas and label positions
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                labelPositions.clear(); // Add this line
 
                 // Draw WiFi channels
                 if (showWifi) {
@@ -857,7 +901,6 @@
                     });
                 }
 
-                // Draw baseline
                 // Draw baseline
                 const baselineY = getBaselineY();
                 ctx.beginPath();
@@ -893,7 +936,6 @@
             canvas.addEventListener("mousemove", (e) => {
                 if (isDragging) {
                     offset.x += e.clientX - lastPosition.x;
-                    constrainCanvas();
                     lastPosition.x = e.clientX;
                 }
             });
@@ -1149,26 +1191,10 @@
                 return Math.max(0, Math.min(8000, freq));
             }
 
-            // Constrain the canvas
-            function constrainCanvas() {
-                const totalWidth = (8000 - 0) * 2 * scale;
-                const maxPan = totalWidth / 2 - canvas.width / 2;
-
-                // Add damping when approaching limits
-                const dampingZone = 100; // pixels from the edge where damping starts
-                const currentOffset = offset.x;
-
-                if (Math.abs(currentOffset) > maxPan - dampingZone) {
-                    const excess =
-                        Math.abs(currentOffset) - (maxPan - dampingZone);
-                    const damping = 1 - excess / dampingZone;
-                    offset.x =
-                        Math.sign(currentOffset) *
-                        (maxPan - dampingZone + excess * damping);
-                }
-
-                // Final hard limit
-                offset.x = Math.max(-maxPan, Math.min(maxPan, offset.x));
+            function drawLabel(x, baselineY, text, row, color) {
+                const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
+                ctx.fillStyle = color;
+                ctx.fillText(text, x, y);
             }
 
             // Start the animation
