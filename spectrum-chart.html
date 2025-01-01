@@ -159,6 +159,21 @@
                     >
                     <h4>General</h4>
                     <label>
+                        <input type="checkbox" id="show-band-labels" checked />
+                        Show Band Labels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-subbands" checked />
+                        Show Sub-Band Labels
+                    </label>
+                    <label>
+                        <input type="radio" name="domain" value="FCC" checked />
+                        FCC
+                    </label>
+                    <label>
+                        <input type="radio" name="domain" value="ETSI" /> ETSI
+                    </label>
+                    <label>
                         Height:
                         <input
                             type="range"
@@ -190,6 +205,9 @@
             let showZigbee = true;
             let showZigbeeChannels = false;
             let showZigbeeFrequencies = false;
+            let showBandLabels = true;
+            let showSubbands = true;
+            let selectedDomain = "FCC";
 
             // Other variables
             let offset = { x: 0, y: 0 };
@@ -206,6 +224,23 @@
                 baselineOffset: 20, // Offsets the text below the baseline
                 textSize: 12,
             };
+
+            const bands = [
+                { name: "2.4 GHz", start: 2400, stop: 2500 },
+                { name: "5 GHz", start: 5170, stop: 5835 },
+                { name: "6 GHz", start: 5925, stop: 7125 },
+            ];
+
+            const subBands = [
+                { domain: "FCC", name: "UNII-1", start: 5150, stop: 5250 },
+                { domain: "FCC", name: "UNII-2", start: 5250, stop: 5350 },
+                { domain: "FCC", name: "UNII-2e", start: 5470, stop: 5725 },
+                { domain: "FCC", name: "UNII-3", start: 5725, stop: 5850 },
+                { domain: "FCC", name: "UNII-4", start: 5850, stop: 5925 },
+                { domain: "ETSI", name: "Band A", start: 5150, stop: 5350 },
+                { domain: "ETSI", name: "Band B", start: 5470, stop: 5725 },
+                { domain: "ETSI", name: "Band C", start: 5725, stop: 5875 },
+            ];
 
             const zigbeeChannels = {
                 "2.4 GHz": [
@@ -514,6 +549,83 @@
                 }
             }
 
+            function drawBandLabels() {
+                if (!showBandLabels) return;
+
+                const labelHeight = 32;
+                const yPosition =
+                    getBaselineY() -
+                    chartSettings.channelHeight -
+                    labelHeight -
+                    10;
+
+                ctx.font = "14px Quicksand";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                bands.forEach((band) => {
+                    const startX = mhzToScreenX(band.start);
+                    const stopX = mhzToScreenX(band.stop);
+                    const width = stopX - startX;
+                    const centerX = startX + width / 2;
+
+                    // Draw rectangle with rounded corners
+                    ctx.beginPath();
+                    ctx.roundRect(startX, yPosition, width, labelHeight, 6);
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+                    ctx.fill();
+
+                    // Draw text
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+                    ctx.fillText(
+                        band.name,
+                        centerX,
+                        yPosition + labelHeight / 2,
+                    );
+                });
+            }
+
+            function drawSubbandLabels() {
+                if (!showSubbands) return;
+
+                const labelHeight = 32;
+                const yPosition =
+                    getBaselineY() -
+                    chartSettings.channelHeight -
+                    labelHeight * 2 -
+                    20; // Position above band labels
+
+                ctx.font = "14px Quicksand";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                // Filter sub-bands for selected domain
+                const relevantSubBands = subBands.filter(
+                    (band) => band.domain === selectedDomain,
+                );
+
+                relevantSubBands.forEach((band) => {
+                    const startX = mhzToScreenX(band.start);
+                    const stopX = mhzToScreenX(band.stop);
+                    const width = stopX - startX;
+                    const centerX = startX + width / 2;
+
+                    // Draw rectangle with rounded corners
+                    ctx.beginPath();
+                    ctx.roundRect(startX, yPosition, width, labelHeight, 6);
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                    ctx.fill();
+
+                    // Draw text
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+                    ctx.fillText(
+                        band.name,
+                        centerX,
+                        yPosition + labelHeight / 2,
+                    );
+                });
+            }
+
             // Technology-specific drawing functions
             function drawWiFiChannel(channel, scale) {
                 const centerX = mhzToScreenX(channel.frequency);
@@ -626,6 +738,10 @@
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = 2;
                 ctx.stroke();
+
+                // Draw band labels
+                drawBandLabels();
+                drawSubbandLabels();
 
                 requestAnimationFrame(draw);
             }
@@ -817,6 +933,25 @@
                 });
 
             // General
+            document
+                .getElementById("show-band-labels")
+                .addEventListener("change", (e) => {
+                    showBandLabels = e.target.checked;
+                });
+
+            document
+                .getElementById("show-subbands")
+                .addEventListener("change", (e) => {
+                    showSubbands = e.target.checked;
+                });
+
+            document
+                .querySelectorAll('input[name="domain"]')
+                .forEach((radio) => {
+                    radio.addEventListener("change", (e) => {
+                        selectedDomain = e.target.value;
+                    });
+                });
 
             heightSlider.addEventListener("input", (e) => {
                 chartSettings.channelHeight = parseInt(e.target.value);
