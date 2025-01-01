@@ -50,14 +50,16 @@ This menu will give the user the ability to hide and show various layers.
   * Show channel markers
   * Show frequency markers
 
+
+# Mouseover inspector
+
+As the user mouses over, draw a vertical line. Above the vertical line, show the current frequency. Snap to the edges and centers of signatures.
+
 # To-Do
 
-* Change signature line widths depending on zoom level
-* Add frequency markers
+* Only draw line and ticks from 0 to 8000 MHz
 * Add transparent fill to signatures
 * Refactor JSON - each technology should contain a group of channels with the same width
 * Stack labels correctly
 * Limit panning. The edge of the viewawble spectrum should not pan past the center of the screen.
 * Show subcarriers at a certain zoom level
-* Implement primary band labels
-* Proper secondary (UNII) band labels

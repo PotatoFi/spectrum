@@ -217,6 +217,7 @@
             let lastPinchDistance = null;
             let isSpacebarDown = false;
             let lockX, lockY;
+            let lastScale = scale; // For scale tuning purposes
 
             // Movement variables (incomplete, there are some above)
             let scrollDirection = null;
@@ -229,6 +230,70 @@
                 channelHeight: 100, // Default signature height
                 baselineOffset: 20, // Offsets the text below the baseline
                 textSize: 12,
+            };
+
+            // Zoom teirs
+            const zoomTiers = {
+                lowest: {
+                    threshold: 0.25,
+                    lineWidth: 0.5,
+                    frequency: {
+                        step: 1000,
+                        minorSteps: 250,
+                        showAsGHz: true,
+                        ghzDecimals: 0,
+                    },
+                },
+                low: {
+                    threshold: 1,
+                    lineWidth: 1,
+                    frequency: {
+                        step: 500,
+                        minorSteps: 100,
+                        showAsGHz: true,
+                        ghzDecimals: 1,
+                    },
+                },
+                medium: {
+                    threshold: 2,
+                    lineWidth: 1,
+                    frequency: {
+                        step: 100,
+                        minorSteps: 50,
+                        showAsGHz: true,
+                        ghzDecimals: 1,
+                    },
+                },
+                high: {
+                    threshold: 10,
+                    lineWidth: 2,
+                    frequency: {
+                        step: 20,
+                        minorSteps: 10,
+                        showAsGHz: false,
+                        ghzDecimals: 2,
+                    },
+                },
+                highest: {
+                    threshold: 20,
+                    lineWidth: 3,
+                    frequency: {
+                        step: 10,
+                        minorSteps: 1,
+                        showAsGHz: false,
+                        ghzDecimals: 3,
+                    },
+                },
+                infinity: {
+                    threshold: Infinity,
+                    lineWidth: 3,
+                    frequency: {
+                        step: 2,
+                        minorSteps: 1,
+                        showAsGHz: false,
+                        ghzDecimals: 0,
+                    },
+                },
             };
 
             const bands = [
@@ -471,12 +536,10 @@
                 return canvas.height / 2;
             }
 
-            // Set the line thickenss depending in the scale
-            function getLineThickness(scale) {
-                if (scale < 0.5) return 0.5;
-                if (scale < 8) return 1;
-                if (scale < 16) return 2;
-                return 3;
+            function getZoomTier(scale) {
+                return Object.values(zoomTiers).find(
+                    (tier) => scale < tier.threshold,
+                );
             }
 
             function drawSignatureBase(centerX, centerY, width, height, style) {
@@ -632,7 +695,56 @@
                 });
             }
 
-            // Technology-specific drawing functions
+            function drawFrequencyMarkers(
+                ctx,
+                scale,
+                viewportStart,
+                viewportEnd,
+            ) {
+                const tier = getZoomTier(scale);
+                const config = tier.frequency;
+                const baselineY = getBaselineY();
+
+                // Rest of the function remains the same
+                const startFreq =
+                    Math.floor(viewportStart / config.step) * config.step;
+                const endFreq =
+                    Math.ceil(viewportEnd / config.step) * config.step;
+
+                ctx.beginPath();
+                ctx.strokeStyle = "#666666";
+                ctx.fillStyle = "#666666";
+                ctx.textAlign = "center";
+
+                for (
+                    let freq = startFreq;
+                    freq <= endFreq;
+                    freq += config.step
+                ) {
+                    const x = mhzToScreenX(freq);
+
+                    ctx.moveTo(x, baselineY);
+                    ctx.lineTo(x, baselineY + 10);
+
+                    const label = config.showAsGHz
+                        ? `${(freq / 1000).toFixed(config.ghzDecimals)} GHz`
+                        : `${freq} MHz`;
+                    ctx.fillText(label, x, baselineY + 25);
+
+                    for (
+                        let minorFreq = freq + config.minorSteps;
+                        minorFreq < freq + config.step;
+                        minorFreq += config.minorSteps
+                    ) {
+                        const minorX = mhzToScreenX(minorFreq);
+                        ctx.moveTo(minorX, baselineY);
+                        ctx.lineTo(minorX, baselineY + 5);
+                    }
+                }
+
+                ctx.stroke();
+            }
+
             function drawWiFiChannel(channel, scale) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
@@ -640,7 +752,7 @@
                 const height = chartSettings.channelHeight;
                 const style = {
                     color: "#339933",
-                    lineWidth: getLineThickness(scale),
+                    lineWidth: getZoomTier(scale).lineWidth,
                     textColor: "black",
                 };
 
@@ -663,7 +775,7 @@
                 const height = chartSettings.channelHeight;
                 const style = {
                     color: "#1486FC",
-                    lineWidth: getLineThickness(scale),
+                    lineWidth: getZoomTier(scale).lineWidth,
                     textColor: "#1486FC",
                 };
 
@@ -686,7 +798,7 @@
                 const height = chartSettings.channelHeight;
                 const style = {
                     color: "#EF3453",
-                    lineWidth: getLineThickness(scale),
+                    lineWidth: getZoomTier(scale).lineWidth,
                     textColor: "#EF3453",
                 };
 
@@ -744,6 +856,14 @@
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = 2;
                 ctx.stroke();
+
+                // Draw frequency markers
+                drawFrequencyMarkers(
+                    ctx,
+                    scale,
+                    screenXToMhz(0),
+                    screenXToMhz(canvas.width),
+                );
 
                 // Draw band labels
                 drawBandLabels();
@@ -872,6 +992,19 @@
                 } else if (scrollDirection === "horizontal") {
                     // Pan logic
                     offset.x -= e.deltaX;
+                }
+
+                // For scale tier tuning purposes
+                if (scale !== lastScale) {
+                    const tier = getZoomTier(scale);
+                    const tierName = Object.keys(zoomTiers).find(
+                        (key) => zoomTiers[key] === tier,
+                    );
+                    console.log(
+                        `Scale: ${scale.toFixed(2)}, Tier: ${tierName}`,
+                        tier,
+                    );
+                    lastScale = scale;
                 }
             });
 
