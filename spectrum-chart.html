@@ -705,7 +705,10 @@
                 const config = tier.frequency;
                 const baselineY = getBaselineY();
 
-                // Rest of the function remains the same
+                // Clamp the viewport start and end to the allowed range
+                viewportStart = Math.max(0, Math.min(8000, viewportStart));
+                viewportEnd = Math.max(0, Math.min(8000, viewportEnd));
+
                 const startFreq =
                     Math.floor(viewportStart / config.step) * config.step;
                 const endFreq =
@@ -721,24 +724,30 @@
                     freq <= endFreq;
                     freq += config.step
                 ) {
-                    const x = mhzToScreenX(freq);
+                    // Only draw if within allowed range
+                    if (freq >= 0 && freq <= 8000) {
+                        const x = mhzToScreenX(freq);
 
-                    ctx.moveTo(x, baselineY);
-                    ctx.lineTo(x, baselineY + 10);
+                        ctx.moveTo(x, baselineY);
+                        ctx.lineTo(x, baselineY + 10);
 
-                    const label = config.showAsGHz
-                        ? `${(freq / 1000).toFixed(config.ghzDecimals)} GHz`
-                        : `${freq} MHz`;
-                    ctx.fillText(label, x, baselineY + 25);
+                        const label = config.showAsGHz
+                            ? `${(freq / 1000).toFixed(config.ghzDecimals)} GHz`
+                            : `${freq} MHz`;
+                        ctx.fillText(label, x, baselineY + 25);
 
-                    for (
-                        let minorFreq = freq + config.minorSteps;
-                        minorFreq < freq + config.step;
-                        minorFreq += config.minorSteps
-                    ) {
-                        const minorX = mhzToScreenX(minorFreq);
-                        ctx.moveTo(minorX, baselineY);
-                        ctx.lineTo(minorX, baselineY + 5);
+                        // Draw minor ticks
+                        for (
+                            let minorFreq = freq + config.minorSteps;
+                            minorFreq < freq + config.step && minorFreq <= 8000;
+                            minorFreq += config.minorSteps
+                        ) {
+                            if (minorFreq >= 0) {
+                                const minorX = mhzToScreenX(minorFreq);
+                                ctx.moveTo(minorX, baselineY);
+                                ctx.lineTo(minorX, baselineY + 5);
+                            }
+                        }
                     }
                 }
 
@@ -849,10 +858,13 @@
                 }
 
                 // Draw baseline
+                // Draw baseline
                 const baselineY = getBaselineY();
                 ctx.beginPath();
-                ctx.moveTo(mhzToScreenX(2400), baselineY);
-                ctx.lineTo(mhzToScreenX(7125), baselineY);
+                const startX = mhzToScreenX(0);
+                const endX = mhzToScreenX(8000);
+                ctx.moveTo(startX, baselineY);
+                ctx.lineTo(endX, baselineY);
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = 2;
                 ctx.stroke();
@@ -881,6 +893,7 @@
             canvas.addEventListener("mousemove", (e) => {
                 if (isDragging) {
                     offset.x += e.clientX - lastPosition.x;
+                    constrainCanvas();
                     lastPosition.x = e.clientX;
                 }
             });
@@ -1130,10 +1143,32 @@
 
             function screenXToMhz(screenX) {
                 const pixelsPerMhz = 2 * scale;
-                return (
+                const freq =
                     (screenX - canvas.width / 2 - offset.x) / pixelsPerMhz +
-                    2400
-                );
+                    2400;
+                return Math.max(0, Math.min(8000, freq));
+            }
+
+            // Constrain the canvas
+            function constrainCanvas() {
+                const totalWidth = (8000 - 0) * 2 * scale;
+                const maxPan = totalWidth / 2 - canvas.width / 2;
+
+                // Add damping when approaching limits
+                const dampingZone = 100; // pixels from the edge where damping starts
+                const currentOffset = offset.x;
+
+                if (Math.abs(currentOffset) > maxPan - dampingZone) {
+                    const excess =
+                        Math.abs(currentOffset) - (maxPan - dampingZone);
+                    const damping = 1 - excess / dampingZone;
+                    offset.x =
+                        Math.sign(currentOffset) *
+                        (maxPan - dampingZone + excess * damping);
+                }
+
+                // Final hard limit
+                offset.x = Math.max(-maxPan, Math.min(maxPan, offset.x));
             }
 
             // Start the animation
