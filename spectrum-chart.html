@@ -146,7 +146,7 @@
                     >
                     <h4>Zigbee</h4>
                     <label
-                        ><input type="checkbox" id="show-zigbee" checked />
+                        ><input type="checkbox" id="show-zigbee" />
                         Zigbee</label
                     >
                     <label
@@ -202,7 +202,7 @@
             let showBluetooth = true;
             let showBluetoothChannels = false;
             let showBluetoothFrequencies = false;
-            let showZigbee = true;
+            let showZigbee = false;
             let showZigbeeChannels = false;
             let showZigbeeFrequencies = false;
             let showBandLabels = true;
@@ -246,7 +246,7 @@
             const LABEL_SPACING = 20; // vertical spacing between labels
             const BASE_LABEL_OFFSET = 20; // initial offset from baseline
 
-            // Zoom teirs
+            // Zoom tiers
             const zoomTiers = {
                 lowest: {
                     threshold: 0.25,
@@ -311,6 +311,8 @@
             };
 
             const bands = [
+                { name: "900 MHz", start: 902, stop: 928 },
+                { name: "CBRS", start: 3550, stop: 3700 },
                 { name: "2.4 GHz", start: 2400, stop: 2500 },
                 { name: "5 GHz", start: 5170, stop: 5835 },
                 { name: "6 GHz", start: 5925, stop: 7125 },
