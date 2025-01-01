@@ -211,7 +211,7 @@
 
             // Other variables
             let offset = { x: 0, y: 0 };
-            let scale = 1;
+            let scale = 8;
             let isDragging = false;
             let lastPosition = { x: 0, y: 0 };
             let lastPinchDistance = null;
@@ -562,10 +562,28 @@
                 ctx.lineCap = "round";
             }
 
-            function drawZigguratSignature(centerX, centerY, width, height) {
+            function drawZigguratSignature(
+                centerX,
+                centerY,
+                width,
+                height,
+                lineColor,
+                fillColor,
+            ) {
                 const topWidth = width * 0.8;
 
+                // Draw fill first
                 ctx.beginPath();
+                ctx.moveTo(centerX - width / 2, centerY); // Start at bottom left
+                ctx.lineTo(centerX - topWidth / 2, centerY - height); // Up to top left
+                ctx.lineTo(centerX + topWidth / 2, centerY - height); // Across top
+                ctx.lineTo(centerX + width / 2, centerY); // Down to bottom right
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+
+                // Draw outline (without bottom line)
+                ctx.beginPath();
+                ctx.strokeStyle = lineColor;
                 // Left side
                 ctx.moveTo(centerX - topWidth / 2, centerY - height);
                 ctx.lineTo(centerX - width / 2, centerY);
@@ -578,23 +596,44 @@
                 ctx.stroke();
             }
 
-            function drawParabolaSignature(centerX, centerY, width, height) {
-                ctx.beginPath();
+            function drawParabolaSignature(
+                centerX,
+                centerY,
+                width,
+                height,
+                lineColor,
+                fillColor,
+            ) {
                 const points = 20;
 
-                // Start from the baseline
-                ctx.moveTo(centerX - width / 2, centerY);
+                // Draw fill first
+                ctx.beginPath();
+                ctx.moveTo(centerX - width / 2, centerY); // Start at bottom left
 
                 // Draw parabola points
                 for (let i = 0; i <= points; i++) {
                     const x = (i / points) * width - width / 2;
-                    // Simplified parabola equation that reaches exactly the same height
                     const y = height * (1 - Math.pow((2 * x) / width, 2));
                     ctx.lineTo(centerX + x, centerY - y);
                 }
 
-                // End at baseline
-                ctx.lineTo(centerX + width / 2, centerY);
+                ctx.lineTo(centerX + width / 2, centerY); // To bottom right
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+
+                // Draw outline (without bottom line)
+                ctx.beginPath();
+                ctx.strokeStyle = lineColor;
+                // Draw parabola curve only
+                for (let i = 0; i <= points; i++) {
+                    const x = (i / points) * width - width / 2;
+                    const y = height * (1 - Math.pow((2 * x) / width, 2));
+                    if (i === 0) {
+                        ctx.moveTo(centerX + x, centerY - y);
+                    } else {
+                        ctx.lineTo(centerX + x, centerY - y);
+                    }
+                }
                 ctx.stroke();
             }
 
@@ -802,13 +841,21 @@
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.channelHeight;
                 const style = {
-                    color: "#339933",
+                    lineColor: "#F5D809",
+                    fillColor: "rgba(245, 216, 9, 0.2)",
                     lineWidth: getZoomTier(scale).lineWidth,
                     textColor: "black",
                 };
 
                 drawSignatureBase(centerX, centerY, width, height, style);
-                drawZigguratSignature(centerX, centerY, width, height);
+                drawZigguratSignature(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.lineColor,
+                    style.fillColor,
+                );
                 drawChannelLabels(
                     centerX,
                     centerY,
@@ -825,13 +872,21 @@
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.channelHeight;
                 const style = {
-                    color: "#1486FC",
+                    lineColor: "#1486FC",
+                    fillColor: "rgba(20, 134, 252, 0.2)", // Semi-transparent blue
                     lineWidth: getZoomTier(scale).lineWidth,
                     textColor: "#1486FC",
                 };
 
                 drawSignatureBase(centerX, centerY, width, height, style);
-                drawParabolaSignature(centerX, centerY, width, height);
+                drawParabolaSignature(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.lineColor,
+                    style.fillColor,
+                );
                 drawChannelLabels(
                     centerX,
                     centerY,
@@ -848,13 +903,21 @@
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.channelHeight;
                 const style = {
-                    color: "#EF3453",
+                    lineColor: "#EF3453",
+                    fillColor: "rgba(239, 52, 83, 0.2)", // Semi-transparent red
                     lineWidth: getZoomTier(scale).lineWidth,
                     textColor: "#EF3453",
                 };
 
                 drawSignatureBase(centerX, centerY, width, height, style);
-                drawParabolaSignature(centerX, centerY, width, height);
+                drawParabolaSignature(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.lineColor,
+                    style.fillColor,
+                );
                 drawChannelLabels(
                     centerX,
                     centerY,
