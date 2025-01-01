@@ -396,6 +396,14 @@
             };
 
             const wifiChannels = {
+                "900 MHz": [
+                    { channel: 1, frequency: 905, width: 4 },
+                    { channel: 2, frequency: 909, width: 4 },
+                    { channel: 3, frequency: 913, width: 4 },
+                    { channel: 4, frequency: 917, width: 4 },
+                    { channel: 5, frequency: 921, width: 4 },
+                    { channel: 6, frequency: 925, width: 4 },
+                ],
                 "2.4 GHz": [
                     { channel: 1, frequency: 2412, width: 20 },
                     {
@@ -546,6 +554,8 @@
             }
             resizeCanvas();
             window.addEventListener("resize", resizeCanvas);
+
+            offset.x = canvas.width / 2 - 2450 * 2 * scale; // Centers at 2450 MHz
 
             // Common drawing utilities
             function getBaselineY() {
@@ -937,7 +947,7 @@
 
                 // Draw WiFi channels
                 if (showWifi) {
-                    ["2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
+                    ["900 MHz", "2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
                         wifiChannels[band].forEach((channel) => {
                             if (
                                 !(
@@ -1243,16 +1253,12 @@
             // Helper functions for coordinate conversion
             function mhzToScreenX(mhz) {
                 const pixelsPerMhz = 2 * scale;
-                return (
-                    (mhz - 2400) * pixelsPerMhz + canvas.width / 2 + offset.x
-                );
+                return mhz * pixelsPerMhz + offset.x;
             }
 
             function screenXToMhz(screenX) {
                 const pixelsPerMhz = 2 * scale;
-                const freq =
-                    (screenX - canvas.width / 2 - offset.x) / pixelsPerMhz +
-                    2400;
+                const freq = (screenX - offset.x) / pixelsPerMhz;
                 return Math.max(0, Math.min(8000, freq));
             }
 
