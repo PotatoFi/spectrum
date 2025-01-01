@@ -218,6 +218,12 @@
             let isSpacebarDown = false;
             let lockX, lockY;
 
+            // Movement variables (incomplete, there are some above)
+            let scrollDirection = null;
+            let scrollThreshold = 2;
+            let lastWheelTime = Date.now();
+            const wheelTimeout = 200; // ms to reset direction lock
+
             // Visual settings
             const chartSettings = {
                 channelHeight: 100, // Default signature height
@@ -821,26 +827,50 @@
             canvas.addEventListener("wheel", (e) => {
                 e.preventDefault();
 
-                if (e.deltaY !== 0) {
-                    // Get mouse position and convert to frequency
+                const currentTime = Date.now();
+
+                // Reset direction lock if enough time has passed
+                if (currentTime - lastWheelTime > wheelTimeout) {
+                    scrollDirection = null;
+                }
+                lastWheelTime = currentTime;
+
+                // Determine scroll direction if not already locked
+                if (!scrollDirection) {
+                    if (
+                        Math.abs(e.deltaX) >
+                        Math.abs(e.deltaY) * scrollThreshold
+                    ) {
+                        scrollDirection = "horizontal";
+                    } else if (
+                        Math.abs(e.deltaY) >
+                        Math.abs(e.deltaX) * scrollThreshold
+                    ) {
+                        scrollDirection = "vertical";
+                    } else {
+                        // If no clear direction yet, exit early
+                        return;
+                    }
+                }
+
+                // Handle scrolling based on locked direction
+                if (scrollDirection === "vertical") {
+                    // Zoom logic
                     const rect = canvas.getBoundingClientRect();
                     const mouseX = e.clientX - rect.left;
                     const centerFreq = screenXToMhz(mouseX);
 
-                    // Calculate new scale
-                    const oldScale = scale;
-                    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                    // Sensitivity settings
+                    const zoomFactor = e.deltaY > 0 ? 0.96 : 1.04;
                     scale = Math.min(
                         Math.max(minZoom, scale * zoomFactor),
                         maxZoom,
                     );
 
-                    // Adjust offset to zoom towards mouse position
                     const newMouseX = mhzToScreenX(centerFreq);
                     offset.x += mouseX - newMouseX;
-                }
-
-                if (e.deltaX !== 0) {
+                } else if (scrollDirection === "horizontal") {
+                    // Pan logic
                     offset.x -= e.deltaX;
                 }
             });
