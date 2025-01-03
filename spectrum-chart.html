@@ -226,6 +226,12 @@
             let lastWheelTime = Date.now();
             const wheelTimeout = 200; // ms to reset direction lock
 
+            // Touch coasting/momentum variables
+            let velocity = 0;
+            let lastTimestamp = 0;
+            let animationFrameId = null;
+            let isCoasting = false;
+
             // Visual settings
             const chartSettings = {
                 channelHeight: 100, // Default signature height
@@ -1025,52 +1031,86 @@
 
             // Touch events for panning and pinch zooming
             canvas.addEventListener("touchstart", (e) => {
+                isCoasting = false;
+                velocity = 0;
+
                 if (e.touches.length === 1) {
                     isDragging = true;
                     lastPosition = {
                         x: e.touches[0].clientX,
                         y: e.touches[0].clientY,
                     };
+                    lastTimestamp = Date.now();
                 }
             });
 
+            // Touch input handler
             canvas.addEventListener("touchmove", (e) => {
+                // Track velocity
+                const currentTimestamp = Date.now();
+
                 if (e.touches.length === 2) {
                     // Handle pinch zooming
                     const touch1 = e.touches[0];
                     const touch2 = e.touches[1];
 
-                    // Calculate center of pinch
+                    // Calculate center of pinch in screen coordinates
                     const pinchCenterX = (touch1.clientX + touch2.clientX) / 2;
-                    const rect = canvas.getBoundingClientRect();
-                    const centerX = pinchCenterX - rect.left - canvas.width / 2;
 
-                    // Calculate new scale based on pinch distance
-                    const currentDistance = Math.abs(
-                        touch1.clientX - touch2.clientX,
+                    // Calculate current pinch distance
+                    const currentDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY,
                     );
 
                     if (lastPinchDistance) {
+                        // Calculate scale change
                         const scaleChange = currentDistance / lastPinchDistance;
                         const oldScale = scale;
+
+                        // Store the frequency at pinch center before scaling
+                        const freqAtPinch = screenXToMhz(pinchCenterX);
+
+                        // Update scale
                         scale *= scaleChange;
                         scale = Math.min(Math.max(minZoom, scale), maxZoom);
 
-                        // Adjust offset to zoom towards pinch center
-                        const centerFreq = screenXToMhz(pinchCenterX);
-                        offset.x = pinchCenterX - mhzToScreenX(centerFreq);
+                        // Calculate the new x position for the same frequency after scaling
+                        const newPinchX = mhzToScreenX(freqAtPinch);
+
+                        // Adjust offset to maintain pinch center
+                        offset.x += pinchCenterX - newPinchX;
                     }
 
                     lastPinchDistance = currentDistance;
+                    e.preventDefault();
                 } else if (e.touches.length === 1 && isDragging) {
-                    offset.x += e.touches[0].clientX - lastPosition.x;
+                    const deltaX = e.touches[0].clientX - lastPosition.x;
+                    const deltaTime = currentTimestamp - lastTimestamp;
+
+                    if (deltaTime > 0) {
+                        // Update velocity (pixels per millisecond)
+                        velocity = deltaX / deltaTime;
+                    }
+
+                    offset.x += deltaX;
                     lastPosition.x = e.touches[0].clientX;
+                    e.preventDefault();
                 }
+
+                lastTimestamp = currentTimestamp;
             });
 
-            canvas.addEventListener("touchend", () => {
+            // Add a touch end handler to initiate coasting
+            canvas.addEventListener("touchend", (e) => {
                 isDragging = false;
                 lastPinchDistance = null;
+
+                // Only start coasting if there is significant velocity
+                if (Math.abs(velocity) > 0.1) {
+                    isCoasting = true;
+                    coastingAnimation();
+                }
             });
 
             // Mouse wheel zooming
@@ -1124,7 +1164,7 @@
                     offset.x -= e.deltaX;
                 }
 
-                // For scale tier tuning purposes
+                // Output scale information to the console (for testing)
                 if (scale !== lastScale) {
                     const tier = getZoomTier(scale);
                     const tierName = Object.keys(zoomTiers).find(
@@ -1266,6 +1306,26 @@
                 const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
                 ctx.fillStyle = color;
                 ctx.fillText(text, x, y);
+            }
+
+            // Touch movement coasting animation
+            function coastingAnimation() {
+                if (!isCoasting) return;
+
+                // Apply friction
+                const friction = 0.97; // Closer to 1 means more coasting
+                velocity *= friction;
+
+                // Update offset based on velocity
+                offset.x += velocity * 16; // Assuming 60 fps (16ms per frame)
+
+                // Stop coasting when velocity is very low
+                if (Math.abs(velocity) < 0.01) {
+                    isCoasting = false;
+                    return;
+                }
+
+                requestAnimationFrame(coastingAnimation);
             }
 
             // Start the animation
