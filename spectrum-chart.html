@@ -68,6 +68,8 @@
                 right: 0;
                 background-color: white;
                 min-width: 300px;
+                max-height: 60vh;
+                overflow-y: auto;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
                 border-radius: 8px;
                 padding: 10px;
@@ -128,6 +130,22 @@
                         ><input type="checkbox" id="show-overlapping" /> 2.4 GHz
                         Overlapping Channels</label
                     >
+                    <label>
+                        <input type="checkbox" id="show-20mhz" checked /> 20 MHz
+                        channels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-40mhz" /> 40 MHz
+                        channels channels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-80mhz" /> 80 MHz
+                        channels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-160mhz" /> 160 MHz
+                        channels
+                    </label>
                     <h4>Bluetooth</h4>
                     <label
                         ><input type="checkbox" id="show-bluetooth" checked />
@@ -216,6 +234,10 @@
             let showWifiChannels = true;
             let showWifiFrequencies = true;
             let showOverlapping = false;
+            let show20MHz = true;
+            let show40MHz = false;
+            let show80MHz = false;
+            let show160MHz = false;
             let showBluetooth = true;
             let showBluetoothChannels = false;
             let showBluetoothFrequencies = false;
@@ -1321,15 +1343,26 @@
                 if (showWifi) {
                     ["900 MHz", "2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
                         wifiChannels[band].forEach((channel) => {
+                            // Skip overlapping channels if not enabled
                             if (
-                                !(
-                                    band === "2.4 GHz" &&
-                                    channel.overlapping &&
-                                    !showOverlapping
-                                )
+                                band === "2.4 GHz" &&
+                                channel.overlapping &&
+                                !showOverlapping
                             ) {
-                                drawWiFiChannel(channel, scale);
+                                return;
                             }
+
+                            // Block standard widths if their toggle is off
+                            if (
+                                (channel.width === 20 && !show20MHz) ||
+                                (channel.width === 40 && !show40MHz) ||
+                                (channel.width === 80 && !show80MHz) ||
+                                (channel.width === 160 && !show160MHz)
+                            ) {
+                                return;
+                            }
+
+                            drawWiFiChannel(channel, scale);
                         });
                     });
                 }
@@ -1610,6 +1643,31 @@
                 .getElementById("show-overlapping")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
+                });
+
+            // Wi-Fi channel width checkboxes
+            document
+                .getElementById("show-20mhz")
+                .addEventListener("change", (e) => {
+                    show20MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-40mhz")
+                .addEventListener("change", (e) => {
+                    show40MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-80mhz")
+                .addEventListener("change", (e) => {
+                    show80MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-160mhz")
+                .addEventListener("change", (e) => {
+                    show160MHz = e.target.checked;
                 });
 
             // Bluetooth checkboxes
