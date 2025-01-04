@@ -50,10 +50,25 @@ This menu will give the user the ability to hide and show various layers.
   * Show channel markers
   * Show frequency markers
 
+# Channel labels and attributes
+
+Each channel has a set of attributes, such as channel, center frequency, and max Tx power. The user can enable a "channel label" that shows these attributes. For the moment, I am planning to use html/css divs that hover over the chart, and sync with it so they can stack. A dotted vertical line will connect the channel chart to the label. The label will turn into a "..." when zoomed out.
+
+## Mousing over a label
+
+
 
 # Mouseover inspector
 
 As the user mouses over, draw a vertical line. Above the vertical line, show the current frequency. Snap to the edges and centers of signatures.
+
+# Cookies
+
+The user's center frequency and zoom level will be saved to a cookie.
+
+# Shortcuts
+
+Using the same system as the cookies, the user can click `900 MHz`, `2.4 GHz`, `5 GHz`, or `6 GHz` to jump to a specific frequency and zoom level.
 
 # To-Do
 

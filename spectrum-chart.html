@@ -146,6 +146,10 @@
                         <input type="checkbox" id="show-160mhz" /> 160 MHz
                         channels
                     </label>
+                    <label>
+                        <input type="checkbox" id="show-320mhz" /> 320 MHz
+                        channels
+                    </label>
                     <h4>Bluetooth</h4>
                     <label
                         ><input type="checkbox" id="show-bluetooth" checked />
@@ -905,6 +909,56 @@
                     { channel: "225E", frequency: 7075, width: 20 },
                     { channel: "229E", frequency: 7095, width: 20 },
                     { channel: "233E", frequency: 7115, width: 20 },
+                    { channel: "3E", frequency: 5965, width: 40 },
+                    { channel: "11E", frequency: 6005, width: 40 },
+                    { channel: "19E", frequency: 6045, width: 40 },
+                    { channel: "27E", frequency: 6085, width: 40 },
+                    { channel: "35E", frequency: 6125, width: 40 },
+                    { channel: "43E", frequency: 6165, width: 40 },
+                    { channel: "51E", frequency: 6205, width: 40 },
+                    { channel: "59E", frequency: 6245, width: 40 },
+                    { channel: "67E", frequency: 6285, width: 40 },
+                    { channel: "75E", frequency: 6325, width: 40 },
+                    { channel: "83E", frequency: 6365, width: 40 },
+                    { channel: "91E", frequency: 6405, width: 40 },
+                    { channel: "99E", frequency: 6445, width: 40 },
+                    { channel: "107E", frequency: 6485, width: 40 },
+                    { channel: "115E", frequency: 6525, width: 40 },
+                    { channel: "123E", frequency: 6565, width: 40 },
+                    { channel: "131E", frequency: 6605, width: 40 },
+                    { channel: "139E", frequency: 6645, width: 40 },
+                    { channel: "147E", frequency: 6685, width: 40 },
+                    { channel: "155E", frequency: 6725, width: 40 },
+                    { channel: "163E", frequency: 6765, width: 40 },
+                    { channel: "171E", frequency: 6805, width: 40 },
+                    { channel: "179E", frequency: 6845, width: 40 },
+                    { channel: "187E", frequency: 6885, width: 40 },
+                    { channel: "195E", frequency: 6925, width: 40 },
+                    { channel: "203E", frequency: 6965, width: 40 },
+                    { channel: "211E", frequency: 7005, width: 40 },
+                    { channel: "219E", frequency: 7045, width: 40 },
+                    { channel: "227E", frequency: 7085, width: 40 },
+                    { channel: "7E", frequency: 5985, width: 80 },
+                    { channel: "23E", frequency: 6065, width: 80 },
+                    { channel: "39E", frequency: 6145, width: 80 },
+                    { channel: "55E", frequency: 6225, width: 80 },
+                    { channel: "71E", frequency: 6305, width: 80 },
+                    { channel: "87E", frequency: 6385, width: 80 },
+                    { channel: "103E", frequency: 6465, width: 80 },
+                    { channel: "119E", frequency: 6545, width: 80 },
+                    { channel: "135E", frequency: 6625, width: 80 },
+                    { channel: "151E", frequency: 6705, width: 80 },
+                    { channel: "167E", frequency: 6785, width: 80 },
+                    { channel: "183E", frequency: 6865, width: 80 },
+                    { channel: "199E", frequency: 6945, width: 80 },
+                    { channel: "215E", frequency: 7025, width: 80 },
+                    { channel: "15E", frequency: 6025, width: 160 },
+                    { channel: "47E", frequency: 6185, width: 160 },
+                    { channel: "79E", frequency: 6345, width: 160 },
+                    { channel: "111E", frequency: 6505, width: 160 },
+                    { channel: "143E", frequency: 6665, width: 160 },
+                    { channel: "175E", frequency: 6825, width: 160 },
+                    { channel: "207E", frequency: 6985, width: 160 },
                 ],
             };
 
@@ -946,7 +1000,7 @@
                 const channelWidthMhz = width / (2 * scale);
                 let mhzInset;
 
-                // Discrete channel width checks
+                // Use more perpendicular (steeper) lines for narrow channels
                 if (channelWidthMhz <= 16) {
                     mhzInset = 0.5;
                 } else {
