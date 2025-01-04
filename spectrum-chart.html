@@ -120,11 +120,7 @@
                     >
                     <label
                         ><input type="checkbox" id="show-channels" checked />
-                        Channel Numbers</label
-                    >
-                    <label
-                        ><input type="checkbox" id="show-frequencies" checked />
-                        Center Frequencies</label
+                        Wi-Fi labels</label
                     >
                     <label
                         ><input type="checkbox" id="show-overlapping" /> 2.4 GHz
@@ -171,14 +167,7 @@
                     >
                     <label
                         ><input type="checkbox" id="show-bluetooth-channels" />
-                        Channel Numbers</label
-                    >
-                    <label
-                        ><input
-                            type="checkbox"
-                            id="show-bluetooth-frequencies"
-                        />
-                        Center Frequencies</label
+                        Bluetooth labels</label
                     >
                     <label>
                         <input
@@ -204,11 +193,7 @@
                     >
                     <label
                         ><input type="checkbox" id="show-zigbee-channels" />
-                        Channel Numbers</label
-                    >
-                    <label
-                        ><input type="checkbox" id="show-zigbee-frequencies" />
-                        Center Frequencies</label
+                        Zigbee labels</label
                     >
                     <h4>General</h4>
                     <label>
@@ -250,7 +235,6 @@
             // Setting state variables
             let showWifi = true;
             let showWifiChannels = true;
-            let showWifiFrequencies = true;
             let showOverlapping = false;
             let show1MHz = true;
             let show2MHz = false;
@@ -263,11 +247,9 @@
             let show160MHz = false;
             let showBluetooth = true;
             let showBluetoothChannels = false;
-            let showBluetoothFrequencies = false;
             let bluetoothMode = "Classic";
             let showZigbee = false;
             let showZigbeeChannels = false;
-            let showZigbeeFrequencies = false;
             let showBandLabels = true;
             let showSubbands = true;
             let selectedDomain = "FCC";
@@ -306,11 +288,8 @@
             const LABEL_ROWS = {
                 FREQUENCY_MARKERS: 0,
                 WIFI_CHANNEL: 1,
-                WIFI_FREQ: 2,
-                BLUETOOTH_CHANNEL: 3,
-                BLUETOOTH_FREQ: 4,
-                ZIGBEE_CHANNEL: 5,
-                ZIGBEE_FREQ: 6,
+                BLUETOOTH_CHANNEL: 2,
+                ZIGBEE_CHANNEL: 3,
             };
 
             const LABEL_SPACING = 20; // vertical spacing between labels
@@ -1157,52 +1136,44 @@
                 style,
                 technology,
             ) {
+                // Determine which rows to use based on technology
                 let channelRow, frequencyRow;
-
                 switch (technology) {
                     case "wifi":
+                        if (!showWifiChannels) return;
                         channelRow = LABEL_ROWS.WIFI_CHANNEL;
                         frequencyRow = LABEL_ROWS.WIFI_FREQ;
                         break;
                     case "bluetooth":
+                        if (!showBluetoothChannels) return;
                         channelRow = LABEL_ROWS.BLUETOOTH_CHANNEL;
                         frequencyRow = LABEL_ROWS.BLUETOOTH_FREQ;
                         break;
                     case "zigbee":
+                        if (!showZigbeeChannels) return;
                         channelRow = LABEL_ROWS.ZIGBEE_CHANNEL;
                         frequencyRow = LABEL_ROWS.ZIGBEE_FREQ;
                         break;
                 }
 
-                // Draw channel number if enabled
-                if (
-                    (technology === "wifi" && showWifiChannels) ||
-                    (technology === "bluetooth" && showBluetoothChannels) ||
-                    (technology === "zigbee" && showZigbeeChannels)
-                ) {
-                    drawLabel(
-                        centerX,
-                        centerY,
-                        `${channel}`,
-                        channelRow,
-                        style.textColor || style.color,
-                    );
-                }
+                // Draw channel number on top
+                drawLabel(
+                    centerX,
+                    centerY,
+                    `${channel}`,
+                    channelRow,
+                    style.textColor || style.color,
+                );
 
-                // Draw frequency if enabled
-                if (
-                    (technology === "wifi" && showWifiFrequencies) ||
-                    (technology === "bluetooth" && showBluetoothFrequencies) ||
-                    (technology === "zigbee" && showZigbeeFrequencies)
-                ) {
-                    drawLabel(
-                        centerX,
-                        centerY,
-                        `${frequency}`,
-                        frequencyRow,
-                        style.textColor || style.color,
-                    );
-                }
+                // Draw frequency below
+                /*
+                drawLabel(
+                    centerX,
+                    centerY,
+                    `${frequency} MHz`,
+                    channelRow - 10,
+                    style.textColor || style.color,
+                );*/
             }
 
             function drawBandLabels() {
@@ -1778,12 +1749,6 @@
                 });
 
             document
-                .getElementById("show-frequencies")
-                .addEventListener("change", (e) => {
-                    showWifiFrequencies = e.target.checked;
-                });
-
-            document
                 .getElementById("show-overlapping")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
@@ -1859,12 +1824,6 @@
                 });
 
             document
-                .getElementById("show-bluetooth-frequencies")
-                .addEventListener("change", (e) => {
-                    showBluetoothFrequencies = e.target.checked;
-                });
-
-            document
                 .querySelectorAll('input[name="bluetooth-mode"]')
                 .forEach((radio) => {
                     radio.addEventListener("change", (e) => {
@@ -1884,12 +1843,6 @@
                 .getElementById("show-zigbee-channels")
                 .addEventListener("change", (e) => {
                     showZigbeeChannels = e.target.checked;
-                });
-
-            document
-                .getElementById("show-zigbee-frequencies")
-                .addEventListener("change", (e) => {
-                    showZigbeeFrequencies = e.target.checked;
                 });
 
             // General
