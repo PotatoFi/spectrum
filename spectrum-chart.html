@@ -146,8 +146,22 @@
                         <input type="checkbox" id="show-160mhz" /> 160 MHz
                         channels
                     </label>
+                    <h4>Wi-Fi (802.11ah)</h4>
                     <label>
-                        <input type="checkbox" id="show-320mhz" /> 320 MHz
+                        <input type="checkbox" id="show-1mhz" checked /> 1 MHz
+                        channels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-2mhz" /> 2 MHz channels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-4mhz" /> 4 MHz channels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-8mhz" /> 8 MHz channels
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-16mhz" /> 16 MHz
                         channels
                     </label>
                     <h4>Bluetooth</h4>
@@ -230,7 +244,7 @@
             const ctx = canvas.getContext("2d");
             const heightSlider = document.getElementById("height-slider");
 
-            const minZoom = 0.2;
+            const minZoom = 0.15;
             const maxZoom = 30;
 
             // Setting state variables
@@ -238,6 +252,11 @@
             let showWifiChannels = true;
             let showWifiFrequencies = true;
             let showOverlapping = false;
+            let show1MHz = true;
+            let show2MHz = false;
+            let show4MHz = false;
+            let show8MHz = false;
+            let show16MHz = false;
             let show20MHz = true;
             let show40MHz = false;
             let show80MHz = false;
@@ -745,12 +764,64 @@
 
             const wifiChannels = {
                 "900 MHz": [
-                    { channel: 1, frequency: 905, width: 4 },
-                    { channel: 2, frequency: 909, width: 4 },
-                    { channel: 3, frequency: 913, width: 4 },
-                    { channel: 4, frequency: 917, width: 4 },
-                    { channel: 5, frequency: 921, width: 4 },
-                    { channel: 6, frequency: 925, width: 4 },
+                    // 1 MHz channels
+                    { channel: 1, frequency: 902.5, width: 1 },
+                    { channel: 3, frequency: 903.5, width: 1 },
+                    { channel: 5, frequency: 904.5, width: 1 },
+                    { channel: 7, frequency: 905.5, width: 1 },
+                    { channel: 9, frequency: 906.5, width: 1 },
+                    { channel: 11, frequency: 907.5, width: 1 },
+                    { channel: 13, frequency: 908.5, width: 1 },
+                    { channel: 15, frequency: 909.5, width: 1 },
+                    { channel: 17, frequency: 910.5, width: 1 },
+                    { channel: 19, frequency: 911.5, width: 1 },
+                    { channel: 21, frequency: 912.5, width: 1 },
+                    { channel: 23, frequency: 913.5, width: 1 },
+                    { channel: 25, frequency: 914.5, width: 1 },
+                    { channel: 27, frequency: 915.5, width: 1 },
+                    { channel: 29, frequency: 916.5, width: 1 },
+                    { channel: 31, frequency: 917.5, width: 1 },
+                    { channel: 33, frequency: 918.5, width: 1 },
+                    { channel: 35, frequency: 919.5, width: 1 },
+                    { channel: 37, frequency: 920.5, width: 1 },
+                    { channel: 39, frequency: 921.5, width: 1 },
+                    { channel: 41, frequency: 922.5, width: 1 },
+                    { channel: 43, frequency: 923.5, width: 1 },
+                    { channel: 45, frequency: 924.5, width: 1 },
+                    { channel: 47, frequency: 925.5, width: 1 },
+                    { channel: 49, frequency: 926.5, width: 1 },
+                    { channel: 51, frequency: 927.5, width: 1 },
+
+                    // 2 MHz channels
+                    { channel: 2, frequency: 903, width: 2 },
+                    { channel: 6, frequency: 905, width: 2 },
+                    { channel: 10, frequency: 907, width: 2 },
+                    { channel: 14, frequency: 909, width: 2 },
+                    { channel: 18, frequency: 911, width: 2 },
+                    { channel: 22, frequency: 913, width: 2 },
+                    { channel: 26, frequency: 915, width: 2 },
+                    { channel: 30, frequency: 917, width: 2 },
+                    { channel: 34, frequency: 919, width: 2 },
+                    { channel: 38, frequency: 921, width: 2 },
+                    { channel: 42, frequency: 923, width: 2 },
+                    { channel: 46, frequency: 925, width: 2 },
+                    { channel: 50, frequency: 927, width: 2 },
+
+                    // 4 MHz channels
+                    { channel: 8, frequency: 906, width: 4 },
+                    { channel: 16, frequency: 910, width: 4 },
+                    { channel: 24, frequency: 914, width: 4 },
+                    { channel: 32, frequency: 918, width: 4 },
+                    { channel: 40, frequency: 922, width: 4 },
+                    { channel: 48, frequency: 926, width: 4 },
+
+                    // 8 MHz channels
+                    { channel: 12, frequency: 908, width: 8 },
+                    { channel: 28, frequency: 916, width: 8 },
+                    { channel: 44, frequency: 924, width: 8 },
+
+                    // 16 MHz channel
+                    { channel: 20, frequency: 912, width: 16 },
                 ],
                 "2.4 GHz": [
                     { channel: 1, frequency: 2412, width: 20 },
@@ -1006,7 +1077,7 @@
 
                 // Use more perpendicular (steeper) lines for narrow channels
                 if (channelWidthMhz <= 16) {
-                    mhzInset = 0.5;
+                    mhzInset = 0.25;
                 } else {
                     mhzInset = 2;
                 }
@@ -1422,6 +1493,11 @@
 
                             // Block standard widths if their toggle is off
                             if (
+                                (channel.width === 1 && !show1MHz) ||
+                                (channel.width === 2 && !show2MHz) ||
+                                (channel.width === 4 && !show4MHz) ||
+                                (channel.width === 8 && !show8MHz) ||
+                                (channel.width === 16 && !show16MHz) ||
                                 (channel.width === 20 && !show20MHz) ||
                                 (channel.width === 40 && !show40MHz) ||
                                 (channel.width === 80 && !show80MHz) ||
@@ -1736,6 +1812,36 @@
                 .getElementById("show-160mhz")
                 .addEventListener("change", (e) => {
                     show160MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-1mhz")
+                .addEventListener("change", (e) => {
+                    show1MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-2mhz")
+                .addEventListener("change", (e) => {
+                    show2MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-4mhz")
+                .addEventListener("change", (e) => {
+                    show4MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-8mhz")
+                .addEventListener("change", (e) => {
+                    show8MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("show-16mhz")
+                .addEventListener("change", (e) => {
+                    show16MHz = e.target.checked;
                 });
 
             // Bluetooth checkboxes
