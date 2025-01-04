@@ -144,6 +144,23 @@
                         />
                         Center Frequencies</label
                     >
+                    <label>
+                        <input
+                            type="radio"
+                            name="bluetooth-mode"
+                            value="Classic"
+                            checked
+                        />
+                        Classic
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="bluetooth-mode"
+                            value="Low Energy"
+                        />
+                        Low Energy
+                    </label>
                     <h4>Zigbee</h4>
                     <label
                         ><input type="checkbox" id="show-zigbee" />
@@ -202,6 +219,7 @@
             let showBluetooth = true;
             let showBluetoothChannels = false;
             let showBluetoothFrequencies = false;
+            let bluetoothMode = "Classic";
             let showZigbee = false;
             let showZigbeeChannels = false;
             let showZigbeeFrequencies = false;
@@ -356,51 +374,334 @@
                 ],
             };
 
+            // User can select
             const bluetoothChannels = {
-                "2.4 GHz": [
-                    { channel: 0, frequency: 2402, width: 2 },
-                    { channel: 1, frequency: 2404, width: 2 },
-                    { channel: 2, frequency: 2406, width: 2 },
-                    { channel: 3, frequency: 2408, width: 2 },
-                    { channel: 4, frequency: 2410, width: 2 },
-                    { channel: 5, frequency: 2412, width: 2 },
-                    { channel: 6, frequency: 2414, width: 2 },
-                    { channel: 7, frequency: 2416, width: 2 },
-                    { channel: 8, frequency: 2418, width: 2 },
-                    { channel: 9, frequency: 2420, width: 2 },
-                    { channel: 10, frequency: 2422, width: 2 },
-                    { channel: 11, frequency: 2424, width: 2 },
-                    { channel: 12, frequency: 2426, width: 2 },
-                    { channel: 13, frequency: 2428, width: 2 },
-                    { channel: 14, frequency: 2430, width: 2 },
-                    { channel: 15, frequency: 2432, width: 2 },
-                    { channel: 16, frequency: 2434, width: 2 },
-                    { channel: 17, frequency: 2436, width: 2 },
-                    { channel: 18, frequency: 2438, width: 2 },
-                    { channel: 19, frequency: 2440, width: 2 },
-                    { channel: 20, frequency: 2442, width: 2 },
-                    { channel: 21, frequency: 2444, width: 2 },
-                    { channel: 22, frequency: 2446, width: 2 },
-                    { channel: 23, frequency: 2448, width: 2 },
-                    { channel: 24, frequency: 2450, width: 2 },
-                    { channel: 25, frequency: 2452, width: 2 },
-                    { channel: 26, frequency: 2454, width: 2 },
-                    { channel: 27, frequency: 2456, width: 2 },
-                    { channel: 28, frequency: 2458, width: 2 },
-                    { channel: 29, frequency: 2460, width: 2 },
-                    { channel: 30, frequency: 2462, width: 2 },
-                    { channel: 31, frequency: 2464, width: 2 },
-                    { channel: 32, frequency: 2466, width: 2 },
-                    { channel: 33, frequency: 2468, width: 2 },
-                    { channel: 34, frequency: 2470, width: 2 },
-                    { channel: 35, frequency: 2472, width: 2 },
-                    { channel: 36, frequency: 2474, width: 2 },
-                    { channel: 37, frequency: 2476, width: 2 },
-                    { channel: 38, frequency: 2478, width: 2 },
-                    { channel: 39, frequency: 2480, width: 2 },
+                Classic: [
+                    { channel: 0, frequency: 2402, width: 1 },
+                    { channel: 1, frequency: 2403, width: 1 },
+                    { channel: 2, frequency: 2404, width: 1 },
+                    { channel: 3, frequency: 2405, width: 1 },
+                    { channel: 4, frequency: 2406, width: 1 },
+                    { channel: 5, frequency: 2407, width: 1 },
+                    { channel: 6, frequency: 2408, width: 1 },
+                    { channel: 7, frequency: 2409, width: 1 },
+                    { channel: 8, frequency: 2410, width: 1 },
+                    { channel: 9, frequency: 2411, width: 1 },
+                    { channel: 10, frequency: 2412, width: 1 },
+                    { channel: 11, frequency: 2413, width: 1 },
+                    { channel: 12, frequency: 2414, width: 1 },
+                    { channel: 13, frequency: 2415, width: 1 },
+                    { channel: 14, frequency: 2416, width: 1 },
+                    { channel: 15, frequency: 2417, width: 1 },
+                    { channel: 16, frequency: 2418, width: 1 },
+                    { channel: 17, frequency: 2419, width: 1 },
+                    { channel: 18, frequency: 2420, width: 1 },
+                    { channel: 19, frequency: 2421, width: 1 },
+                    { channel: 20, frequency: 2422, width: 1 },
+                    { channel: 21, frequency: 2423, width: 1 },
+                    { channel: 22, frequency: 2424, width: 1 },
+                    { channel: 23, frequency: 2425, width: 1 },
+                    { channel: 24, frequency: 2426, width: 1 },
+                    { channel: 25, frequency: 2427, width: 1 },
+                    { channel: 26, frequency: 2428, width: 1 },
+                    { channel: 27, frequency: 2429, width: 1 },
+                    { channel: 28, frequency: 2430, width: 1 },
+                    { channel: 29, frequency: 2431, width: 1 },
+                    { channel: 30, frequency: 2432, width: 1 },
+                    { channel: 31, frequency: 2433, width: 1 },
+                    { channel: 32, frequency: 2434, width: 1 },
+                    { channel: 33, frequency: 2435, width: 1 },
+                    { channel: 34, frequency: 2436, width: 1 },
+                    { channel: 35, frequency: 2437, width: 1 },
+                    { channel: 36, frequency: 2438, width: 1 },
+                    { channel: 37, frequency: 2439, width: 1 },
+                    { channel: 38, frequency: 2440, width: 1 },
+                    { channel: 39, frequency: 2441, width: 1 },
+                    { channel: 40, frequency: 2442, width: 1 },
+                    { channel: 41, frequency: 2443, width: 1 },
+                    { channel: 42, frequency: 2444, width: 1 },
+                    { channel: 43, frequency: 2445, width: 1 },
+                    { channel: 44, frequency: 2446, width: 1 },
+                    { channel: 45, frequency: 2447, width: 1 },
+                    { channel: 46, frequency: 2448, width: 1 },
+                    { channel: 47, frequency: 2449, width: 1 },
+                    { channel: 48, frequency: 2450, width: 1 },
+                    { channel: 49, frequency: 2451, width: 1 },
+                    { channel: 50, frequency: 2452, width: 1 },
+                    { channel: 51, frequency: 2453, width: 1 },
+                    { channel: 52, frequency: 2454, width: 1 },
+                    { channel: 53, frequency: 2455, width: 1 },
+                    { channel: 54, frequency: 2456, width: 1 },
+                    { channel: 55, frequency: 2457, width: 1 },
+                    { channel: 56, frequency: 2458, width: 1 },
+                    { channel: 57, frequency: 2459, width: 1 },
+                    { channel: 58, frequency: 2460, width: 1 },
+                    { channel: 59, frequency: 2461, width: 1 },
+                    { channel: 60, frequency: 2462, width: 1 },
+                    { channel: 61, frequency: 2463, width: 1 },
+                    { channel: 62, frequency: 2464, width: 1 },
+                    { channel: 63, frequency: 2465, width: 1 },
+                    { channel: 64, frequency: 2466, width: 1 },
+                    { channel: 65, frequency: 2467, width: 1 },
+                    { channel: 66, frequency: 2468, width: 1 },
+                    { channel: 67, frequency: 2469, width: 1 },
+                    { channel: 68, frequency: 2470, width: 1 },
+                    { channel: 69, frequency: 2471, width: 1 },
+                    { channel: 70, frequency: 2472, width: 1 },
+                    { channel: 71, frequency: 2473, width: 1 },
+                    { channel: 72, frequency: 2474, width: 1 },
+                    { channel: 73, frequency: 2475, width: 1 },
+                    { channel: 74, frequency: 2476, width: 1 },
+                    { channel: 75, frequency: 2477, width: 1 },
+                    { channel: 76, frequency: 2478, width: 1 },
+                    { channel: 77, frequency: 2479, width: 1 },
+                    { channel: 78, frequency: 2480, width: 1 },
+                ],
+                "Low Energy": [
+                    {
+                        channel: 37,
+                        frequency: 2402,
+                        width: 2,
+                        application: "Primary Advertising",
+                    },
+                    {
+                        channel: 0,
+                        frequency: 2404,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 1,
+                        frequency: 2406,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 2,
+                        frequency: 2408,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 3,
+                        frequency: 2410,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 4,
+                        frequency: 2412,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 5,
+                        frequency: 2414,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 6,
+                        frequency: 2416,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 7,
+                        frequency: 2418,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 8,
+                        frequency: 2420,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 9,
+                        frequency: 2422,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 10,
+                        frequency: 2424,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 38,
+                        frequency: 2426,
+                        width: 2,
+                        application: "Primary Advertising",
+                    },
+                    {
+                        channel: 11,
+                        frequency: 2428,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 12,
+                        frequency: 2430,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 13,
+                        frequency: 2432,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 14,
+                        frequency: 2434,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 15,
+                        frequency: 2436,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 16,
+                        frequency: 2438,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 17,
+                        frequency: 2440,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 18,
+                        frequency: 2442,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 19,
+                        frequency: 2444,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 20,
+                        frequency: 2446,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 21,
+                        frequency: 2448,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 22,
+                        frequency: 2450,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 23,
+                        frequency: 2452,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 24,
+                        frequency: 2454,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 25,
+                        frequency: 2456,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 26,
+                        frequency: 2458,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 27,
+                        frequency: 2460,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 28,
+                        frequency: 2462,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 29,
+                        frequency: 2464,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 30,
+                        frequency: 2466,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 31,
+                        frequency: 2468,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 32,
+                        frequency: 2470,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 33,
+                        frequency: 2472,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 34,
+                        frequency: 2474,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 35,
+                        frequency: 2476,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 36,
+                        frequency: 2478,
+                        width: 2,
+                        application: "Data Channel",
+                    },
+                    {
+                        channel: 39,
+                        frequency: 2480,
+                        width: 2,
+                        application: "Primary Advertising",
+                    },
                 ],
             };
 
+            // We always show all bands
             const wifiChannels = {
                 "900 MHz": [
                     { channel: 1, frequency: 905, width: 4 },
@@ -489,6 +790,26 @@
                     { channel: 157, frequency: 5785, width: 20 },
                     { channel: 161, frequency: 5805, width: 20 },
                     { channel: 165, frequency: 5825, width: 20 },
+                    { channel: 38, frequency: 5190, width: 40 },
+                    { channel: 46, frequency: 5230, width: 40 },
+                    { channel: 54, frequency: 5270, width: 40 },
+                    { channel: 62, frequency: 5310, width: 40 },
+                    { channel: 102, frequency: 5510, width: 40 },
+                    { channel: 110, frequency: 5550, width: 40 },
+                    { channel: 118, frequency: 5590, width: 40 },
+                    { channel: 126, frequency: 5630, width: 40 },
+                    { channel: 134, frequency: 5670, width: 40 },
+                    { channel: 142, frequency: 5710, width: 40 },
+                    { channel: 151, frequency: 5755, width: 40 },
+                    { channel: 159, frequency: 5795, width: 40 },
+                    { channel: 42, frequency: 5210, width: 80 },
+                    { channel: 58, frequency: 5290, width: 80 },
+                    { channel: 106, frequency: 5530, width: 80 },
+                    { channel: 122, frequency: 5610, width: 80 },
+                    { channel: 138, frequency: 5690, width: 80 },
+                    { channel: 155, frequency: 5775, width: 80 },
+                    { channel: 50, frequency: 5250, width: 160 },
+                    { channel: 114, frequency: 5570, width: 160 },
                 ],
                 "6 GHz": [
                     { channel: "1E", frequency: 5955, width: 20 },
@@ -970,7 +1291,7 @@
 
                 // Draw Bluetooth channels
                 if (showBluetooth) {
-                    bluetoothChannels["2.4 GHz"].forEach((channel) => {
+                    bluetoothChannels[bluetoothMode].forEach((channel) => {
                         drawBluetoothChannel(channel, scale);
                     });
                 }
@@ -1243,6 +1564,14 @@
                 .getElementById("show-bluetooth-frequencies")
                 .addEventListener("change", (e) => {
                     showBluetoothFrequencies = e.target.checked;
+                });
+
+            document
+                .querySelectorAll('input[name="bluetooth-mode"]')
+                .forEach((radio) => {
+                    radio.addEventListener("change", (e) => {
+                        bluetoothMode = e.target.value;
+                    });
                 });
 
             // Zigbee checkboxes
