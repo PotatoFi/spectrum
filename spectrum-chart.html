@@ -943,29 +943,39 @@
                 lineColor,
                 fillColor,
             ) {
-                const topWidth = width * 0.8;
+                const channelWidthMhz = width / (2 * scale);
+                let mhzInset;
+
+                // Discrete channel width checks
+                if (channelWidthMhz <= 16) {
+                    mhzInset = 0.5;
+                } else {
+                    mhzInset = 2;
+                }
+
+                const insetPixels = mhzInset * 2 * scale;
+                const lowerFreqX = centerX - width / 2 + insetPixels;
+                const upperFreqX = centerX + width / 2 - insetPixels;
+                const topY = centerY - height;
 
                 // Draw fill first
                 ctx.beginPath();
-                ctx.moveTo(centerX - width / 2, centerY); // Start at bottom left
-                ctx.lineTo(centerX - topWidth / 2, centerY - height); // Up to top left
-                ctx.lineTo(centerX + topWidth / 2, centerY - height); // Across top
-                ctx.lineTo(centerX + width / 2, centerY); // Down to bottom right
+                ctx.moveTo(centerX - width / 2, centerY); // Full channel start
+                ctx.lineTo(lowerFreqX, topY); // Inset start
+                ctx.lineTo(upperFreqX, topY); // Inset end
+                ctx.lineTo(centerX + width / 2, centerY); // Full channel end
                 ctx.fillStyle = fillColor;
                 ctx.fill();
 
                 // Draw outline (without bottom line)
                 ctx.beginPath();
                 ctx.strokeStyle = lineColor;
-                // Left side
-                ctx.moveTo(centerX - topWidth / 2, centerY - height);
+                ctx.moveTo(lowerFreqX, topY);
                 ctx.lineTo(centerX - width / 2, centerY);
-                // Right side
-                ctx.moveTo(centerX + topWidth / 2, centerY - height);
+                ctx.moveTo(upperFreqX, topY);
                 ctx.lineTo(centerX + width / 2, centerY);
-                // Top line
-                ctx.moveTo(centerX - topWidth / 2, centerY - height);
-                ctx.lineTo(centerX + topWidth / 2, centerY - height);
+                ctx.moveTo(lowerFreqX, topY);
+                ctx.lineTo(upperFreqX, topY);
                 ctx.stroke();
             }
 
