@@ -257,6 +257,7 @@
                 textSize: 12,
             };
 
+            // This logic will be removed when labels are moved to html/css
             const LABEL_ROWS = {
                 FREQUENCY_MARKERS: 0,
                 WIFI_CHANNEL: 1,
@@ -270,7 +271,6 @@
             const LABEL_SPACING = 20; // vertical spacing between labels
             const BASE_LABEL_OFFSET = 20; // initial offset from baseline
 
-            // Zoom tiers
             const zoomTiers = {
                 lowest: {
                     threshold: 0.25,
@@ -354,6 +354,19 @@
             ];
 
             const zigbeeChannels = {
+                "868 MHz": [{ channel: 0, frequency: 868, width: 2 }],
+                "915 MHz": [
+                    { channel: 1, frequency: 906, width: 2 },
+                    { channel: 2, frequency: 908, width: 2 },
+                    { channel: 3, frequency: 910, width: 2 },
+                    { channel: 4, frequency: 912, width: 2 },
+                    { channel: 5, frequency: 914, width: 2 },
+                    { channel: 6, frequency: 916, width: 2 },
+                    { channel: 7, frequency: 918, width: 2 },
+                    { channel: 8, frequency: 920, width: 2 },
+                    { channel: 9, frequency: 922, width: 2 },
+                    { channel: 10, frequency: 924, width: 2 },
+                ],
                 "2.4 GHz": [
                     { channel: 11, frequency: 2405, width: 2 },
                     { channel: 12, frequency: 2410, width: 2 },
@@ -374,7 +387,6 @@
                 ],
             };
 
-            // User can select
             const bluetoothChannels = {
                 Classic: [
                     { channel: 0, frequency: 2402, width: 1 },
@@ -701,7 +713,6 @@
                 ],
             };
 
-            // We always show all bands
             const wifiChannels = {
                 "900 MHz": [
                     { channel: 1, frequency: 905, width: 4 },
@@ -763,6 +774,7 @@
                         overlapping: true,
                     },
                     { channel: 11, frequency: 2462, width: 20 },
+                    { channel: 14, frequency: 2484, width: 22, dsss: true },
                 ],
                 "5 GHz": [
                     { channel: 36, frequency: 5180, width: 20 },
@@ -1187,14 +1199,28 @@
                 };
 
                 drawSignatureBase(centerX, centerY, width, height, style);
-                drawZigguratSignature(
-                    centerX,
-                    centerY,
-                    width,
-                    height,
-                    style.lineColor,
-                    style.fillColor,
-                );
+
+                // Use parabola for DSSS channels, ziggurat for others
+                if (channel.dsss) {
+                    drawParabolaSignature(
+                        centerX,
+                        centerY,
+                        width,
+                        height,
+                        style.lineColor,
+                        style.fillColor,
+                    );
+                } else {
+                    drawZigguratSignature(
+                        centerX,
+                        centerY,
+                        width,
+                        height,
+                        style.lineColor,
+                        style.fillColor,
+                    );
+                }
+
                 drawChannelLabels(
                     centerX,
                     centerY,
@@ -1267,6 +1293,25 @@
                 );
             }
 
+            function drawLabel(x, baselineY, text, row, color) {
+                const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
+                ctx.fillStyle = color;
+                ctx.fillText(text, x, y);
+            }
+
+            // Helper function for coordinate conversion
+            function mhzToScreenX(mhz) {
+                const pixelsPerMhz = 2 * scale;
+                return mhz * pixelsPerMhz + offset.x;
+            }
+
+            // Helper function for coordinate conversion
+            function screenXToMhz(screenX) {
+                const pixelsPerMhz = 2 * scale;
+                const freq = (screenX - offset.x) / pixelsPerMhz;
+                return Math.max(0, Math.min(8000, freq));
+            }
+
             function draw() {
                 // Clear the canvas and label positions
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1298,8 +1343,10 @@
 
                 // Draw Zigbee channels
                 if (showZigbee) {
-                    zigbeeChannels["2.4 GHz"].forEach((channel) => {
-                        drawZigbeeChannel(channel, scale);
+                    Object.keys(zigbeeChannels).forEach((band) => {
+                        zigbeeChannels[band].forEach((channel) => {
+                            drawZigbeeChannel(channel, scale);
+                        });
                     });
                 }
 
@@ -1433,6 +1480,25 @@
                     coastingAnimation();
                 }
             });
+
+            function coastingAnimation() {
+                if (!isCoasting) return;
+
+                // Apply friction
+                const friction = 0.97; // Closer to 1 means more coasting
+                velocity *= friction;
+
+                // Update offset based on velocity
+                offset.x += velocity * 16; // Assuming 60 fps (16ms per frame)
+
+                // Stop coasting when velocity is very low
+                if (Math.abs(velocity) < 0.01) {
+                    isCoasting = false;
+                    return;
+                }
+
+                requestAnimationFrame(coastingAnimation);
+            }
 
             // Mouse wheel zooming
             canvas.addEventListener("wheel", (e) => {
@@ -1618,44 +1684,6 @@
             heightSlider.addEventListener("input", (e) => {
                 chartSettings.channelHeight = parseInt(e.target.value);
             });
-
-            // Helper functions for coordinate conversion
-            function mhzToScreenX(mhz) {
-                const pixelsPerMhz = 2 * scale;
-                return mhz * pixelsPerMhz + offset.x;
-            }
-
-            function screenXToMhz(screenX) {
-                const pixelsPerMhz = 2 * scale;
-                const freq = (screenX - offset.x) / pixelsPerMhz;
-                return Math.max(0, Math.min(8000, freq));
-            }
-
-            function drawLabel(x, baselineY, text, row, color) {
-                const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
-                ctx.fillStyle = color;
-                ctx.fillText(text, x, y);
-            }
-
-            // Touch movement coasting animation
-            function coastingAnimation() {
-                if (!isCoasting) return;
-
-                // Apply friction
-                const friction = 0.97; // Closer to 1 means more coasting
-                velocity *= friction;
-
-                // Update offset based on velocity
-                offset.x += velocity * 16; // Assuming 60 fps (16ms per frame)
-
-                // Stop coasting when velocity is very low
-                if (Math.abs(velocity) < 0.01) {
-                    isCoasting = false;
-                    return;
-                }
-
-                requestAnimationFrame(coastingAnimation);
-            }
 
             // Start the animation
             draw();
