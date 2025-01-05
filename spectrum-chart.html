@@ -109,64 +109,64 @@
                 <div class="dropdown-content">
                     <h4>Wi-Fi</h4>
                     <label
-                        ><input type="checkbox" id="show-wifi" checked />
+                        ><input type="checkbox" id="wifi-visibility" checked />
                         Wi-Fi</label
                     >
                     <label
-                        ><input type="checkbox" id="show-channels" checked />
-                        Wi-Fi labels</label
+                        ><input type="checkbox" id="wifi-label-visibility" checked />
+                        Channel labels</label
                     >
                     <label
-                        ><input type="checkbox" id="show-overlapping" /> 2.4 GHz
+                        ><input type="checkbox" id="wifi-overlapping-visibility" /> 2.4 GHz
                         Overlapping Channels</label
                     >
                     <label>
-                        <input type="checkbox" id="show-20mhz" checked /> 20 MHz
+                        <input type="checkbox" id="wifi-20mhz-visibility" checked /> 20 MHz
                         channels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-40mhz" /> 40 MHz
+                        <input type="checkbox" id="wifi-40mhz-visibility" /> 40 MHz
                         channels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-80mhz" /> 80 MHz
+                        <input type="checkbox" id="wifi-80mhz-visibility" /> 80 MHz
                         channels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-160mhz" /> 160 MHz
+                        <input type="checkbox" id="wifi-160mhz-visibility" /> 160 MHz
                         channels
                     </label>
                     <h4>Wi-Fi (802.11ah)</h4>
                     <label>
-                        <input type="checkbox" id="show-1mhz" checked /> 1 MHz
+                        <input type="checkbox" id="wifi-1mhz-visibility" checked /> 1 MHz
                         channels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-2mhz" /> 2 MHz channels
+                        <input type="checkbox" id="wifi-2mhz-visibility" /> 2 MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-4mhz" /> 4 MHz channels
+                        <input type="checkbox" id="wifi-4mhz-visibility" /> 4 MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-8mhz" /> 8 MHz channels
+                        <input type="checkbox" id="wifi-8mhz-visibility" /> 8 MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-16mhz" /> 16 MHz
+                        <input type="checkbox" id="wifi-16mhz-visibility" /> 16 MHz
                         channels
                     </label>
                     <h4>Bluetooth</h4>
                     <label
-                        ><input type="checkbox" id="show-bluetooth" checked />
+                        ><input type="checkbox" id="bluetooth-visibility" checked />
                         Bluetooth</label
                     >
                     <label
-                        ><input type="checkbox" id="show-bluetooth-channels" />
+                        ><input type="checkbox" id="bluetooth-label-visibility" />
                         Bluetooth labels</label
                     >
                     <label></label>
                         <input
                             type="radio"
-                            name="bluetooth-mode"
+                            name="bluetooth-mode-select"
                             value="Classic"
                             checked
                         />
@@ -175,35 +175,35 @@
                     <label></label>
                         <input
                             type="radio"
-                            name="bluetooth-mode"
+                            name="bluetooth-mode-select"
                             value="Low Energy"
                         />
                         Low Energy
                     </label>
                     <h4>Zigbee</h4>
                     <label
-                        ><input type="checkbox" id="show-zigbee" />
+                        ><input type="checkbox" id="zigbee-visibility" />
                         Zigbee</label
                     >
                     <label
-                        ><input type="checkbox" id="show-zigbee-channels" />
-                        Zigbee labels</label
+                        ><input type="checkbox" id="zigbee-label-visibility" />
+                        Channel labels</label
                     >
                     <h4>General</h4>
                     <label>
-                        <input type="checkbox" id="show-band-labels" checked />
+                        <input type="checkbox" id="band-label-visibility" checked />
                         Show Band Labels
                     </label>
                     <label>
-                        <input type="checkbox" id="show-subbands" checked />
+                        <input type="checkbox" id="sub-band-label-visibility" checked />
                         Show Sub-Band Labels
                     </label>
                     <label>
-                        <input type="radio" name="domain" value="FCC" checked />
+                        <input type="radio" name="domain-select" value="FCC" checked />
                         FCC
                     </label>
                     <label>
-                        <input type="radio" name="domain" value="ETSI" /> ETSI
+                        <input type="radio" name="domain-select" value="ETSI" /> ETSI
                     </label>
                     <label>
                         Height:
@@ -255,7 +255,6 @@
             let lastPosition = { x: 0, y: 0 };
             let lastPinchDistance = null;
             let lastScale = scale; // For scale tuning purposes
-            //const labelPositions = new Map(); // Tracks positions of labels for each x-coordinate
 
             // Movement variables (incomplete, there are some above)
             let scrollDirection = null;
@@ -1029,13 +1028,13 @@
                 );
             }
 
-            function drawSignatureBase(centerX, centerY, width, height, style) {
+            function drawMaskLine(centerX, centerY, width, height, style) {
                 ctx.strokeStyle = style.color;
                 ctx.lineWidth = style.lineWidth || 2;
                 ctx.lineCap = "round";
             }
 
-            function drawZigguratSignature(
+            function drawZiggurat(
                 centerX,
                 centerY,
                 width,
@@ -1079,7 +1078,7 @@
                 ctx.stroke();
             }
 
-            function drawParabolaSignature(
+            function drawParabola(
                 centerX,
                 centerY,
                 width,
@@ -1148,7 +1147,7 @@
                         break;
                 }
 
-                // Draw channel number on top
+                // Draw channel number
                 drawLabel(
                     centerX,
                     centerY,
@@ -1157,7 +1156,7 @@
                     style.textColor || style.color,
                 );
 
-                // Draw frequency below
+                // Draw center frequency number
                 /*
                 drawLabel(
                     centerX,
@@ -1322,11 +1321,11 @@
                     textColor: "black",
                 };
 
-                drawSignatureBase(centerX, centerY, width, height, style);
+                drawMaskLine(centerX, centerY, width, height, style);
 
                 // Use parabola for DSSS channels, ziggurat for others
                 if (channel.dsss) {
-                    drawParabolaSignature(
+                    drawParabola(
                         centerX,
                         centerY,
                         width,
@@ -1335,7 +1334,7 @@
                         style.fillColor,
                     );
                 } else {
-                    drawZigguratSignature(
+                    drawZiggurat(
                         centerX,
                         centerY,
                         width,
@@ -1367,8 +1366,8 @@
                     textColor: "#1486FC",
                 };
 
-                drawSignatureBase(centerX, centerY, width, height, style);
-                drawParabolaSignature(
+                drawMaskLine(centerX, centerY, width, height, style);
+                drawParabola(
                     centerX,
                     centerY,
                     width,
@@ -1398,8 +1397,8 @@
                     textColor: "#EF3453",
                 };
 
-                drawSignatureBase(centerX, centerY, width, height, style);
-                drawParabolaSignature(
+                drawMaskLine(centerX, centerY, width, height, style);
+                drawParabola(
                     centerX,
                     centerY,
                     width,
@@ -1439,7 +1438,6 @@
             function draw() {
                 // Clear the canvas and label positions
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                //labelPositions.clear(); // Add this line
 
                 // Draw WiFi channels
                 if (showWifi) {
@@ -1509,7 +1507,7 @@
                     screenXToMhz(canvas.width),
                 );
 
-                // Draw band labels
+                // Draw band and sub-band labels
                 drawBandLabels();
                 drawSubbandLabels();
 
@@ -1729,74 +1727,74 @@
             // Wi-Fi Checkboxes
 
             document
-                .getElementById("show-wifi")
+                .getElementById("wifi-visibility")
                 .addEventListener("change", (e) => {
                     showWifi = e.target.checked;
                 });
 
             document
-                .getElementById("show-channels")
+                .getElementById("wifi-label-visibility")
                 .addEventListener("change", (e) => {
                     showWifiChannels = e.target.checked;
                 });
 
             document
-                .getElementById("show-overlapping")
+                .getElementById("wifi-overlapping-visibility")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
                 });
 
             // Wi-Fi channel width checkboxes
             document
-                .getElementById("show-20mhz")
+                .getElementById("wifi-20mhz-visibility")
                 .addEventListener("change", (e) => {
                     show20MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-40mhz")
+                .getElementById("wifi-40mhz-visibility")
                 .addEventListener("change", (e) => {
                     show40MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-80mhz")
+                .getElementById("wifi-80mhz-visibility")
                 .addEventListener("change", (e) => {
                     show80MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-160mhz")
+                .getElementById("wifi-160mhz-visibility")
                 .addEventListener("change", (e) => {
                     show160MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-1mhz")
+                .getElementById("wifi-1mhz-visibility")
                 .addEventListener("change", (e) => {
                     show1MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-2mhz")
+                .getElementById("wifi-2mhz-visibility")
                 .addEventListener("change", (e) => {
                     show2MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-4mhz")
+                .getElementById("wifi-4mhz-visibility")
                 .addEventListener("change", (e) => {
                     show4MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-8mhz")
+                .getElementById("wifi-8mhz-visibility")
                 .addEventListener("change", (e) => {
                     show8MHz = e.target.checked;
                 });
 
             document
-                .getElementById("show-16mhz")
+                .getElementById("wifi-16mhz-visibility")
                 .addEventListener("change", (e) => {
                     show16MHz = e.target.checked;
                 });
@@ -1804,19 +1802,19 @@
             // Bluetooth checkboxes
 
             document
-                .getElementById("show-bluetooth")
+                .getElementById("bluetooth-visibility")
                 .addEventListener("change", (e) => {
                     showBluetooth = e.target.checked;
                 });
 
             document
-                .getElementById("show-bluetooth-channels")
+                .getElementById("bluetooth-label-visibility")
                 .addEventListener("change", (e) => {
                     showBluetoothChannels = e.target.checked;
                 });
 
             document
-                .querySelectorAll('input[name="bluetooth-mode"]')
+                .querySelectorAll('input[name="bluetooth-mode-select"]')
                 .forEach((radio) => {
                     radio.addEventListener("change", (e) => {
                         bluetoothMode = e.target.value;
@@ -1826,32 +1824,32 @@
             // Zigbee checkboxes
 
             document
-                .getElementById("show-zigbee")
+                .getElementById("zigbee-visibility")
                 .addEventListener("change", (e) => {
                     showZigbee = e.target.checked;
                 });
 
             document
-                .getElementById("show-zigbee-channels")
+                .getElementById("zigbee-label-visibility")
                 .addEventListener("change", (e) => {
                     showZigbeeChannels = e.target.checked;
                 });
 
             // General
             document
-                .getElementById("show-band-labels")
+                .getElementById("band-label-visibility")
                 .addEventListener("change", (e) => {
                     showBandLabels = e.target.checked;
                 });
 
             document
-                .getElementById("show-subbands")
+                .getElementById("sub-band-label-visibility")
                 .addEventListener("change", (e) => {
                     showSubbands = e.target.checked;
                 });
 
             document
-                .querySelectorAll('input[name="domain"]')
+                .querySelectorAll('input[name="domain-select"]')
                 .forEach((radio) => {
                     radio.addEventListener("change", (e) => {
                         selectedDomain = e.target.value;
