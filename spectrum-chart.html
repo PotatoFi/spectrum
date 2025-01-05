@@ -1028,97 +1028,6 @@
                 );
             }
 
-            function drawMaskLine(centerX, centerY, width, height, style) {
-                ctx.strokeStyle = style.color;
-                ctx.lineWidth = style.lineWidth || 2;
-                ctx.lineCap = "round";
-            }
-
-            function drawZiggurat(
-                centerX,
-                centerY,
-                width,
-                height,
-                lineColor,
-                fillColor,
-            ) {
-                const channelWidthMhz = width / (2 * scale);
-                let mhzInset;
-
-                // Use more perpendicular (steeper) lines for narrow channels
-                if (channelWidthMhz <= 16) {
-                    mhzInset = 0.25;
-                } else {
-                    mhzInset = 2;
-                }
-
-                const insetPixels = mhzInset * 2 * scale;
-                const lowerFreqX = centerX - width / 2 + insetPixels;
-                const upperFreqX = centerX + width / 2 - insetPixels;
-                const topY = centerY - height;
-
-                // Draw fill first
-                ctx.beginPath();
-                ctx.moveTo(centerX - width / 2, centerY); // Full channel start
-                ctx.lineTo(lowerFreqX, topY); // Inset start
-                ctx.lineTo(upperFreqX, topY); // Inset end
-                ctx.lineTo(centerX + width / 2, centerY); // Full channel end
-                ctx.fillStyle = fillColor;
-                ctx.fill();
-
-                // Draw outline (without bottom line)
-                ctx.beginPath();
-                ctx.strokeStyle = lineColor;
-                ctx.moveTo(lowerFreqX, topY);
-                ctx.lineTo(centerX - width / 2, centerY);
-                ctx.moveTo(upperFreqX, topY);
-                ctx.lineTo(centerX + width / 2, centerY);
-                ctx.moveTo(lowerFreqX, topY);
-                ctx.lineTo(upperFreqX, topY);
-                ctx.stroke();
-            }
-
-            function drawParabola(
-                centerX,
-                centerY,
-                width,
-                height,
-                lineColor,
-                fillColor,
-            ) {
-                const points = 20;
-
-                // Draw fill first
-                ctx.beginPath();
-                ctx.moveTo(centerX - width / 2, centerY); // Start at bottom left
-
-                // Draw parabola points
-                for (let i = 0; i <= points; i++) {
-                    const x = (i / points) * width - width / 2;
-                    const y = height * (1 - Math.pow((2 * x) / width, 2));
-                    ctx.lineTo(centerX + x, centerY - y);
-                }
-
-                ctx.lineTo(centerX + width / 2, centerY); // To bottom right
-                ctx.fillStyle = fillColor;
-                ctx.fill();
-
-                // Draw outline (without bottom line)
-                ctx.beginPath();
-                ctx.strokeStyle = lineColor;
-                // Draw parabola curve only
-                for (let i = 0; i <= points; i++) {
-                    const x = (i / points) * width - width / 2;
-                    const y = height * (1 - Math.pow((2 * x) / width, 2));
-                    if (i === 0) {
-                        ctx.moveTo(centerX + x, centerY - y);
-                    } else {
-                        ctx.lineTo(centerX + x, centerY - y);
-                    }
-                }
-                ctx.stroke();
-            }
-
             function drawChannelLabels(
                 centerX,
                 centerY,
@@ -1127,7 +1036,11 @@
                 style,
                 technology,
             ) {
-                // Determine which rows to use based on technology
+
+              // Determine which rows to use based on technology
+                // I want to use this to create a row system, where each technology and channel width is assigned to cascading rows, I think it can be pretty simple
+
+                /* this was the old method of placing things on rows
                 let channelRow, frequencyRow;
                 switch (technology) {
                     case "wifi":
@@ -1145,26 +1058,34 @@
                         channelRow = LABEL_ROWS.ZIGBEE_CHANNEL;
                         frequencyRow = LABEL_ROWS.ZIGBEE_FREQ;
                         break;
+                }*/
+
+                switch (technology) {
+                    case "wifi":
+                        //if (!showWifiChannels) return;
+                        foregroundColor = "#000066";
+                        backgroundColor = "#EF3453";
+                        break;
+                    case "bluetooth":
+                        //if (!showBluetoothChannels) return;
+                        foregroundColor = "#99ccff";
+                        backgroundColor = "#0066ff";
+                        break;
+                    case "zigbee":
+                        //if (!showZigbeeChannels) return;
+                        foregroundColor = "#ffccff";
+                        backgroundColor = "#EF3453";
+                        break;
                 }
 
                 // Draw channel number
-                drawLabel(
+                drawNewLabel(
                     centerX,
                     centerY,
                     `${channel}`,
-                    channelRow,
-                    style.textColor || style.color,
+                    foregroundColor,
+                    backgroundColor,
                 );
-
-                // Draw center frequency number
-                /*
-                drawLabel(
-                    centerX,
-                    centerY,
-                    `${frequency} MHz`,
-                    channelRow - 10,
-                    style.textColor || style.color,
-                );*/
             }
 
             function drawBandLabels() {
@@ -1321,8 +1242,6 @@
                     textColor: "black",
                 };
 
-                drawMaskLine(centerX, centerY, width, height, style);
-
                 // Use parabola for DSSS channels, ziggurat for others
                 if (channel.dsss) {
                     drawParabola(
@@ -1366,7 +1285,6 @@
                     textColor: "#1486FC",
                 };
 
-                drawMaskLine(centerX, centerY, width, height, style);
                 drawParabola(
                     centerX,
                     centerY,
@@ -1397,7 +1315,6 @@
                     textColor: "#EF3453",
                 };
 
-                drawMaskLine(centerX, centerY, width, height, style);
                 drawParabola(
                     centerX,
                     centerY,
@@ -1416,6 +1333,115 @@
                 );
             }
 
+            function drawZiggurat(
+                centerX,
+                centerY,
+                width,
+                height,
+                lineColor,
+                fillColor,
+            ) {
+                const channelWidthMhz = width / (2 * scale);
+                let mhzInset;
+
+                // Use more perpendicular (steeper) lines for narrow channels
+                if (channelWidthMhz <= 16) {
+                    mhzInset = 0.25;
+                } else {
+                    mhzInset = 2;
+                }
+
+                const insetPixels = mhzInset * 2 * scale;
+                const lowerFreqX = centerX - width / 2 + insetPixels;
+                const upperFreqX = centerX + width / 2 - insetPixels;
+                const topY = centerY - height;
+
+                // Draw fill first
+                ctx.beginPath();
+                ctx.moveTo(centerX - width / 2, centerY); // Full channel start
+                ctx.lineTo(lowerFreqX, topY); // Inset start
+                ctx.lineTo(upperFreqX, topY); // Inset end
+                ctx.lineTo(centerX + width / 2, centerY); // Full channel end
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+
+                // Draw outline (without bottom line)
+                ctx.beginPath();
+                ctx.strokeStyle = lineColor;
+                ctx.moveTo(lowerFreqX, topY);
+                ctx.lineTo(centerX - width / 2, centerY);
+                ctx.moveTo(upperFreqX, topY);
+                ctx.lineTo(centerX + width / 2, centerY);
+                ctx.moveTo(lowerFreqX, topY);
+                ctx.lineTo(upperFreqX, topY);
+                ctx.stroke();
+            }
+
+            function drawParabola(
+                centerX,
+                centerY,
+                width,
+                height,
+                lineColor,
+                fillColor,
+            ) {
+                const points = 20;
+
+                // Draw fill first
+                ctx.beginPath();
+                ctx.moveTo(centerX - width / 2, centerY); // Start at bottom left
+
+                // Draw parabola points
+                for (let i = 0; i <= points; i++) {
+                    const x = (i / points) * width - width / 2;
+                    const y = height * (1 - Math.pow((2 * x) / width, 2));
+                    ctx.lineTo(centerX + x, centerY - y);
+                }
+
+                ctx.lineTo(centerX + width / 2, centerY); // To bottom right
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+
+                // Draw outline (without bottom line)
+                ctx.beginPath();
+                ctx.strokeStyle = lineColor;
+                // Draw parabola curve only
+                for (let i = 0; i <= points; i++) {
+                    const x = (i / points) * width - width / 2;
+                    const y = height * (1 - Math.pow((2 * x) / width, 2));
+                    if (i === 0) {
+                        ctx.moveTo(centerX + x, centerY - y);
+                    } else {
+                        ctx.lineTo(centerX + x, centerY - y);
+                    }
+                }
+                ctx.stroke();
+            }
+
+            function drawNewLabel(x, baselineY, text, foregroundColor, backgroundColor) {
+                // const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
+                const y = baselineY + 50;
+
+                const width = 36; // Set the width of the rectangle
+                // Later, I'll use the width of the mask to set the width here too
+                // I'll calculate the width, and if too narrow, then ... 👈
+                const height = 30;
+                let backgroundCenterX = width / 2; // Calculate how to translate the rectangle
+                let backgroundCenterY = height / 2;
+
+                // Draw the background
+                // roundRect(x, y, width, height, radii)
+                ctx.beginPath();
+                ctx.roundRect(x - backgroundCenterX, y - backgroundCenterY, width, height, 6);
+                ctx.fillStyle = backgroundColor;
+                ctx.fill();
+
+                // Draw the text
+                ctx.fillStyle = foregroundColor;
+                ctx.fillText(text, x, y);
+            }
+
+            // This is the old label drawing system, which I can easily break major and minor freq ticks by changing? So confusing...
             function drawLabel(x, baselineY, text, row, color) {
                 const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
                 ctx.fillStyle = color;
