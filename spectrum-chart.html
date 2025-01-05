@@ -16,12 +16,6 @@
                 touch-action: none;
                 font-family: "Quicksand", sans-serif;
             }
-            * {
-                font-family: "Quicksand", sans-serif;
-                font-optical-sizing: auto;
-                font-weight: 500;
-                font-style: normal;
-            }
             #canvas {
                 touch-action: none;
             }
@@ -261,7 +255,7 @@
             let lastPosition = { x: 0, y: 0 };
             let lastPinchDistance = null;
             let lastScale = scale; // For scale tuning purposes
-            const labelPositions = new Map(); // Tracks positions of labels for each x-coordinate
+            //const labelPositions = new Map(); // Tracks positions of labels for each x-coordinate
 
             // Movement variables (incomplete, there are some above)
             let scrollDirection = null;
@@ -282,7 +276,7 @@
                 textSize: 12,
             };
 
-            // This logic will be removed when labels are moved to html/css
+            // This logic will be removed if/when labels are moved to html/css
             const LABEL_ROWS = {
                 FREQUENCY_MARKERS: 0,
                 WIFI_CHANNEL: 1,
@@ -1445,7 +1439,7 @@
             function draw() {
                 // Clear the canvas and label positions
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                labelPositions.clear(); // Add this line
+                //labelPositions.clear(); // Add this line
 
                 // Draw WiFi channels
                 if (showWifi) {
