@@ -72,9 +72,8 @@ Using the same system as the cookies, the user can click `900 MHz`, `2.4 GHz`, `
 
 # To-Do
 
-* Only draw line and ticks from 0 to 8000 MHz
-* Add transparent fill to signatures
-* Refactor JSON - each technology should contain a group of channels with the same width
+* Make a central "label" system, call a function to draw a label(width,backgroundColor,labelSlot)
+* Make a getLabelSlot, which assigns a label to each slot, updated whenever anything is hidden or shown
 * Stack labels correctly
 * Limit panning. The edge of the viewawble spectrum should not pan past the center of the screen.
 * Show subcarriers at a certain zoom level
