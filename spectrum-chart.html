@@ -1028,13 +1028,12 @@
                 );
             }
 
-            function drawChannelLabels(
+            function drawChannelLabelRow(
                 centerX,
                 centerY,
                 channel,
-                frequency,
-                style,
-                technology,
+                lineColor,
+                textColor,
             ) {
 
               // Determine which rows to use based on technology
@@ -1060,31 +1059,13 @@
                         break;
                 }*/
 
-                switch (technology) {
-                    case "wifi":
-                        //if (!showWifiChannels) return;
-                        foregroundColor = "#000066";
-                        backgroundColor = "#EF3453";
-                        break;
-                    case "bluetooth":
-                        //if (!showBluetoothChannels) return;
-                        foregroundColor = "#99ccff";
-                        backgroundColor = "#0066ff";
-                        break;
-                    case "zigbee":
-                        //if (!showZigbeeChannels) return;
-                        foregroundColor = "#ffccff";
-                        backgroundColor = "#EF3453";
-                        break;
-                }
-
                 // Draw channel number
                 drawNewLabel(
                     centerX,
                     centerY,
                     `${channel}`,
-                    foregroundColor,
-                    backgroundColor,
+                    textColor,
+                    lineColor,
                 );
             }
 
@@ -1239,7 +1220,7 @@
                     lineColor: "#F5D809",
                     fillColor: "rgba(245, 216, 9, 0.2)",
                     lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "black",
+                    textColor: "#000000",
                 };
 
                 // Use parabola for DSSS channels, ziggurat for others
@@ -1263,13 +1244,13 @@
                     );
                 }
 
-                drawChannelLabels(
-                    centerX,
-                    centerY,
-                    channel.channel,
-                    channel.frequency,
-                    style,
-                    "wifi",
+                drawChannelLabelRow(
+                  centerX,
+                  centerY,
+                  channel.channel,
+                  style.lineColor,
+                  style.textColor,
+                  "wifi",
                 );
             }
 
@@ -1282,7 +1263,7 @@
                     lineColor: "#1486FC",
                     fillColor: "rgba(20, 134, 252, 0.2)", // Semi-transparent blue
                     lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "#1486FC",
+                    textColor: "#FFFFFF",
                 };
 
                 drawParabola(
@@ -1293,13 +1274,13 @@
                     style.lineColor,
                     style.fillColor,
                 );
-                drawChannelLabels(
-                    centerX,
-                    centerY,
-                    channel.channel,
-                    channel.frequency,
-                    style,
-                    "bluetooth",
+                drawChannelLabelRow(
+                  centerX,
+                  centerY,
+                  channel.channel,
+                  style.lineColor,
+                  style.textColor,
+                  "bluetooth",
                 );
             }
 
@@ -1312,7 +1293,7 @@
                     lineColor: "#EF3453",
                     fillColor: "rgba(239, 52, 83, 0.2)", // Semi-transparent red
                     lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "#EF3453",
+                    textColor: "#FFFFFF",
                 };
 
                 drawParabola(
@@ -1323,12 +1304,12 @@
                     style.lineColor,
                     style.fillColor,
                 );
-                drawChannelLabels(
+                drawChannelLabelRow(
                     centerX,
                     centerY,
                     channel.channel,
-                    channel.frequency,
-                    style,
+                    style.lineColor,
+                    style.textColor,
                     "zigbee",
                 );
             }
