@@ -1031,6 +1031,7 @@
             function drawChannelLabelRow(
                 centerX,
                 centerY,
+                width,
                 channel,
                 lineColor,
                 textColor,
@@ -1063,6 +1064,7 @@
                 drawNewLabel(
                     centerX,
                     centerY,
+                    width,
                     `${channel}`,
                     textColor,
                     lineColor,
@@ -1247,6 +1249,7 @@
                 drawChannelLabelRow(
                   centerX,
                   centerY,
+                  width,
                   channel.channel,
                   style.lineColor,
                   style.textColor,
@@ -1277,6 +1280,7 @@
                 drawChannelLabelRow(
                   centerX,
                   centerY,
+                  width,
                   channel.channel,
                   style.lineColor,
                   style.textColor,
@@ -1307,6 +1311,7 @@
                 drawChannelLabelRow(
                     centerX,
                     centerY,
+                    width,
                     channel.channel,
                     style.lineColor,
                     style.textColor,
@@ -1399,13 +1404,11 @@
                 ctx.stroke();
             }
 
-            function drawNewLabel(x, baselineY, text, foregroundColor, backgroundColor) {
+            function drawNewLabel(x, baselineY, width, text, foregroundColor, backgroundColor) {
                 // const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
-                const y = baselineY + 50;
 
-                const width = 36; // Set the width of the rectangle
-                // Later, I'll use the width of the mask to set the width here too
-                // I'll calculate the width, and if too narrow, then ... 👈
+                const y = baselineY + 50;
+                width = width - 4; // Set the width of the rectangle
                 const height = 30;
                 let backgroundCenterX = width / 2; // Calculate how to translate the rectangle
                 let backgroundCenterY = height / 2;
@@ -1418,8 +1421,13 @@
                 ctx.fill();
 
                 // Draw the text
-                ctx.fillStyle = foregroundColor;
-                ctx.fillText(text, x, y);
+                if (width >= 25) { // Later, I'll do a more sophisticated text length calculation
+                  ctx.fillStyle = foregroundColor;
+                  ctx.fillText(text, x, y);
+                }
+                else {
+                }
+
             }
 
             // This is the old label drawing system, which I can easily break major and minor freq ticks by changing? So confusing...
