@@ -113,57 +113,82 @@
                         Wi-Fi</label
                     >
                     <label
-                        ><input type="checkbox" id="wifi-label-visibility" checked />
+                        ><input
+                            type="checkbox"
+                            id="wifi-label-visibility"
+                            checked
+                        />
                         Channel labels</label
                     >
                     <label
-                        ><input type="checkbox" id="wifi-overlapping-visibility" /> 2.4 GHz
-                        Overlapping Channels</label
+                        ><input
+                            type="checkbox"
+                            id="wifi-overlapping-visibility"
+                        />
+                        2.4 GHz Overlapping Channels</label
                     >
                     <label>
-                        <input type="checkbox" id="wifi-20mhz-visibility" checked /> 20 MHz
-                        channels
+                        <input
+                            type="checkbox"
+                            id="wifi-20mhz-visibility"
+                            checked
+                        />
+                        20 MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="wifi-40mhz-visibility" /> 40 MHz
-                        channels
+                        <input type="checkbox" id="wifi-40mhz-visibility" /> 40
+                        MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="wifi-80mhz-visibility" /> 80 MHz
-                        channels
+                        <input type="checkbox" id="wifi-80mhz-visibility" /> 80
+                        MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="wifi-160mhz-visibility" /> 160 MHz
-                        channels
+                        <input type="checkbox" id="wifi-160mhz-visibility" />
+                        160 MHz channels
                     </label>
                     <h4>Wi-Fi (802.11ah)</h4>
                     <label>
-                        <input type="checkbox" id="wifi-1mhz-visibility" checked /> 1 MHz
-                        channels
+                        <input
+                            type="checkbox"
+                            id="wifi-1mhz-visibility"
+                            checked
+                        />
+                        1 MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="wifi-2mhz-visibility" /> 2 MHz channels
+                        <input type="checkbox" id="wifi-2mhz-visibility" /> 2
+                        MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="wifi-4mhz-visibility" /> 4 MHz channels
+                        <input type="checkbox" id="wifi-4mhz-visibility" /> 4
+                        MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="wifi-8mhz-visibility" /> 8 MHz channels
+                        <input type="checkbox" id="wifi-8mhz-visibility" /> 8
+                        MHz channels
                     </label>
                     <label>
-                        <input type="checkbox" id="wifi-16mhz-visibility" /> 16 MHz
-                        channels
+                        <input type="checkbox" id="wifi-16mhz-visibility" /> 16
+                        MHz channels
                     </label>
                     <h4>Bluetooth</h4>
                     <label
-                        ><input type="checkbox" id="bluetooth-visibility" checked />
+                        ><input
+                            type="checkbox"
+                            id="bluetooth-visibility"
+                            checked
+                        />
                         Bluetooth</label
                     >
                     <label
-                        ><input type="checkbox" id="bluetooth-label-visibility" />
+                        ><input
+                            type="checkbox"
+                            id="bluetooth-label-visibility"
+                        />
                         Bluetooth labels</label
                     >
-                    <label></label>
+                    <label>
                         <input
                             type="radio"
                             name="bluetooth-mode-select"
@@ -172,7 +197,7 @@
                         />
                         Classic
                     </label>
-                    <label></label>
+                    <label>
                         <input
                             type="radio"
                             name="bluetooth-mode-select"
@@ -191,19 +216,33 @@
                     >
                     <h4>General</h4>
                     <label>
-                        <input type="checkbox" id="band-label-visibility" checked />
+                        <input
+                            type="checkbox"
+                            id="band-label-visibility"
+                            checked
+                        />
                         Show Band Labels
                     </label>
                     <label>
-                        <input type="checkbox" id="sub-band-label-visibility" checked />
+                        <input
+                            type="checkbox"
+                            id="sub-band-label-visibility"
+                            checked
+                        />
                         Show Sub-Band Labels
                     </label>
                     <label>
-                        <input type="radio" name="domain-select" value="FCC" checked />
+                        <input
+                            type="radio"
+                            name="domain-select"
+                            value="FCC"
+                            checked
+                        />
                         FCC
                     </label>
                     <label>
-                        <input type="radio" name="domain-select" value="ETSI" /> ETSI
+                        <input type="radio" name="domain-select" value="ETSI" />
+                        ETSI
                     </label>
                     <label>
                         Height:
@@ -283,6 +322,8 @@
                 ZIGBEE_CHANNEL: 3,
             };
 
+            // I think this is also old stuff that goes with above
+            // Frequency labels are still dependant on them
             const LABEL_SPACING = 20; // vertical spacing between labels
             const BASE_LABEL_OFFSET = 20; // initial offset from baseline
 
@@ -845,7 +886,8 @@
                         overlapping: true,
                     },
                     { channel: 11, frequency: 2462, width: 20 },
-                    { channel: 14, frequency: 2484, width: 22, dsss: true },
+                    { channel: 14, frequency: 2484, width: 20, dsss: true },
+                    //{ channel: 14, frequency: 2484, width: 22, dsss: true },
                 ],
                 "5 GHz": [
                     { channel: 36, frequency: 5180, width: 20 },
@@ -1028,49 +1070,6 @@
                 );
             }
 
-            function drawChannelLabelRow(
-                centerX,
-                centerY,
-                width,
-                channel,
-                lineColor,
-                textColor,
-            ) {
-
-              // Determine which rows to use based on technology
-                // I want to use this to create a row system, where each technology and channel width is assigned to cascading rows, I think it can be pretty simple
-
-                /* this was the old method of placing things on rows
-                let channelRow, frequencyRow;
-                switch (technology) {
-                    case "wifi":
-                        if (!showWifiChannels) return;
-                        channelRow = LABEL_ROWS.WIFI_CHANNEL;
-                        frequencyRow = LABEL_ROWS.WIFI_FREQ;
-                        break;
-                    case "bluetooth":
-                        if (!showBluetoothChannels) return;
-                        channelRow = LABEL_ROWS.BLUETOOTH_CHANNEL;
-                        frequencyRow = LABEL_ROWS.BLUETOOTH_FREQ;
-                        break;
-                    case "zigbee":
-                        if (!showZigbeeChannels) return;
-                        channelRow = LABEL_ROWS.ZIGBEE_CHANNEL;
-                        frequencyRow = LABEL_ROWS.ZIGBEE_FREQ;
-                        break;
-                }*/
-
-                // Draw channel number
-                drawNewLabel(
-                    centerX,
-                    centerY,
-                    width,
-                    `${channel}`,
-                    textColor,
-                    lineColor,
-                );
-            }
-
             function drawBandLabels() {
                 if (!showBandLabels) return;
 
@@ -1213,7 +1212,7 @@
                 ctx.stroke();
             }
 
-            function drawWiFiChannel(channel, scale) {
+            function drawWiFiChannel(channel, scale, channelWidthID) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
@@ -1246,45 +1245,25 @@
                     );
                 }
 
-                drawChannelLabelRow(
-                  centerX,
-                  centerY,
-                  width,
-                  channel.channel,
-                  style.lineColor,
-                  style.textColor,
-                  "wifi",
-                );
-            }
-
-            function drawBluetoothChannel(channel, scale) {
-                const centerX = mhzToScreenX(channel.frequency);
-                const centerY = getBaselineY();
-                const width = channel.width * 2 * scale;
-                const height = chartSettings.channelHeight;
-                const style = {
-                    lineColor: "#1486FC",
-                    fillColor: "rgba(20, 134, 252, 0.2)", // Semi-transparent blue
-                    lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "#FFFFFF",
+                // Create the rowData object
+                const rowData = {
+                    // I need to programatically populate the id, somehow... let's go look at what
+                    id: channelWidthID, // This seems horribly inefficient...
+                    type: "wifi",
+                    width: channel.width, // to have channelWidthID, and also this 🤔
                 };
 
-                drawParabola(
+                let rowOffsetInPx = getRowOffset(rowData);
+
+                drawChannelLabel(
                     centerX,
                     centerY,
                     width,
-                    height,
                     style.lineColor,
-                    style.fillColor,
-                );
-                drawChannelLabelRow(
-                  centerX,
-                  centerY,
-                  width,
-                  channel.channel,
-                  style.lineColor,
-                  style.textColor,
-                  "bluetooth",
+                    style.textColor,
+                    "wifi",
+                    channel.channel,
+                    rowOffsetInPx,
                 );
             }
 
@@ -1308,15 +1287,253 @@
                     style.lineColor,
                     style.fillColor,
                 );
-                drawChannelLabelRow(
+
+                const rowData = {
+                    id: "zigbee",
+                    type: "zigbee",
+                    width: channel.width,
+                };
+
+                let rowOffsetInPx = getRowOffset(rowData);
+
+                drawChannelLabel(
                     centerX,
                     centerY,
                     width,
-                    channel.channel,
                     style.lineColor,
                     style.textColor,
                     "zigbee",
+                    channel.channel,
+                    rowOffsetInPx,
                 );
+            }
+
+            function drawBluetoothChannel(channel, scale) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.channelHeight;
+                const style = {
+                    lineColor: "#1486FC",
+                    fillColor: "rgba(20, 134, 252, 0.2)", // Semi-transparent blue
+                    lineWidth: getZoomTier(scale).lineWidth,
+                    textColor: "#FFFFFF",
+                };
+
+                drawParabola(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.lineColor,
+                    style.fillColor,
+                );
+
+                // Create the rowData object
+                const rowData = {
+                    id: "bluetooth",
+                    type: "bluetooth",
+                    width: channel.width,
+                };
+
+                let rowOffsetInPx = getRowOffset(rowData);
+
+                // Remove or comment out the console.log here
+                console.log(`rowOffsetInPixels: ${rowOffsetInPx}`);
+
+                drawChannelLabel(
+                    centerX,
+                    centerY,
+                    width,
+                    style.lineColor,
+                    style.textColor,
+                    "bluetooth",
+                    channel.channel,
+                    rowOffsetInPx,
+                );
+            }
+
+            const labelRows = {
+                activeLabelRows: [],
+                rowHeight: -40, // Changed from labelRowHeight, I messed with these and that was a bad idea
+                baseOffset: -50, // Changed from labelBaseOffset, same as above
+            };
+
+            // Generate an array of label rows
+            function updateActiveLabelRows() {
+                const newActiveLabelRows = [];
+
+                // Add Wi-Fi rows based on visibility and channel widths
+                // Add them to the newActiveLabelRows array
+                if (showWifi) {
+                    if (show1MHz)
+                        newActiveLabelRows.push({
+                            // id: "wifi-1Mhz",
+                            id: 1,
+                            type: "wi-fi",
+                            width: 1,
+                        });
+                    if (show2MHz)
+                        newActiveLabelRows.push({
+                            id: 2,
+                            type: "wi-fi",
+                            width: 2,
+                        });
+                    if (show4MHz)
+                        newActiveLabelRows.push({
+                            id: 4,
+                            type: "wi-fi",
+                            width: 4,
+                        });
+                    if (show8MHz)
+                        newActiveLabelRows.push({
+                            id: 8,
+                            type: "wi-fi",
+                            width: 8,
+                        });
+                    if (show16MHz)
+                        newActiveLabelRows.push({
+                            id: 16,
+                            type: "wi-fi",
+                            width: 16,
+                        });
+                    if (show20MHz)
+                        newActiveLabelRows.push({
+                            id: 20,
+                            type: "wi-fi",
+                            width: 20,
+                        });
+                    if (show40MHz)
+                        newActiveLabelRows.push({
+                            id: 40,
+                            type: "wi-fi",
+                            width: 40,
+                        });
+                    if (show80MHz)
+                        newActiveLabelRows.push({
+                            id: 80,
+                            type: "wi-fi",
+                            width: 80,
+                        });
+                    if (show160MHz)
+                        newActiveLabelRows.push({
+                            id: 160,
+                            type: "wi-fi",
+                            width: 160,
+                        });
+                }
+
+                // Add Bluetooth row if visible
+                if (showBluetooth) {
+                    newActiveLabelRows.push({
+                        id: "bluetooth",
+                        type: "bluetooth",
+                    });
+                }
+
+                // Add Zigbee row if visible
+                if (showZigbee) {
+                    newActiveLabelRows.push({ id: "zigbee", type: "zigbee" });
+                }
+
+                // Write all of the newActiveLabelRows into labelRows array
+                // Putting it in labelRows.activeLabelRows feels needlessly complicated but whatever
+                labelRows.activeLabelRows = newActiveLabelRows;
+
+                logLabelRows();
+            }
+
+            // A logging function for troubleshooting
+            function logLabelRows() {
+                console.group("Label Rows Status:");
+                console.log(`Base Offset: ${labelRows.labelBaseOffset}px`);
+                console.log(`Row Height: ${labelRows.labelRowHeight}px`);
+
+                console.group("Active Rows:");
+                if (labelRows.activeLabelRows.length === 0) {
+                    console.log("No active rows");
+                } else {
+                    labelRows.activeLabelRows.forEach((row, index) => {
+                        console.log(`Row ${index + 1}:`, {
+                            id: row.id,
+                            type: row.type,
+                            width: row.width || "N/A",
+                            yOffset:
+                                labelRows.labelBaseOffset +
+                                index * labelRows.labelRowHeight,
+                        });
+                    });
+                }
+                console.groupEnd();
+                console.groupEnd();
+            }
+
+            // Generate an offset, based on the label row position
+            function getRowOffset(rowData) {
+                // First, search through our active rows array to find which position
+                // this row is in (0 is first, 1 is second, etc)
+                const rowIndex = labelRows.activeLabelRows.findIndex(
+                    function (activeRow) {
+                        // Compare the id of the current row we're checking
+                        // with the id of the row we're looking for
+                        // Te id of the row we are looking for comes from rowData.id
+                        // For example, id: "bluetooth"
+                        return activeRow.id === rowData.id;
+                    },
+                );
+
+                // It's -1 until I start adding other stuff
+                console.log(`rowIndex: ${rowIndex}`);
+
+                /*if (rowIndex === -1) {
+                    return 0;
+                }*/
+
+                const totalOffset =
+                    labelRows.baseOffset + rowIndex * labelRows.rowHeight;
+
+                // Only log when debugging
+                console.log(`Total Offset: ${totalOffset}`);
+                return totalOffset;
+            }
+
+            function drawChannelLabel(
+                centerX,
+                centerY,
+                width,
+                backgroundColor,
+                foregroundColor,
+                technology,
+                text,
+                rowOffsetInPx,
+            ) {
+                centerY = centerY - rowOffsetInPx;
+
+                width = width - 4; // Set the width of the rectangle
+                const height = 30;
+                let backgroundCenterX = width / 2; // Calculate how to translate the rectangle
+                let backgroundCenterY = height / 2;
+
+                // Draw the background
+                // roundRect(x, y, width, height, radii)
+                ctx.beginPath();
+                ctx.roundRect(
+                    centerX - backgroundCenterX,
+                    centerY - backgroundCenterY,
+                    width,
+                    height,
+                    6,
+                );
+                ctx.fillStyle = backgroundColor;
+                ctx.fill();
+
+                // Draw the text
+                if (width >= 25) {
+                    // Later, I'll do a more sophisticated text length calculation
+                    ctx.fillStyle = foregroundColor;
+                    ctx.fillText(text, centerX, centerY);
+                } else {
+                }
             }
 
             function drawZiggurat(
@@ -1404,33 +1621,9 @@
                 ctx.stroke();
             }
 
-            function drawNewLabel(x, baselineY, width, text, foregroundColor, backgroundColor) {
-                // const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
-
-                const y = baselineY + 50;
-                width = width - 4; // Set the width of the rectangle
-                const height = 30;
-                let backgroundCenterX = width / 2; // Calculate how to translate the rectangle
-                let backgroundCenterY = height / 2;
-
-                // Draw the background
-                // roundRect(x, y, width, height, radii)
-                ctx.beginPath();
-                ctx.roundRect(x - backgroundCenterX, y - backgroundCenterY, width, height, 6);
-                ctx.fillStyle = backgroundColor;
-                ctx.fill();
-
-                // Draw the text
-                if (width >= 25) { // Later, I'll do a more sophisticated text length calculation
-                  ctx.fillStyle = foregroundColor;
-                  ctx.fillText(text, x, y);
-                }
-                else {
-                }
-
-            }
-
             // This is the old label drawing system, which I can easily break major and minor freq ticks by changing? So confusing...
+            // Need to remove the BASE_LABEL_OFFSET + row + LABEL_SPACING; and just hardcode y
+            // Would also be good to rename this to drawFrequencyLabels()
             function drawLabel(x, baselineY, text, row, color) {
                 const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
                 ctx.fillStyle = color;
@@ -1482,7 +1675,7 @@
                                 return;
                             }
 
-                            drawWiFiChannel(channel, scale);
+                            drawWiFiChannel(channel, scale, channel.width);
                         });
                     });
                 }
@@ -1745,18 +1938,21 @@
                 .getElementById("wifi-visibility")
                 .addEventListener("change", (e) => {
                     showWifi = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-label-visibility")
                 .addEventListener("change", (e) => {
                     showWifiChannels = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-overlapping-visibility")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             // Wi-Fi channel width checkboxes
@@ -1764,54 +1960,63 @@
                 .getElementById("wifi-20mhz-visibility")
                 .addEventListener("change", (e) => {
                     show20MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-40mhz-visibility")
                 .addEventListener("change", (e) => {
                     show40MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-80mhz-visibility")
                 .addEventListener("change", (e) => {
                     show80MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-160mhz-visibility")
                 .addEventListener("change", (e) => {
                     show160MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-1mhz-visibility")
                 .addEventListener("change", (e) => {
                     show1MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-2mhz-visibility")
                 .addEventListener("change", (e) => {
                     show2MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-4mhz-visibility")
                 .addEventListener("change", (e) => {
                     show4MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-8mhz-visibility")
                 .addEventListener("change", (e) => {
                     show8MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-16mhz-visibility")
                 .addEventListener("change", (e) => {
                     show16MHz = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             // Bluetooth checkboxes
@@ -1820,12 +2025,14 @@
                 .getElementById("bluetooth-visibility")
                 .addEventListener("change", (e) => {
                     showBluetooth = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("bluetooth-label-visibility")
                 .addEventListener("change", (e) => {
                     showBluetoothChannels = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
@@ -1833,6 +2040,7 @@
                 .forEach((radio) => {
                     radio.addEventListener("change", (e) => {
                         bluetoothMode = e.target.value;
+                        updateActiveLabelRows();
                     });
                 });
 
@@ -1842,12 +2050,14 @@
                 .getElementById("zigbee-visibility")
                 .addEventListener("change", (e) => {
                     showZigbee = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
                 .getElementById("zigbee-label-visibility")
                 .addEventListener("change", (e) => {
                     showZigbeeChannels = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             // General
@@ -1855,6 +2065,7 @@
                 .getElementById("band-label-visibility")
                 .addEventListener("change", (e) => {
                     showBandLabels = e.target.checked;
+                    updateActiveLabelRows();
                 });
 
             document
@@ -1875,6 +2086,12 @@
                 chartSettings.channelHeight = parseInt(e.target.value);
             });
 
+            // This is hacky and probably very bad!
+            let initialStart = true;
+            if (initialStart) {
+                updateActiveLabelRows();
+                initialStart = false;
+            }
             // Start the animation
             draw();
         </script>
