@@ -1233,7 +1233,6 @@
 
                 // Create the rowData object
                 const rowData = {
-                    // I need to programatically populate the id, somehow... let's go look at what
                     id: channelWidthID, // This seems horribly inefficient...
                     type: "wifi",
                     width: channel.width, // to have channelWidthID, and also this 🤔
@@ -1324,10 +1323,6 @@
 
                 let rowOffsetInPx = getRowOffset(rowData);
 
-                if (DEBUG) {
-                    console.log(`rowOffsetInPixels: ${rowOffsetInPx}`);
-                }
-
                 drawChannelLabel(
                     centerX,
                     centerY,
@@ -1342,67 +1337,83 @@
 
             const labelRows = {
                 activeLabelRows: [],
-                rowHeight: -40, // Changed from labelRowHeight, I messed with these and that was a bad idea
-                baseOffset: -50, // Changed from labelBaseOffset, same as above
+                rowHeight: -40,
+                baseOffset: -50,
             };
 
-            // Generate an array of label rows
             function updateActiveLabelRows() {
+                const viewportStart = screenXToMhz(0);
+                const viewportEnd = screenXToMhz(canvas.width);
+                const padding = 10; // MHz padding on each side
                 const newActiveLabelRows = [];
 
                 // Add Wi-Fi rows based on visibility and channel widths
-                // Add them to the newActiveLabelRows array
                 if (showWifi) {
-                    if (show1MHz)
+                    // Helper function to check if any channels of a given width are visible
+                    const hasVisibleChannels = (width) => {
+                        return Object.values(wifiChannels).some(
+                            (bandChannels) =>
+                                bandChannels.some(
+                                    (channel) =>
+                                        channel.width === width &&
+                                        channel.frequency >=
+                                            viewportStart - padding &&
+                                        channel.frequency <=
+                                            viewportEnd + padding,
+                                ),
+                        );
+                    };
+
+                    // Only add rows for channel widths that are both enabled and visible
+                    if (show1MHz && hasVisibleChannels(1))
                         newActiveLabelRows.push({
-                            // id: "wifi-1Mhz",
                             id: 1,
                             type: "wi-fi",
                             width: 1,
                         });
-                    if (show2MHz)
+                    if (show2MHz && hasVisibleChannels(2))
                         newActiveLabelRows.push({
                             id: 2,
                             type: "wi-fi",
                             width: 2,
                         });
-                    if (show4MHz)
+                    if (show4MHz && hasVisibleChannels(4))
                         newActiveLabelRows.push({
                             id: 4,
                             type: "wi-fi",
                             width: 4,
                         });
-                    if (show8MHz)
+                    if (show8MHz && hasVisibleChannels(8))
                         newActiveLabelRows.push({
                             id: 8,
                             type: "wi-fi",
                             width: 8,
                         });
-                    if (show16MHz)
+                    if (show16MHz && hasVisibleChannels(16))
                         newActiveLabelRows.push({
                             id: 16,
                             type: "wi-fi",
                             width: 16,
                         });
-                    if (show20MHz)
+                    if (show20MHz && hasVisibleChannels(20))
                         newActiveLabelRows.push({
                             id: 20,
                             type: "wi-fi",
                             width: 20,
                         });
-                    if (show40MHz)
+                    if (show40MHz && hasVisibleChannels(40))
                         newActiveLabelRows.push({
                             id: 40,
                             type: "wi-fi",
                             width: 40,
                         });
-                    if (show80MHz)
+                    if (show80MHz && hasVisibleChannels(80))
                         newActiveLabelRows.push({
                             id: 80,
                             type: "wi-fi",
                             width: 80,
                         });
-                    if (show160MHz)
+                    if (show160MHz && hasVisibleChannels(160))
                         newActiveLabelRows.push({
                             id: 160,
                             type: "wi-fi",
@@ -1410,24 +1421,36 @@
                         });
                 }
 
-                // Add Bluetooth row if visible
-                if (showBluetooth) {
+                // Add Bluetooth row if visible and enabled
+                if (
+                    showBluetooth &&
+                    bluetoothChannels[bluetoothMode].some(
+                        (channel) =>
+                            channel.frequency >= viewportStart - padding &&
+                            channel.frequency <= viewportEnd + padding,
+                    )
+                ) {
                     newActiveLabelRows.push({
                         id: "bluetooth",
                         type: "bluetooth",
                     });
                 }
 
-                // Add Zigbee row if visible
-                if (showZigbee) {
+                // Add Zigbee row if visible and enabled
+                if (
+                    showZigbee &&
+                    Object.values(zigbeeChannels).some((bandChannels) =>
+                        bandChannels.some(
+                            (channel) =>
+                                channel.frequency >= viewportStart - padding &&
+                                channel.frequency <= viewportEnd + padding,
+                        ),
+                    )
+                ) {
                     newActiveLabelRows.push({ id: "zigbee", type: "zigbee" });
                 }
 
-                // Write all of the newActiveLabelRows into labelRows array
-                // Putting it in labelRows.activeLabelRows feels needlessly complicated but whatever
                 labelRows.activeLabelRows = newActiveLabelRows;
-
-                logLabelRows();
             }
 
             // A logging function for troubleshooting
@@ -1678,6 +1701,8 @@
                         });
                     });
                 }
+
+                updateActiveLabelRows();
 
                 // Draw baseline
                 const baselineY = getBaselineY();
@@ -2052,7 +2077,6 @@
                 .getElementById("band-label-visibility")
                 .addEventListener("change", (e) => {
                     showBandLabels = e.target.checked;
-                    updateActiveLabelRows();
                 });
 
             document
