@@ -262,6 +262,8 @@
             const ctx = canvas.getContext("2d");
             const heightSlider = document.getElementById("height-slider");
 
+            const DEBUG = false;
+
             const minZoom = 0.15;
             const maxZoom = 30;
 
@@ -313,19 +315,6 @@
                 baselineOffset: 20, // Offsets the text below the baseline
                 textSize: 12,
             };
-
-            // This logic will be removed if/when labels are moved to html/css
-            const LABEL_ROWS = {
-                FREQUENCY_MARKERS: 0,
-                WIFI_CHANNEL: 1,
-                BLUETOOTH_CHANNEL: 2,
-                ZIGBEE_CHANNEL: 3,
-            };
-
-            // I think this is also old stuff that goes with above
-            // Frequency labels are still dependant on them
-            const LABEL_SPACING = 20; // vertical spacing between labels
-            const BASE_LABEL_OFFSET = 20; // initial offset from baseline
 
             const zoomTiers = {
                 lowest: {
@@ -1187,13 +1176,10 @@
                             ? `${(freq / 1000).toFixed(config.ghzDecimals)} GHz`
                             : `${freq} MHz`;
 
-                        drawLabel(
-                            x,
-                            baselineY,
-                            label,
-                            LABEL_ROWS.FREQUENCY_MARKERS,
-                            "#666666",
-                        );
+                        // Draw the marker labels
+                        const freqMarkerY = baselineY + 20; // Apply 20px offset to label
+                        ctx.fillStyle = "#000000";
+                        ctx.fillText(label, x, freqMarkerY);
 
                         // Draw minor ticks
                         for (
@@ -1338,8 +1324,9 @@
 
                 let rowOffsetInPx = getRowOffset(rowData);
 
-                // Remove or comment out the console.log here
-                console.log(`rowOffsetInPixels: ${rowOffsetInPx}`);
+                if (DEBUG) {
+                    console.log(`rowOffsetInPixels: ${rowOffsetInPx}`);
+                }
 
                 drawChannelLabel(
                     centerX,
@@ -1445,27 +1432,29 @@
 
             // A logging function for troubleshooting
             function logLabelRows() {
-                console.group("Label Rows Status:");
-                console.log(`Base Offset: ${labelRows.labelBaseOffset}px`);
-                console.log(`Row Height: ${labelRows.labelRowHeight}px`);
+                if (DEBUG) {
+                    console.group("Label Rows Status:");
+                    console.log(`Base Offset: ${labelRows.labelBaseOffset}px`);
+                    console.log(`Row Height: ${labelRows.labelRowHeight}px`);
 
-                console.group("Active Rows:");
-                if (labelRows.activeLabelRows.length === 0) {
-                    console.log("No active rows");
-                } else {
-                    labelRows.activeLabelRows.forEach((row, index) => {
-                        console.log(`Row ${index + 1}:`, {
-                            id: row.id,
-                            type: row.type,
-                            width: row.width || "N/A",
-                            yOffset:
-                                labelRows.labelBaseOffset +
-                                index * labelRows.labelRowHeight,
+                    console.group("Active Rows:");
+                    if (labelRows.activeLabelRows.length === 0) {
+                        console.log("No active rows");
+                    } else {
+                        labelRows.activeLabelRows.forEach((row, index) => {
+                            console.log(`Row ${index + 1}:`, {
+                                id: row.id,
+                                type: row.type,
+                                width: row.width || "N/A",
+                                yOffset:
+                                    labelRows.labelBaseOffset +
+                                    index * labelRows.labelRowHeight,
+                            });
                         });
-                    });
+                    }
+                    console.groupEnd();
+                    console.groupEnd();
                 }
-                console.groupEnd();
-                console.groupEnd();
             }
 
             // Generate an offset, based on the label row position
@@ -1482,8 +1471,9 @@
                     },
                 );
 
-                // It's -1 until I start adding other stuff
-                console.log(`rowIndex: ${rowIndex}`);
+                if (DEBUG) {
+                    console.log(`rowIndex: ${rowIndex}`);
+                }
 
                 /*if (rowIndex === -1) {
                     return 0;
@@ -1492,8 +1482,10 @@
                 const totalOffset =
                     labelRows.baseOffset + rowIndex * labelRows.rowHeight;
 
-                // Only log when debugging
-                console.log(`Total Offset: ${totalOffset}`);
+                if (DEBUG) {
+                    console.log(`Total Offset: ${totalOffset}`);
+                }
+
                 return totalOffset;
             }
 
@@ -1619,15 +1611,6 @@
                     }
                 }
                 ctx.stroke();
-            }
-
-            // This is the old label drawing system, which I can easily break major and minor freq ticks by changing? So confusing...
-            // Need to remove the BASE_LABEL_OFFSET + row + LABEL_SPACING; and just hardcode y
-            // Would also be good to rename this to drawFrequencyLabels()
-            function drawLabel(x, baselineY, text, row, color) {
-                const y = baselineY + BASE_LABEL_OFFSET + row * LABEL_SPACING;
-                ctx.fillStyle = color;
-                ctx.fillText(text, x, y);
             }
 
             // Helper function for coordinate conversion
@@ -1903,10 +1886,14 @@
                     const tierName = Object.keys(zoomTiers).find(
                         (key) => zoomTiers[key] === tier,
                     );
-                    console.log(
-                        `Scale: ${scale.toFixed(2)}, Tier: ${tierName}`,
-                        tier,
-                    );
+
+                    if (DEBUG) {
+                        console.log(
+                            `Scale: ${scale.toFixed(2)}, Tier: ${tierName}`,
+                            tier,
+                        );
+                    }
+
                     lastScale = scale;
                 }
             });
