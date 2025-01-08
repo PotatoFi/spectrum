@@ -112,21 +112,6 @@
                         ><input type="checkbox" id="wifi-visibility" checked />
                         Wi-Fi</label
                     >
-                    <label
-                        ><input
-                            type="checkbox"
-                            id="wifi-label-visibility"
-                            checked
-                        />
-                        Channel labels</label
-                    >
-                    <label
-                        ><input
-                            type="checkbox"
-                            id="wifi-overlapping-visibility"
-                        />
-                        2.4 GHz Overlapping Channels</label
-                    >
                     <label>
                         <input
                             type="checkbox"
@@ -147,6 +132,13 @@
                         <input type="checkbox" id="wifi-160mhz-visibility" />
                         160 MHz channels
                     </label>
+                    <label
+                        ><input
+                            type="checkbox"
+                            id="wifi-overlapping-visibility"
+                        />
+                        2.4 GHz overlapping channels</label
+                    >
                     <h4>Wi-Fi (802.11ah)</h4>
                     <label>
                         <input
@@ -181,19 +173,11 @@
                         />
                         Bluetooth</label
                     >
-                    <label
-                        ><input
-                            type="checkbox"
-                            id="bluetooth-label-visibility"
-                        />
-                        Bluetooth labels</label
-                    >
                     <label>
                         <input
                             type="radio"
                             name="bluetooth-mode-select"
                             value="Classic"
-                            checked
                         />
                         Classic
                     </label>
@@ -202,6 +186,7 @@
                             type="radio"
                             name="bluetooth-mode-select"
                             value="Low Energy"
+                            checked
                         />
                         Low Energy
                     </label>
@@ -209,10 +194,6 @@
                     <label
                         ><input type="checkbox" id="zigbee-visibility" />
                         Zigbee</label
-                    >
-                    <label
-                        ><input type="checkbox" id="zigbee-label-visibility" />
-                        Channel labels</label
                     >
                     <h4>General</h4>
                     <label>
@@ -282,7 +263,7 @@
             let show160MHz = false;
             let showBluetooth = true;
             let showBluetoothChannels = false;
-            let bluetoothMode = "Classic";
+            let bluetoothMode = "Low Energy";
             let showZigbee = false;
             let showZigbeeChannels = false;
             let showBandLabels = true;
@@ -875,8 +856,8 @@
                         overlapping: true,
                     },
                     { channel: 11, frequency: 2462, width: 20 },
+                    // { channel: 14, frequency: 2484, width: 22, dsss: true },
                     { channel: 14, frequency: 2484, width: 20, dsss: true },
-                    //{ channel: 14, frequency: 2484, width: 22, dsss: true },
                 ],
                 "5 GHz": [
                     { channel: 36, frequency: 5180, width: 20 },
@@ -1344,14 +1325,14 @@
             function updateActiveLabelRows() {
                 const viewportStart = screenXToMhz(0);
                 const viewportEnd = screenXToMhz(canvas.width);
-                const padding = 10; // MHz padding on each side
+                //  const padding = 20; // MHz padding on each side
                 const newActiveLabelRows = [];
 
                 // Add Wi-Fi rows based on visibility and channel widths
                 if (showWifi) {
                     // Helper function to check if any channels of a given width are visible
                     const hasVisibleChannels = (width) => {
-                        return Object.values(wifiChannels).some(
+                        /*return Object.values(wifiChannels).some(
                             (bandChannels) =>
                                 bandChannels.some(
                                     (channel) =>
@@ -1360,6 +1341,17 @@
                                             viewportStart - padding &&
                                         channel.frequency <=
                                             viewportEnd + padding,
+                                ),
+                        );*/
+                        return Object.values(wifiChannels).some(
+                            (bandChannels) =>
+                                bandChannels.some(
+                                    (channel) =>
+                                        channel.width === width &&
+                                        channel.frequency >=
+                                            viewportStart - channel.width * 2 &&
+                                        channel.frequency <=
+                                            viewportEnd + channel.width * 2,
                                 ),
                         );
                     };
@@ -1426,8 +1418,10 @@
                     showBluetooth &&
                     bluetoothChannels[bluetoothMode].some(
                         (channel) =>
-                            channel.frequency >= viewportStart - padding &&
-                            channel.frequency <= viewportEnd + padding,
+                            channel.frequency >=
+                                viewportStart - channel.width * 2 &&
+                            channel.frequency <=
+                                viewportEnd + channel.width * 2,
                     )
                 ) {
                     newActiveLabelRows.push({
@@ -1442,8 +1436,10 @@
                     Object.values(zigbeeChannels).some((bandChannels) =>
                         bandChannels.some(
                             (channel) =>
-                                channel.frequency >= viewportStart - padding &&
-                                channel.frequency <= viewportEnd + padding,
+                                channel.frequency >=
+                                    viewportStart - channel.width * 2 &&
+                                channel.frequency <=
+                                    viewportEnd + channel.width * 2,
                         ),
                     )
                 ) {
@@ -1944,19 +1940,12 @@
                     offset.x += canvas.width / 2 - newCenterX;
                 });
 
-            // Wi-Fi Checkboxes
+            // Wi-Fi
 
             document
                 .getElementById("wifi-visibility")
                 .addEventListener("change", (e) => {
                     showWifi = e.target.checked;
-                    updateActiveLabelRows();
-                });
-
-            document
-                .getElementById("wifi-label-visibility")
-                .addEventListener("change", (e) => {
-                    showWifiChannels = e.target.checked;
                     updateActiveLabelRows();
                 });
 
@@ -2031,19 +2020,12 @@
                     updateActiveLabelRows();
                 });
 
-            // Bluetooth checkboxes
+            // Bluetooth
 
             document
                 .getElementById("bluetooth-visibility")
                 .addEventListener("change", (e) => {
                     showBluetooth = e.target.checked;
-                    updateActiveLabelRows();
-                });
-
-            document
-                .getElementById("bluetooth-label-visibility")
-                .addEventListener("change", (e) => {
-                    showBluetoothChannels = e.target.checked;
                     updateActiveLabelRows();
                 });
 
@@ -2056,19 +2038,12 @@
                     });
                 });
 
-            // Zigbee checkboxes
+            // Zigbee
 
             document
                 .getElementById("zigbee-visibility")
                 .addEventListener("change", (e) => {
                     showZigbee = e.target.checked;
-                    updateActiveLabelRows();
-                });
-
-            document
-                .getElementById("zigbee-label-visibility")
-                .addEventListener("change", (e) => {
-                    showZigbeeChannels = e.target.checked;
                     updateActiveLabelRows();
                 });
 
