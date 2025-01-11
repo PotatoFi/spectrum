@@ -18,6 +18,9 @@
             }
             #canvas {
                 touch-action: none;
+                width: 100vw;
+                height: 100vh;
+                display: block;
             }
             .zoom-controls {
                 position: fixed;
@@ -110,8 +113,8 @@
                     <h4>Wi-Fi</h4>
                     <label
                         ><input type="checkbox" id="wifi-visibility" checked />
-                        Wi-Fi</label
-                    >
+                        Wi-Fi
+                    </label>
                     <label>
                         <input
                             type="checkbox"
@@ -133,7 +136,7 @@
                         160 MHz channels
                     </label>
                     <label
-                        ><input
+                        ></label><input
                             type="checkbox"
                             id="wifi-overlapping-visibility"
                         />
@@ -239,9 +242,8 @@
             </div>
         </div>
         <script>
-            const canvas = document.getElementById("canvas");
-            const ctx = canvas.getContext("2d");
-            const heightSlider = document.getElementById("height-slider");
+            let canvas = document.querySelector("#canvas");
+            let context = canvas.getContext("2d");
 
             const DEBUG = false;
 
@@ -277,6 +279,7 @@
             let lastPosition = { x: 0, y: 0 };
             let lastPinchDistance = null;
             let lastScale = scale; // For scale tuning purposes
+            const heightSlider = document.getElementById("height-slider");
 
             // Movement variables (incomplete, there are some above)
             let scrollDirection = null;
@@ -1019,19 +1022,35 @@
                 ],
             };
 
-            // Set canvas size to window size
             function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+              // Increase the size of the canvas
+              canvas.width = window.innerWidth * window.devicePixelRatio;
+              canvas.height = window.innerHeight * window.devicePixelRatio;
+
+              console.log('Device Pixel Ratio:', window.devicePixelRatio);
+              console.log('window.innerHeight', window.innerHeight);
+
+              // Scale drawing operations
+              context.scale(devicePixelRatio, devicePixelRatio);
+
+              // scale everything down using CSS
+              canvas.style.width = window.innerWidth + 'px';
+              canvas.style.height = window.innerHeight + 'px';
             }
+
             resizeCanvas();
             window.addEventListener("resize", resizeCanvas);
 
-            offset.x = canvas.width / 2 - 2450 * 2 * scale; // Centers at 2450 MHz
+            // Set the center of the viewport
+            function setViewportFrequency(viewportFrequency) {
+              offset.x = canvas.width / window.devicePixelRatio / 2 - viewportFrequency * 2 * scale; // Centers at 2450 MHz
+            }
+
+            setViewportFrequency(2450);
 
             // Common drawing utilities
             function getBaselineY() {
-                return canvas.height / 2;
+                return canvas.height / window.devicePixelRatio / 2;
             }
 
             function getZoomTier(scale) {
@@ -1050,9 +1069,9 @@
                     labelHeight -
                     10;
 
-                ctx.font = "14px Quicksand";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                context.font = "14px Quicksand";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
 
                 bands.forEach((band) => {
                     const startX = mhzToScreenX(band.start);
@@ -1061,14 +1080,14 @@
                     const centerX = startX + width / 2;
 
                     // Draw rectangle with rounded corners
-                    ctx.beginPath();
-                    ctx.roundRect(startX, yPosition, width, labelHeight, 6);
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-                    ctx.fill();
+                    context.beginPath();
+                    context.roundRect(startX, yPosition, width, labelHeight, 6);
+                    context.fillStyle = "rgba(0, 0, 0, 0.1)";
+                    context.fill();
 
                     // Draw text
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-                    ctx.fillText(
+                    context.fillStyle = "rgba(0, 0, 0, 0.7)";
+                    context.fillText(
                         band.name,
                         centerX,
                         yPosition + labelHeight / 2,
@@ -1086,9 +1105,9 @@
                     labelHeight * 2 -
                     20; // Position above band labels
 
-                ctx.font = "14px Quicksand";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                context.font = "14px Quicksand";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
 
                 // Filter sub-bands for selected domain
                 const relevantSubBands = subBands.filter(
@@ -1102,14 +1121,14 @@
                     const centerX = startX + width / 2;
 
                     // Draw rectangle with rounded corners
-                    ctx.beginPath();
-                    ctx.roundRect(startX, yPosition, width, labelHeight, 6);
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-                    ctx.fill();
+                    context.beginPath();
+                    context.roundRect(startX, yPosition, width, labelHeight, 6);
+                    context.fillStyle = "rgba(0, 0, 0, 0.05)";
+                    context.fill();
 
                     // Draw text
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-                    ctx.fillText(
+                    context.fillStyle = "rgba(0, 0, 0, 0.5)";
+                    context.fillText(
                         band.name,
                         centerX,
                         yPosition + labelHeight / 2,
@@ -1118,7 +1137,7 @@
             }
 
             function drawFrequencyMarkers(
-                ctx,
+                context,
                 scale,
                 viewportStart,
                 viewportEnd,
@@ -1135,10 +1154,10 @@
                 const endFreq =
                     Math.ceil(viewportEnd / config.step) * config.step;
 
-                ctx.beginPath();
-                ctx.strokeStyle = "#666666";
-                ctx.fillStyle = "#666666";
-                ctx.textAlign = "center";
+                context.beginPath();
+                context.strokeStyle = "#666666";
+                context.fillStyle = "#666666";
+                context.textAlign = "center";
 
                 for (
                     let freq = startFreq;
@@ -1149,8 +1168,8 @@
                         const x = mhzToScreenX(freq);
 
                         // Draw tick mark
-                        ctx.moveTo(x, baselineY);
-                        ctx.lineTo(x, baselineY + 10);
+                        context.moveTo(x, baselineY);
+                        context.lineTo(x, baselineY + 10);
 
                         // Draw frequency label using the label system
                         const label = config.showAsGHz
@@ -1159,8 +1178,8 @@
 
                         // Draw the marker labels
                         const freqMarkerY = baselineY + 20; // Apply 20px offset to label
-                        ctx.fillStyle = "#000000";
-                        ctx.fillText(label, x, freqMarkerY);
+                        context.fillStyle = "#000000";
+                        context.fillText(label, x, freqMarkerY);
 
                         // Draw minor ticks
                         for (
@@ -1170,13 +1189,13 @@
                         ) {
                             if (minorFreq >= 0) {
                                 const minorX = mhzToScreenX(minorFreq);
-                                ctx.moveTo(minorX, baselineY);
-                                ctx.lineTo(minorX, baselineY + 5);
+                                context.moveTo(minorX, baselineY);
+                                context.lineTo(minorX, baselineY + 5);
                             }
                         }
                     }
                 }
-                ctx.stroke();
+                context.stroke();
             }
 
             function drawWiFiChannel(channel, scale, channelWidthID) {
@@ -1527,22 +1546,22 @@
 
                 // Draw the background
                 // roundRect(x, y, width, height, radii)
-                ctx.beginPath();
-                ctx.roundRect(
+                context.beginPath();
+                context.roundRect(
                     centerX - backgroundCenterX,
                     centerY - backgroundCenterY,
                     width,
                     height,
                     6,
                 );
-                ctx.fillStyle = backgroundColor;
-                ctx.fill();
+                context.fillStyle = backgroundColor;
+                context.fill();
 
                 // Draw the text
                 if (width >= 25) {
                     // Later, I'll do a more sophisticated text length calculation
-                    ctx.fillStyle = foregroundColor;
-                    ctx.fillText(text, centerX, centerY);
+                    context.fillStyle = foregroundColor;
+                    context.fillText(text, centerX, centerY);
                 } else {
                 }
             }
@@ -1571,24 +1590,24 @@
                 const topY = centerY - height;
 
                 // Draw fill first
-                ctx.beginPath();
-                ctx.moveTo(centerX - width / 2, centerY); // Full channel start
-                ctx.lineTo(lowerFreqX, topY); // Inset start
-                ctx.lineTo(upperFreqX, topY); // Inset end
-                ctx.lineTo(centerX + width / 2, centerY); // Full channel end
-                ctx.fillStyle = fillColor;
-                ctx.fill();
+                context.beginPath();
+                context.moveTo(centerX - width / 2, centerY); // Full channel start
+                context.lineTo(lowerFreqX, topY); // Inset start
+                context.lineTo(upperFreqX, topY); // Inset end
+                context.lineTo(centerX + width / 2, centerY); // Full channel end
+                context.fillStyle = fillColor;
+                context.fill();
 
                 // Draw outline (without bottom line)
-                ctx.beginPath();
-                ctx.strokeStyle = lineColor;
-                ctx.moveTo(lowerFreqX, topY);
-                ctx.lineTo(centerX - width / 2, centerY);
-                ctx.moveTo(upperFreqX, topY);
-                ctx.lineTo(centerX + width / 2, centerY);
-                ctx.moveTo(lowerFreqX, topY);
-                ctx.lineTo(upperFreqX, topY);
-                ctx.stroke();
+                context.beginPath();
+                context.strokeStyle = lineColor;
+                context.moveTo(lowerFreqX, topY);
+                context.lineTo(centerX - width / 2, centerY);
+                context.moveTo(upperFreqX, topY);
+                context.lineTo(centerX + width / 2, centerY);
+                context.moveTo(lowerFreqX, topY);
+                context.lineTo(upperFreqX, topY);
+                context.stroke();
             }
 
             function drawParabola(
@@ -1602,34 +1621,34 @@
                 const points = 20;
 
                 // Draw fill first
-                ctx.beginPath();
-                ctx.moveTo(centerX - width / 2, centerY); // Start at bottom left
+                context.beginPath();
+                context.moveTo(centerX - width / 2, centerY); // Start at bottom left
 
                 // Draw parabola points
                 for (let i = 0; i <= points; i++) {
                     const x = (i / points) * width - width / 2;
                     const y = height * (1 - Math.pow((2 * x) / width, 2));
-                    ctx.lineTo(centerX + x, centerY - y);
+                    context.lineTo(centerX + x, centerY - y);
                 }
 
-                ctx.lineTo(centerX + width / 2, centerY); // To bottom right
-                ctx.fillStyle = fillColor;
-                ctx.fill();
+                context.lineTo(centerX + width / 2, centerY); // To bottom right
+                context.fillStyle = fillColor;
+                context.fill();
 
                 // Draw outline (without bottom line)
-                ctx.beginPath();
-                ctx.strokeStyle = lineColor;
+                context.beginPath();
+                context.strokeStyle = lineColor;
                 // Draw parabola curve only
                 for (let i = 0; i <= points; i++) {
                     const x = (i / points) * width - width / 2;
                     const y = height * (1 - Math.pow((2 * x) / width, 2));
                     if (i === 0) {
-                        ctx.moveTo(centerX + x, centerY - y);
+                        context.moveTo(centerX + x, centerY - y);
                     } else {
-                        ctx.lineTo(centerX + x, centerY - y);
+                        context.lineTo(centerX + x, centerY - y);
                     }
                 }
-                ctx.stroke();
+                context.stroke();
             }
 
             // Helper function for coordinate conversion
@@ -1647,7 +1666,7 @@
 
             function draw() {
                 // Clear the canvas and label positions
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                context.clearRect(0, 0, canvas.width, canvas.height);
 
                 // Draw WiFi channels
                 if (showWifi) {
@@ -1702,18 +1721,18 @@
 
                 // Draw baseline
                 const baselineY = getBaselineY();
-                ctx.beginPath();
+                context.beginPath();
                 const startX = mhzToScreenX(0);
                 const endX = mhzToScreenX(8000);
-                ctx.moveTo(startX, baselineY);
-                ctx.lineTo(endX, baselineY);
-                ctx.strokeStyle = "black";
-                ctx.lineWidth = 2;
-                ctx.stroke();
+                context.moveTo(startX, baselineY);
+                context.lineTo(endX, baselineY);
+                context.strokeStyle = "black";
+                context.lineWidth = 2;
+                context.stroke();
 
                 // Draw frequency markers
                 drawFrequencyMarkers(
-                    ctx,
+                    context,
                     scale,
                     screenXToMhz(0),
                     screenXToMhz(canvas.width),
