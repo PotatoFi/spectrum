@@ -1,10 +1,18 @@
 <!doctype html>
 <html>
     <head>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
             href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
             rel="stylesheet"
         />
 
@@ -22,7 +30,7 @@
                 height: 100vh;
                 display: block;
             }
-            .zoom-controls {
+            .controls {
                 position: fixed;
                 top: 20px;
                 right: 20px;
@@ -30,6 +38,7 @@
                 flex-direction: column;
                 gap: 10px;
                 z-index: 1000;
+                padding-right: env(safe-area-inset-right);
             }
             .button {
                 width: 40px;
@@ -44,6 +53,9 @@
                 justify-content: center;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
                 transition: background-color 0.2s;
+                -webkit-appearance: none;
+                touch-action: manipulation;
+                padding: 0;
             }
             .button:hover {
                 background-color: rgba(255, 255, 255, 0.9);
@@ -104,11 +116,11 @@
     </head>
     <body>
         <canvas id="canvas"></canvas>
-        <div class="zoom-controls">
-            <button class="button" id="zoom-in">+</button>
-            <button class="button" id="zoom-minus">−</button>
+        <div class="controls">
             <div class="controls-dropdown">
-                <button class="button" id="settings">⚙️</button>
+                <button class="button" id="settings">
+                    <i class="bx bx-menu"></i>
+                </button>
                 <div class="dropdown-content">
                     <h4>Wi-Fi</h4>
                     <label
@@ -136,7 +148,7 @@
                         160 MHz channels
                     </label>
                     <label
-                        ></label><input
+                        ><input
                             type="checkbox"
                             id="wifi-overlapping-visibility"
                         />
@@ -240,6 +252,12 @@
                     </label>
                 </div>
             </div>
+            <button class="button" id="zoom-in">
+                <i class="bx bx-zoom-in"></i>
+            </button>
+            <button class="button" id="zoom-out">
+                <i class="bx bx-zoom-out"></i>
+            </button>
         </div>
         <script>
             let canvas = document.querySelector("#canvas");
@@ -1023,19 +1041,19 @@
             };
 
             function resizeCanvas() {
-              // Increase the size of the canvas
-              canvas.width = window.innerWidth * window.devicePixelRatio;
-              canvas.height = window.innerHeight * window.devicePixelRatio;
+                // Increase the size of the canvas
+                canvas.width = window.innerWidth * window.devicePixelRatio;
+                canvas.height = window.innerHeight * window.devicePixelRatio;
 
-              console.log('Device Pixel Ratio:', window.devicePixelRatio);
-              console.log('window.innerHeight', window.innerHeight);
+                console.log("Device Pixel Ratio:", window.devicePixelRatio);
+                console.log("window.innerHeight", window.innerHeight);
 
-              // Scale drawing operations
-              context.scale(devicePixelRatio, devicePixelRatio);
+                // Scale drawing operations
+                context.scale(devicePixelRatio, devicePixelRatio);
 
-              // scale everything down using CSS
-              canvas.style.width = window.innerWidth + 'px';
-              canvas.style.height = window.innerHeight + 'px';
+                // scale everything down using CSS
+                canvas.style.width = window.innerWidth + "px";
+                canvas.style.height = window.innerHeight + "px";
             }
 
             resizeCanvas();
@@ -1043,7 +1061,9 @@
 
             // Set the center of the viewport
             function setViewportFrequency(viewportFrequency) {
-              offset.x = canvas.width / window.devicePixelRatio / 2 - viewportFrequency * 2 * scale; // Centers at 2450 MHz
+                offset.x =
+                    canvas.width / window.devicePixelRatio / 2 -
+                    viewportFrequency * 2 * scale;
             }
 
             setViewportFrequency(2450);
@@ -1940,25 +1960,39 @@
 
             // Zoom buttons
             document.getElementById("zoom-in").addEventListener("click", () => {
-                const centerFreq = screenXToMhz(canvas.width / 2);
-                const oldScale = scale;
+                // Calculate the center point accounting for device pixel ratio
+                const canvasCenter = canvas.width / window.devicePixelRatio / 2;
+                const centerFreq = screenXToMhz(canvasCenter);
+
+                // Apply zoom
                 scale *= 1.2;
                 scale = Math.min(Math.max(minZoom, scale), maxZoom);
+
+                // Recalculate center position after zoom
                 const newCenterX = mhzToScreenX(centerFreq);
-                offset.x += canvas.width / 2 - newCenterX;
+
+                // Adjust offset to maintain center point
+                offset.x += canvasCenter - newCenterX;
             });
 
             document
-                .getElementById("zoom-minus")
+                .getElementById("zoom-out")
                 .addEventListener("click", () => {
-                    const centerFreq = screenXToMhz(canvas.width / 2);
-                    const oldScale = scale;
+                    // Calculate the center point accounting for device pixel ratio
+                    const canvasCenter =
+                        canvas.width / window.devicePixelRatio / 2;
+                    const centerFreq = screenXToMhz(canvasCenter);
+
+                    // Apply zoom
                     scale *= 0.8;
                     scale = Math.min(Math.max(minZoom, scale), maxZoom);
-                    const newCenterX = mhzToScreenX(centerFreq);
-                    offset.x += canvas.width / 2 - newCenterX;
-                });
 
+                    // Recalculate center position after zoom
+                    const newCenterX = mhzToScreenX(centerFreq);
+
+                    // Adjust offset to maintain center point
+                    offset.x += canvasCenter - newCenterX;
+                });
             // Wi-Fi
 
             document
