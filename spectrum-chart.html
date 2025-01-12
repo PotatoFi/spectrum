@@ -30,7 +30,7 @@
                 height: 100vh;
                 display: block;
             }
-            .controls {
+            .labels {
                 position: fixed;
                 top: 20px;
                 right: 20px;
@@ -63,7 +63,7 @@
             .button:active {
                 background-color: rgba(255, 255, 255, 1);
                 transform: translateY(1px);
-                .controls-dropdown {
+                .labels-dropdown {
                     position: fixed;
                     top: 120px;
                     right: 20px;
@@ -84,7 +84,7 @@
                 padding: 10px;
             }
 
-            .controls-dropdown:hover .dropdown-content {
+            .labels-dropdown:hover .dropdown-content {
                 display: block;
             }
 
@@ -96,6 +96,7 @@
 
             .dropdown-content label:hover {
                 background-color: #f0f0f0;
+                border-radius: 6px;
             }
 
             .dropdown-content hr {
@@ -112,12 +113,36 @@
                 font-size: 12px;
                 padding: 0 5px;
             }
+
+            .dropdown-content input[type="button"] {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                background: none;
+                border: none;
+                width: 100%;
+                text-align: left;
+                padding: 5px;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: inherit;
+            }
+
+            .dropdown-content input[type="button"]:hover {
+                background-color: #f0f0f0;
+                border-radius: 6px;
+            }
+
+            .dropdown-content label input[type="button"] {
+                display: block;
+                width: 100%;
+            }
         </style>
     </head>
     <body>
         <canvas id="canvas"></canvas>
-        <div class="controls">
-            <div class="controls-dropdown">
+        <div class="labels">
+            <div class="labels-dropdown">
                 <button class="button" id="settings">
                     <i class="bx bx-menu"></i>
                 </button>
@@ -252,6 +277,45 @@
                     </label>
                 </div>
             </div>
+            <div class="labels-dropdown">
+                <button class="button" id="shortcuts">
+                    <i class="bx bx-bookmarks"></i>
+                </button>
+                <div class="dropdown-content">
+                    <h4>Bands</h4>
+                    <label>
+                        <input
+                            type="button"
+                            value="900 MHz"
+                            id="900-MHz-shortcut"
+                        />
+                    </label>
+                    <label>
+                        <input
+                            type="button"
+                            value="2.4 GHz"
+                            id="2400-MHz-shortcut"
+                        />
+                    </label>
+                    <label>
+                        <input
+                            type="button"
+                            value="5 GHz"
+                            id="5000-MHz-shortcut"
+                        />
+                    </label>
+                    <label>
+                        <input
+                            type="button"
+                            value="6 GHz"
+                            id="6000-MHz-shortcut"
+                        />
+                    </label>
+                </div>
+            </div>
+            <button class="button" id="export">
+                <i class="bx bx-download"></i>
+            </button>
             <button class="button" id="zoom-in">
                 <i class="bx bx-zoom-in"></i>
             </button>
@@ -1066,7 +1130,7 @@
                     viewportFrequency * 2 * scale;
             }
 
-            setViewportFrequency(2450);
+            setViewportFrequency(2445);
 
             // Common drawing utilities
             function getBaselineY() {
@@ -2124,6 +2188,60 @@
             heightSlider.addEventListener("input", (e) => {
                 chartSettings.channelHeight = parseInt(e.target.value);
             });
+
+            document.getElementById("export").addEventListener("click", () => {
+                const canvas = document.getElementById("canvas");
+                const context = canvas.getContext("2d");
+
+                // Save the current canvas state
+                context.save();
+
+                // Add white background
+                const currentCompositeOperation =
+                    context.globalCompositeOperation;
+                context.globalCompositeOperation = "destination-over";
+                context.fillStyle = "white";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Convert to data URL
+                const dataUrl = canvas.toDataURL("image/png");
+
+                // Restore the canvas state (removes the white background)
+                context.globalCompositeOperation = currentCompositeOperation;
+                context.restore();
+
+                // Create and trigger download
+                const link = document.createElement("a");
+                link.download = "canvas-drawing.png";
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            document
+                .getElementById("900-MHz-shortcut")
+                .addEventListener("click", (e) => {
+                    setViewportFrequency(915);
+                });
+
+            document
+                .getElementById("2400-MHz-shortcut")
+                .addEventListener("click", (e) => {
+                    setViewportFrequency(2445);
+                });
+
+            document
+                .getElementById("5000-MHz-shortcut")
+                .addEventListener("click", (e) => {
+                    setViewportFrequency(5215);
+                });
+
+            document
+                .getElementById("6000-MHz-shortcut")
+                .addEventListener("click", (e) => {
+                    setViewportFrequency(5990);
+                });
 
             // This is hacky and probably very bad!
             let initialStart = true;
