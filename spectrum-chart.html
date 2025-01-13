@@ -235,6 +235,19 @@
                         ><input type="checkbox" id="zigbee-visibility" />
                         Zigbee</label
                     >
+                    <h4>LoRa</h4>
+                    <label
+                        ><input type="checkbox" id="lora-visibility" />
+                        LoRa</label
+                    >
+                    <label
+                        ><input type="checkbox" id="lora-125-visibility" /> 125
+                        KHz channels
+                    </label>
+                    <label
+                        ><input type="checkbox" id="lora-500-visibility" /> 500
+                        KHz channels
+                    </label>
                     <h4>General</h4>
                     <label>
                         <input
@@ -279,7 +292,7 @@
             </div>
             <div class="labels-dropdown">
                 <button class="button" id="shortcuts">
-                    <i class="bx bx-bookmarks"></i>
+                    <i class="bx bx-star"></i>
                 </button>
                 <div class="dropdown-content">
                     <h4>Bands</h4>
@@ -330,7 +343,7 @@
             const DEBUG = false;
 
             const minZoom = 0.15;
-            const maxZoom = 30;
+            const maxZoom = 120;
 
             // Setting state variables
             let showWifi = true;
@@ -350,6 +363,9 @@
             let bluetoothMode = "Low Energy";
             let showZigbee = false;
             let showZigbeeChannels = false;
+            let showLoRa = true;
+            let showLoRa125 = false;
+            let showLoRa500 = false;
             let showBandLabels = true;
             let showSubbands = true;
             let selectedDomain = "FCC";
@@ -1104,6 +1120,487 @@
                 ],
             };
 
+            const loRaChannels = {
+                "900 MHz": [
+                    {
+                        channel: 0,
+                        frequency: 902.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 1,
+                        frequency: 902.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 2,
+                        frequency: 902.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 3,
+                        frequency: 902.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 4,
+                        frequency: 903.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 5,
+                        frequency: 903.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 6,
+                        frequency: 903.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 7,
+                        frequency: 903.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 8,
+                        frequency: 903.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 9,
+                        frequency: 904.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 10,
+                        frequency: 904.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 11,
+                        frequency: 904.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 12,
+                        frequency: 904.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 13,
+                        frequency: 904.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 14,
+                        frequency: 905.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 15,
+                        frequency: 905.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 16,
+                        frequency: 905.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 17,
+                        frequency: 905.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 18,
+                        frequency: 905.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 19,
+                        frequency: 906.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 20,
+                        frequency: 906.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 21,
+                        frequency: 906.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 22,
+                        frequency: 906.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 23,
+                        frequency: 906.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 24,
+                        frequency: 907.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 25,
+                        frequency: 907.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 26,
+                        frequency: 907.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 27,
+                        frequency: 907.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 28,
+                        frequency: 907.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 29,
+                        frequency: 908.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 30,
+                        frequency: 908.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 31,
+                        frequency: 908.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 32,
+                        frequency: 908.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 33,
+                        frequency: 908.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 34,
+                        frequency: 909.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 35,
+                        frequency: 909.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 36,
+                        frequency: 909.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 37,
+                        frequency: 909.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 38,
+                        frequency: 909.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 39,
+                        frequency: 910.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 40,
+                        frequency: 910.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 41,
+                        frequency: 910.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 42,
+                        frequency: 910.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 43,
+                        frequency: 910.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 44,
+                        frequency: 911.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 45,
+                        frequency: 911.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 46,
+                        frequency: 911.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 47,
+                        frequency: 911.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 48,
+                        frequency: 911.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 49,
+                        frequency: 912.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 50,
+                        frequency: 912.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 51,
+                        frequency: 912.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 52,
+                        frequency: 912.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 53,
+                        frequency: 912.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 54,
+                        frequency: 913.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 55,
+                        frequency: 913.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 56,
+                        frequency: 913.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 57,
+                        frequency: 913.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 58,
+                        frequency: 913.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 59,
+                        frequency: 914.1,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 60,
+                        frequency: 914.3,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 61,
+                        frequency: 914.5,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 62,
+                        frequency: 914.7,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 63,
+                        frequency: 914.9,
+                        width: 0.125,
+                        type: "uplink",
+                    },
+                    { channel: 64, frequency: 903, width: 0.5, type: "uplink" },
+                    {
+                        channel: 65,
+                        frequency: 904.6,
+                        width: 0.5,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 66,
+                        frequency: 906.2,
+                        width: 0.5,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 67,
+                        frequency: 907.8,
+                        width: 0.5,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 68,
+                        frequency: 909.4,
+                        width: 0.5,
+                        type: "uplink",
+                    },
+                    { channel: 69, frequency: 911, width: 0.5, type: "uplink" },
+                    {
+                        channel: 70,
+                        frequency: 912.6,
+                        width: 0.5,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 71,
+                        frequency: 914.2,
+                        width: 0.5,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 71,
+                        frequency: 914.2,
+                        width: 0.5,
+                        type: "uplink",
+                    },
+                    {
+                        channel: 0,
+                        frequency: 923.3,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                    {
+                        channel: 1,
+                        frequency: 923.9,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                    {
+                        channel: 2,
+                        frequency: 924.5,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                    {
+                        channel: 3,
+                        frequency: 925.1,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                    {
+                        channel: 4,
+                        frequency: 925.7,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                    {
+                        channel: 5,
+                        frequency: 926.3,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                    {
+                        channel: 6,
+                        frequency: 926.9,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                    {
+                        channel: 7,
+                        frequency: 927.5,
+                        width: 0.5,
+                        type: "downlink",
+                    },
+                ],
+            };
+
             function resizeCanvas() {
                 // Increase the size of the canvas
                 canvas.width = window.innerWidth * window.devicePixelRatio;
@@ -1239,8 +1736,8 @@
                     Math.ceil(viewportEnd / config.step) * config.step;
 
                 context.beginPath();
-                context.strokeStyle = "#666666";
-                context.fillStyle = "#666666";
+                context.strokeStyle = "#000000";
+                context.fillStyle = "#000000";
                 context.textAlign = "center";
 
                 for (
@@ -1377,6 +1874,47 @@
                 );
             }
 
+            function drawLoRaChannel(channel, scale) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.channelHeight;
+                const style = {
+                    lineColor: "#009FE3",
+                    fillColor: "rgba(0, 159, 227, 0.2)", // Semi-transparent blue
+                    lineWidth: getZoomTier(scale).lineWidth,
+                    textColor: "#FFFFFF",
+                };
+
+                drawParabola(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.lineColor,
+                    style.fillColor,
+                );
+
+                const rowData = {
+                    id: "lora",
+                    type: "lora",
+                    width: channel.width,
+                };
+
+                let rowOffsetInPx = getRowOffset(rowData);
+
+                drawChannelLabel(
+                    centerX,
+                    centerY,
+                    width,
+                    style.lineColor,
+                    style.textColor,
+                    "lora",
+                    channel.channel,
+                    rowOffsetInPx,
+                );
+            }
+
             function drawBluetoothChannel(channel, scale) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
@@ -1428,24 +1966,12 @@
             function updateActiveLabelRows() {
                 const viewportStart = screenXToMhz(0);
                 const viewportEnd = screenXToMhz(canvas.width);
-                //  const padding = 20; // MHz padding on each side
                 const newActiveLabelRows = [];
 
                 // Add Wi-Fi rows based on visibility and channel widths
                 if (showWifi) {
                     // Helper function to check if any channels of a given width are visible
                     const hasVisibleChannels = (width) => {
-                        /*return Object.values(wifiChannels).some(
-                            (bandChannels) =>
-                                bandChannels.some(
-                                    (channel) =>
-                                        channel.width === width &&
-                                        channel.frequency >=
-                                            viewportStart - padding &&
-                                        channel.frequency <=
-                                            viewportEnd + padding,
-                                ),
-                        );*/
                         return Object.values(wifiChannels).some(
                             (bandChannels) =>
                                 bandChannels.some(
@@ -1549,6 +2075,33 @@
                     newActiveLabelRows.push({ id: "zigbee", type: "zigbee" });
                 }
 
+                // Add LoRa row if visible and enabled
+                if (
+                    showLoRa &&
+                    Object.values(loRaChannels).some((bandChannels) =>
+                        bandChannels.some(
+                            (channel) =>
+                                channel.frequency >=
+                                    viewportStart - channel.width * 2 &&
+                                channel.frequency <=
+                                    viewportEnd + channel.width * 2,
+                        ),
+                    )
+                )
+                    if (showLoRa125 && hasVisibleChannels(0.125))
+                        newActiveLabelRows.push({
+                            id: "lora",
+                            type: "lora",
+                            //width: 0.125,
+                        });
+
+                if (showLoRa125 && hasVisibleChannels(0.125))
+                    newActiveLabelRows.push({
+                        id: "lora",
+                        type: "lora",
+                        //width: 0.5,
+                    });
+
                 labelRows.activeLabelRows = newActiveLabelRows;
             }
 
@@ -1587,7 +2140,7 @@
                     function (activeRow) {
                         // Compare the id of the current row we're checking
                         // with the id of the row we're looking for
-                        // Te id of the row we are looking for comes from rowData.id
+                        // The id of the row we are looking for comes from rowData.id
                         // For example, id: "bluetooth"
                         return activeRow.id === rowData.id;
                     },
@@ -1797,6 +2350,22 @@
                     Object.keys(zigbeeChannels).forEach((band) => {
                         zigbeeChannels[band].forEach((channel) => {
                             drawZigbeeChannel(channel, scale);
+                        });
+                    });
+                }
+
+                if (showLoRa) {
+                    Object.keys(loRaChannels).forEach((band) => {
+                        loRaChannels[band].forEach((channel) => {
+                            // Block channel widths if their toggle is off
+                            if (
+                                (channel.width === 0.125 && !showLoRa125) ||
+                                (channel.width === 0.5 && !showLoRa500)
+                            ) {
+                                return;
+                            }
+
+                            drawLoRaChannel(channel, scale);
                         });
                     });
                 }
@@ -2161,6 +2730,28 @@
                 .getElementById("zigbee-visibility")
                 .addEventListener("change", (e) => {
                     showZigbee = e.target.checked;
+                    updateActiveLabelRows();
+                });
+
+            // LoRa
+            document
+                .getElementById("lora-visibility")
+                .addEventListener("change", (e) => {
+                    showLoRa = e.target.checked;
+                    updateActiveLabelRows();
+                });
+
+            document
+                .getElementById("lora-125-visibility")
+                .addEventListener("change", (e) => {
+                    showLoRa125 = e.target.checked;
+                    updateActiveLabelRows();
+                });
+
+            document
+                .getElementById("lora-500-visibility")
+                .addEventListener("change", (e) => {
+                    showLoRa500 = e.target.checked;
                     updateActiveLabelRows();
                 });
 
