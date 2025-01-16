@@ -1895,8 +1895,12 @@
                     style.fillColor,
                 );
 
+                // No matter what, we are setting ID to "lora!"
+                // Yep, that's the problem. The ID is what we use to differentiate between lines.
+                // I think we need to split rows by technologyGroup, and row within the technology...
                 const rowData = {
-                    id: "lora",
+                    // id: "lora",
+                    id: 500,
                     type: "lora",
                     width: channel.width,
                 };
@@ -1963,10 +1967,21 @@
                 baseOffset: -50,
             };
 
+            function logActiveLabelRows() {
+                console.log("=== Active Label Rows ===");
+                labelRows.activeLabelRows.forEach((row, index) => {
+                    console.log(`Row ${index}:`, row);
+                });
+                console.log("=========================");
+            }
+
+            /*
             function updateActiveLabelRows() {
                 const viewportStart = screenXToMhz(0);
                 const viewportEnd = screenXToMhz(canvas.width);
                 const newActiveLabelRows = [];
+
+                console.log(`First updateActiveLabelRows is running`);
 
                 // Add Wi-Fi rows based on visibility and channel widths
                 if (showWifi) {
@@ -2087,50 +2102,28 @@
                                     viewportEnd + channel.width * 2,
                         ),
                     )
-                )
-                    if (showLoRa125 && hasVisibleChannels(0.125))
+                ) {
+                    if (showLoRa125) {
                         newActiveLabelRows.push({
-                            id: "lora",
+                            id: "lora-125",
                             type: "lora",
-                            //width: 0.125,
-                        });
-
-                if (showLoRa125 && hasVisibleChannels(0.125))
-                    newActiveLabelRows.push({
-                        id: "lora",
-                        type: "lora",
-                        //width: 0.5,
-                    });
-
-                labelRows.activeLabelRows = newActiveLabelRows;
-            }
-
-            // A logging function for troubleshooting
-            function logLabelRows() {
-                if (DEBUG) {
-                    console.group("Label Rows Status:");
-                    console.log(`Base Offset: ${labelRows.labelBaseOffset}px`);
-                    console.log(`Row Height: ${labelRows.labelRowHeight}px`);
-
-                    console.group("Active Rows:");
-                    if (labelRows.activeLabelRows.length === 0) {
-                        console.log("No active rows");
-                    } else {
-                        labelRows.activeLabelRows.forEach((row, index) => {
-                            console.log(`Row ${index + 1}:`, {
-                                id: row.id,
-                                type: row.type,
-                                width: row.width || "N/A",
-                                yOffset:
-                                    labelRows.labelBaseOffset +
-                                    index * labelRows.labelRowHeight,
-                            });
+                            width: 0.125,
                         });
                     }
-                    console.groupEnd();
-                    console.groupEnd();
+
+                    if (showLoRa500) {
+                        newActiveLabelRows.push({
+                            id: "lora-500",
+                            type: "lora",
+                            width: 0.5,
+                        });
+                    }
                 }
+
+                labelRows.activeLabelRows = newActiveLabelRows;
+                logActiveLabelRows();
             }
+            */
 
             // Generate an offset, based on the label row position
             function getRowOffset(rowData) {
@@ -2146,13 +2139,13 @@
                     },
                 );
 
-                if (DEBUG) {
-                    console.log(`rowIndex: ${rowIndex}`);
+                if (rowIndex === -1) {
+                    return 0;
                 }
 
-                /*if (rowIndex === -1) {
-                    return 0;
-                }*/
+                //if (DEBUG) {
+                console.log(`rowIndex: ${rowIndex}`);
+                //}
 
                 const totalOffset =
                     labelRows.baseOffset + rowIndex * labelRows.rowHeight;
@@ -2162,6 +2155,181 @@
                 }
 
                 return totalOffset;
+            }
+
+            function updateActiveLabelRows() {
+                const viewportStart = screenXToMhz(0);
+                const viewportEnd = screenXToMhz(canvas.width);
+                const newActiveLabelRows = [];
+
+                // Add each type of row based on conditions
+                addWifiRows();
+                addBluetoothRow();
+                addZigbeeRow();
+                addLoRaRows();
+
+                // Update the active label rows
+                labelRows.activeLabelRows = newActiveLabelRows;
+
+                // Helper function to check if a frequency is in viewport
+                function isFrequencyVisible(frequency, width) {
+                    return (
+                        frequency >= viewportStart - width * 2 &&
+                        frequency <= viewportEnd + width * 2
+                    );
+                }
+
+                // Helper function to add a row if conditions are met
+                function addRowIfVisible(id, type, width = null) {
+                    const row = { id, type };
+                    // It looks like width only gets added if we have it. I'm not sure we need it...
+                    if (width !== null) row.width = width;
+                    newActiveLabelRows.push(row);
+                }
+
+                // Add Wi-Fi rows with explicit conditions
+                function addWifiRows() {
+                    if (!showWifi) return;
+
+                    // Check each Wi-Fi width configuration explicitly
+                    if (show1MHz) {
+                        if (hasVisibleWifiChannels(1)) {
+                            addRowIfVisible(1, "wi-fi", 1);
+                        }
+                    }
+
+                    if (show2MHz) {
+                        if (hasVisibleWifiChannels(2)) {
+                            addRowIfVisible(2, "wi-fi", 2);
+                        }
+                    }
+
+                    if (show4MHz) {
+                        if (hasVisibleWifiChannels(4)) {
+                            addRowIfVisible(4, "wi-fi", 4);
+                        }
+                    }
+
+                    if (show8MHz) {
+                        if (hasVisibleWifiChannels(8)) {
+                            addRowIfVisible(8, "wi-fi", 8);
+                        }
+                    }
+
+                    if (show16MHz) {
+                        if (hasVisibleWifiChannels(16)) {
+                            addRowIfVisible(16, "wi-fi", 16);
+                        }
+                    }
+
+                    if (show20MHz) {
+                        if (hasVisibleWifiChannels(20)) {
+                            addRowIfVisible(20, "wi-fi", 20);
+                        }
+                    }
+
+                    if (show40MHz) {
+                        if (hasVisibleWifiChannels(40)) {
+                            addRowIfVisible(40, "wi-fi", 40);
+                        }
+                    }
+
+                    if (show80MHz) {
+                        if (hasVisibleWifiChannels(80)) {
+                            addRowIfVisible(80, "wi-fi", 80);
+                        }
+                    }
+
+                    if (show160MHz) {
+                        if (hasVisibleWifiChannels(160)) {
+                            addRowIfVisible(160, "wi-fi", 160);
+                        }
+                    }
+                }
+
+                // Check if any Wi-Fi channels of a specific width are visible
+                function hasVisibleWifiChannels(width) {
+                    return Object.values(wifiChannels).some((bandChannels) =>
+                        bandChannels.some(
+                            (channel) =>
+                                channel.width === width &&
+                                isFrequencyVisible(
+                                    channel.frequency,
+                                    channel.width,
+                                ),
+                        ),
+                    );
+                }
+
+                // Add Bluetooth row with explicit conditions
+                function addBluetoothRow() {
+                    if (!showBluetooth) return;
+
+                    const hasVisibleChannel = bluetoothChannels[
+                        bluetoothMode
+                    ].some((channel) =>
+                        isFrequencyVisible(channel.frequency, channel.width),
+                    );
+
+                    if (hasVisibleChannel) {
+                        addRowIfVisible("bluetooth", "bluetooth");
+                    }
+                }
+
+                // Add Zigbee row with explicit conditions
+                function addZigbeeRow() {
+                    if (!showZigbee) return;
+
+                    const hasVisibleChannel = Object.values(
+                        zigbeeChannels,
+                    ).some((bandChannels) =>
+                        bandChannels.some((channel) =>
+                            isFrequencyVisible(
+                                channel.frequency,
+                                channel.width,
+                            ),
+                        ),
+                    );
+
+                    if (hasVisibleChannel) {
+                        addRowIfVisible("zigbee", "zigbee");
+                    }
+                }
+
+                // Add LoRa rows with explicit conditions
+                function addLoRaRows() {
+                    if (!showLoRa) return;
+
+                    const hasVisibleChannel = Object.values(loRaChannels).some(
+                        (bandChannels) =>
+                            bandChannels.some((channel) =>
+                                isFrequencyVisible(
+                                    channel.frequency,
+                                    channel.width,
+                                ),
+                            ),
+                    );
+
+                    if (hasVisibleChannel) {
+                        if (showLoRa125) {
+                            addRowIfVisible(125, "lora", 0.125);
+                        }
+
+                        if (showLoRa500) {
+                            addRowIfVisible(500, "lora", 0.5);
+                        }
+                    }
+                }
+
+                console.log("=== Active Label Rows ===");
+                if (labelRows.activeLabelRows.length === 0) {
+                    console.log("No active label rows currently.");
+                } else {
+                    labelRows.activeLabelRows.forEach((row, index) => {
+                        console.log(`Row ${index}:`, row);
+                    });
+                }
+                console.log("=========================");
             }
 
             function drawChannelLabel(
@@ -2834,13 +3002,8 @@
                     setViewportFrequency(5990);
                 });
 
-            // This is hacky and probably very bad!
-            let initialStart = true;
-            if (initialStart) {
-                updateActiveLabelRows();
-                initialStart = false;
-            }
-            // Start the animation
+            updateActiveLabelRows();
+
             draw();
         </script>
     </body>
