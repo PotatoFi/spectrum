@@ -1680,16 +1680,21 @@
                     // Draw rectangle with rounded corners
                     context.beginPath();
                     context.roundRect(startX, yPosition, width, labelHeight, 6);
-                    context.fillStyle = "rgba(0, 0, 0, 0.1)";
+                    context.fillStyle = "#E5E5E5";
                     context.fill();
 
-                    // Draw text
-                    context.fillStyle = "rgba(0, 0, 0, 0.7)";
-                    context.fillText(
-                        band.name,
-                        centerX,
-                        yPosition + labelHeight / 2,
-                    );
+                    // Calculate the text width and add padding
+                    const textWidth = context.measureText(band.name).width + 4;
+
+                    if (width >= textWidth) {
+                        context.fillStyle = "#000000";
+                        context.fillText(
+                            band.name,
+                            centerX,
+                            yPosition + labelHeight / 2,
+                        );
+                    } else {
+                    }
                 });
             }
 
@@ -1715,22 +1720,27 @@
                 relevantSubBands.forEach((band) => {
                     const startX = mhzToScreenX(band.start);
                     const stopX = mhzToScreenX(band.stop);
-                    const width = stopX - startX;
+                    const width = stopX - startX - 4;
                     const centerX = startX + width / 2;
 
-                    // Draw rectangle with rounded corners
+                    // Draw rectangle
                     context.beginPath();
                     context.roundRect(startX, yPosition, width, labelHeight, 6);
-                    context.fillStyle = "rgba(0, 0, 0, 0.05)";
+                    context.fillStyle = "#F2F2F2";
                     context.fill();
 
-                    // Draw text
-                    context.fillStyle = "rgba(0, 0, 0, 0.5)";
-                    context.fillText(
-                        band.name,
-                        centerX,
-                        yPosition + labelHeight / 2,
-                    );
+                    // Calculate the text width and add padding
+                    const textWidth = context.measureText(band.name).width + 4;
+
+                    if (width >= textWidth) {
+                        context.fillStyle = "#000000";
+                        context.fillText(
+                            band.name,
+                            centerX,
+                            yPosition + labelHeight / 2,
+                        );
+                    } else {
+                    }
                 });
             }
 
@@ -1989,7 +1999,7 @@
                 const newActiveLabelRows = [];
 
                 if (DEBUG) {
-                    console.log(`First updateActiveLabelRows is running`);
+                    console.log(`UpdateActiveLabelRows is running`);
                 }
 
                 // Add Wi-Fi rows based on visibility and channel widths
@@ -2169,12 +2179,11 @@
                 centerY = centerY - rowOffsetInPx;
 
                 width = width - 4; // Set the width of the rectangle
-                const height = 30;
+                const height = 30; // Should this come from labelHeight instead?
                 let backgroundCenterX = width / 2; // Calculate how to translate the rectangle
                 let backgroundCenterY = height / 2;
 
-                // Draw the background
-                // roundRect(x, y, width, height, radii)
+                // Draw rectangle
                 context.beginPath();
                 context.roundRect(
                     centerX - backgroundCenterX,
@@ -2186,9 +2195,11 @@
                 context.fillStyle = backgroundColor;
                 context.fill();
 
+                // Calculate the text width and add padding
+                const textWidth = context.measureText(text).width + 4;
+
                 // Draw the text
-                if (width >= 25) {
-                    // Later, I'll do a more sophisticated text length calculation
+                if (width >= textWidth) {
                     context.fillStyle = foregroundColor;
                     context.fillText(text, centerX, centerY);
                 } else {
