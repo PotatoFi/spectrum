@@ -1629,7 +1629,22 @@
                     viewportFrequency * 2 * scale;
             }
 
-            setViewportFrequency(2445);
+            function setViewportFrequencyRange(startFrequency, stopFrequency) {
+                // Calculate the width of the viewport in pixels (accounting for device pixel ratio)
+                const viewportWidth = canvas.width / window.devicePixelRatio;
+
+                // Calculate required scale to fit the frequency range in the viewport
+                // The 2 comes from the base scale factor in mhzToScreenX where pixelsPerMhz = 2 * scale
+                scale = viewportWidth / ((stopFrequency - startFrequency) * 2);
+
+                // Clamp the scale to min/max zoom levels
+                scale = Math.min(Math.max(minZoom, scale), maxZoom);
+
+                // Calculate the offset needed to position startFrequency at the left edge
+                offset.x = -startFrequency * 2 * scale;
+            }
+
+            setViewportFrequencyRange(2395, 2505);
 
             // Common drawing utilities
             function getBaselineY() {
@@ -2790,25 +2805,25 @@
             document
                 .getElementById("900-MHz-shortcut")
                 .addEventListener("click", (e) => {
-                    setViewportFrequency(915);
+                    setViewportFrequencyRange(900, 930);
                 });
 
             document
                 .getElementById("2400-MHz-shortcut")
                 .addEventListener("click", (e) => {
-                    setViewportFrequency(2445);
+                    setViewportFrequencyRange(2395, 2505);
                 });
 
             document
                 .getElementById("5000-MHz-shortcut")
                 .addEventListener("click", (e) => {
-                    setViewportFrequency(5215);
+                    setViewportFrequencyRange(5160, 5845);
                 });
 
             document
                 .getElementById("6000-MHz-shortcut")
                 .addEventListener("click", (e) => {
-                    setViewportFrequency(5990);
+                    setViewportFrequencyRange(5930, 7140);
                 });
 
             updateActiveLabelRows();
