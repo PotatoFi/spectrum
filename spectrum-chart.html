@@ -1779,7 +1779,7 @@
                 context.stroke();
             }
 
-            function drawWiFiChannel(channel, scale, channelWidthID) {
+            function drawWiFiChannel(channel, scale, widthForID) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
@@ -1814,9 +1814,8 @@
 
                 // Create the rowData object
                 const rowData = {
-                    id: channelWidthID, // This seems horribly inefficient...
-                    type: "wifi",
-                    width: channel.width, // to have channelWidthID, and also this 🤔
+                    id: "wi-fi",
+                    type: widthForID,
                 };
 
                 let rowOffsetInPx = getRowOffset(rowData);
@@ -1857,7 +1856,6 @@
                 const rowData = {
                     id: "zigbee",
                     type: "zigbee",
-                    width: channel.width,
                 };
 
                 let rowOffsetInPx = getRowOffset(rowData);
@@ -1874,7 +1872,7 @@
                 );
             }
 
-            function drawLoRaChannel(channel, scale) {
+            function drawLoRaChannel(channel, scale, widthForID) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
@@ -1895,14 +1893,9 @@
                     style.fillColor,
                 );
 
-                // No matter what, we are setting ID to "lora!"
-                // Yep, that's the problem. The ID is what we use to differentiate between lines.
-                // I think we need to split rows by technologyGroup, and row within the technology...
                 const rowData = {
-                    // id: "lora",
-                    id: 500,
-                    type: "lora",
-                    width: channel.width,
+                    id: "lora",
+                    type: widthForID,
                 };
 
                 let rowOffsetInPx = getRowOffset(rowData);
@@ -1940,11 +1933,9 @@
                     style.fillColor,
                 );
 
-                // Create the rowData object
                 const rowData = {
                     id: "bluetooth",
                     type: "bluetooth",
-                    width: channel.width,
                 };
 
                 let rowOffsetInPx = getRowOffset(rowData);
@@ -1975,7 +1966,6 @@
                 console.log("=========================");
             }
 
-            /*
             function updateActiveLabelRows() {
                 const viewportStart = screenXToMhz(0);
                 const viewportEnd = screenXToMhz(canvas.width);
@@ -2003,57 +1993,48 @@
                     // Only add rows for channel widths that are both enabled and visible
                     if (show1MHz && hasVisibleChannels(1))
                         newActiveLabelRows.push({
-                            id: 1,
-                            type: "wi-fi",
-                            width: 1,
+                            id: "wi-fi",
+                            type: 1,
                         });
                     if (show2MHz && hasVisibleChannels(2))
                         newActiveLabelRows.push({
-                            id: 2,
-                            type: "wi-fi",
-                            width: 2,
+                            id: "wi-fi",
+                            type: 2,
                         });
                     if (show4MHz && hasVisibleChannels(4))
                         newActiveLabelRows.push({
-                            id: 4,
-                            type: "wi-fi",
-                            width: 4,
+                            id: "wi-fi",
+                            type: 4,
                         });
                     if (show8MHz && hasVisibleChannels(8))
                         newActiveLabelRows.push({
-                            id: 8,
-                            type: "wi-fi",
-                            width: 8,
+                            id: "wi-fi",
+                            type: 8,
                         });
                     if (show16MHz && hasVisibleChannels(16))
                         newActiveLabelRows.push({
-                            id: 16,
-                            type: "wi-fi",
-                            width: 16,
+                            id: "wi-fi",
+                            type: 16,
                         });
                     if (show20MHz && hasVisibleChannels(20))
                         newActiveLabelRows.push({
-                            id: 20,
-                            type: "wi-fi",
-                            width: 20,
+                            id: "wi-fi",
+                            type: 20,
                         });
                     if (show40MHz && hasVisibleChannels(40))
                         newActiveLabelRows.push({
-                            id: 40,
-                            type: "wi-fi",
-                            width: 40,
+                            id: "wi-fi",
+                            type: 40,
                         });
                     if (show80MHz && hasVisibleChannels(80))
                         newActiveLabelRows.push({
-                            id: 80,
-                            type: "wi-fi",
-                            width: 80,
+                            id: "wi-fi",
+                            type: 80,
                         });
                     if (show160MHz && hasVisibleChannels(160))
                         newActiveLabelRows.push({
-                            id: 160,
-                            type: "wi-fi",
-                            width: 160,
+                            id: "wi-fi",
+                            type: 160,
                         });
                 }
 
@@ -2105,17 +2086,15 @@
                 ) {
                     if (showLoRa125) {
                         newActiveLabelRows.push({
-                            id: "lora-125",
-                            type: "lora",
-                            width: 0.125,
+                            id: "lora",
+                            type: 0.125,
                         });
                     }
 
                     if (showLoRa500) {
                         newActiveLabelRows.push({
-                            id: "lora-500",
-                            type: "lora",
-                            width: 0.5,
+                            id: "lora",
+                            type: 0.5,
                         });
                     }
                 }
@@ -2123,41 +2102,52 @@
                 labelRows.activeLabelRows = newActiveLabelRows;
                 logActiveLabelRows();
             }
-            */
 
             // Generate an offset, based on the label row position
             function getRowOffset(rowData) {
-                // First, search through our active rows array to find which position
-                // this row is in (0 is first, 1 is second, etc)
+                // First, search through the activeLabelRows array to find the position of the row
+                // we're looking for. We now compare both `id` and `type` to ensure uniqueness.
                 const rowIndex = labelRows.activeLabelRows.findIndex(
                     function (activeRow) {
-                        // Compare the id of the current row we're checking
-                        // with the id of the row we're looking for
-                        // The id of the row we are looking for comes from rowData.id
-                        // For example, id: "bluetooth"
-                        return activeRow.id === rowData.id;
+                        // Log both `id` and `type` for debugging purposes to make sure we are comparing both properties
+                        /* console.log(
+                            `Comparing rowData.id: ${rowData.id}, rowData.type: ${rowData.type} with activeRow.id: ${activeRow.id}, activeRow.type: ${activeRow.type}`,
+                        );*/
+
+                        // Compare both `id` and `type` of the activeRow with the rowData to find an exact match.
+                        return (
+                            activeRow.id === rowData.id &&
+                            activeRow.type === rowData.type
+                        );
                     },
                 );
 
-                if (rowIndex === -1) {
+                // If the row is not found in the activeLabelRows array, `findIndex` returns -1.
+                // In this case, return a total offset of 0 because the row doesn't exist.
+                /*if (rowIndex === -1) {
+                    console.log("Row not found. Returning 5.");
                     return 0;
-                }
+                }*/
 
-                //if (DEBUG) {
-                console.log(`rowIndex: ${rowIndex}`);
-                //}
+                // Debugging output to log the rowIndex. This helps to confirm the position
+                // of the row we found in the array.
+                // console.log(`rowIndex: ${rowIndex}`);
 
+                // Calculate the total offset for the row based on the baseOffset,
+                // the index of the row (rowIndex), and the rowHeight.
+                // Each unique row (based on `id` and `type`) gets a specific height and offset.
                 const totalOffset =
                     labelRows.baseOffset + rowIndex * labelRows.rowHeight;
 
-                if (DEBUG) {
-                    console.log(`Total Offset: ${totalOffset}`);
-                }
+                // Debugging output to log the total offset. This confirms the calculated
+                // offset value for the given row.
+                // console.log(`Total Offset: ${totalOffset}`);
 
+                // Return the calculated total offset.
                 return totalOffset;
             }
 
-            function updateActiveLabelRows() {
+            /*function updateActiveLabelRows() {
                 const viewportStart = screenXToMhz(0);
                 const viewportEnd = screenXToMhz(canvas.width);
                 const newActiveLabelRows = [];
@@ -2180,10 +2170,10 @@
                 }
 
                 // Helper function to add a row if conditions are met
-                function addRowIfVisible(id, type, width = null) {
+                function addRowIfVisible(id, type) {
                     const row = { id, type };
                     // It looks like width only gets added if we have it. I'm not sure we need it...
-                    if (width !== null) row.width = width;
+                    // if (width !== null) row.width = width;
                     newActiveLabelRows.push(row);
                 }
 
@@ -2194,55 +2184,55 @@
                     // Check each Wi-Fi width configuration explicitly
                     if (show1MHz) {
                         if (hasVisibleWifiChannels(1)) {
-                            addRowIfVisible(1, "wi-fi", 1);
+                            addRowIfVisible("wi-fi", 1);
                         }
                     }
 
                     if (show2MHz) {
                         if (hasVisibleWifiChannels(2)) {
-                            addRowIfVisible(2, "wi-fi", 2);
+                            addRowIfVisible("wi-fi", 2);
                         }
                     }
 
                     if (show4MHz) {
                         if (hasVisibleWifiChannels(4)) {
-                            addRowIfVisible(4, "wi-fi", 4);
+                            addRowIfVisible("wi-fi", 4);
                         }
                     }
 
                     if (show8MHz) {
                         if (hasVisibleWifiChannels(8)) {
-                            addRowIfVisible(8, "wi-fi", 8);
+                            addRowIfVisible("wi-fi", 8);
                         }
                     }
 
                     if (show16MHz) {
                         if (hasVisibleWifiChannels(16)) {
-                            addRowIfVisible(16, "wi-fi", 16);
+                            addRowIfVisible("wi-fi", 16);
                         }
                     }
 
                     if (show20MHz) {
                         if (hasVisibleWifiChannels(20)) {
-                            addRowIfVisible(20, "wi-fi", 20);
+                            addRowIfVisible("wi-fi", 20);
                         }
                     }
 
                     if (show40MHz) {
                         if (hasVisibleWifiChannels(40)) {
-                            addRowIfVisible(40, "wi-fi", 40);
+                            addRowIfVisible("wi-fi", 40);
                         }
                     }
 
                     if (show80MHz) {
                         if (hasVisibleWifiChannels(80)) {
-                            addRowIfVisible(80, "wi-fi", 80);
+                            addRowIfVisible("wi-fi", 80);
                         }
                     }
 
                     if (show160MHz) {
                         if (hasVisibleWifiChannels(160)) {
-                            addRowIfVisible(160, "wi-fi", 160);
+                            addRowIfVisible("wi-fi", 160);
                         }
                     }
                 }
@@ -2296,8 +2286,22 @@
                     }
                 }
 
-                // Add LoRa rows with explicit conditions
                 function addLoRaRows() {
+                    if (!showLoRa) return;
+
+                    if (showLoRa125) {
+                        //addRowIfVisible("lora", 25);
+                        newActiveLabelRows.push("lora", 0.125);
+                    }
+
+                    if (showLoRa500) {
+                        //addRowIfVisible("lora", 50);
+                        newActiveLabelRows.push("lora", 0.5);
+                    }
+                }
+
+                // Add LoRa rows with explicit conditions
+                function OldaddLoRaRows() {
                     if (!showLoRa) return;
 
                     const hasVisibleChannel = Object.values(loRaChannels).some(
@@ -2312,14 +2316,15 @@
 
                     if (hasVisibleChannel) {
                         if (showLoRa125) {
-                            addRowIfVisible(125, "lora", 0.125);
+                            addRowIfVisible("lora", 125);
                         }
 
                         if (showLoRa500) {
-                            addRowIfVisible(500, "lora", 0.5);
+                            addRowIfVisible("lora", 500);
                         }
                     }
                 }
+
 
                 console.log("=== Active Label Rows ===");
                 if (labelRows.activeLabelRows.length === 0) {
@@ -2330,7 +2335,7 @@
                     });
                 }
                 console.log("=========================");
-            }
+            }*/
 
             function drawChannelLabel(
                 centerX,
@@ -2533,7 +2538,7 @@
                                 return;
                             }
 
-                            drawLoRaChannel(channel, scale);
+                            drawLoRaChannel(channel, scale, channel.width);
                         });
                     });
                 }
