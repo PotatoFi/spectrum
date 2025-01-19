@@ -1606,8 +1606,10 @@
                 canvas.width = window.innerWidth * window.devicePixelRatio;
                 canvas.height = window.innerHeight * window.devicePixelRatio;
 
-                console.log("Device Pixel Ratio:", window.devicePixelRatio);
-                console.log("window.innerHeight", window.innerHeight);
+                if (DEBUG) {
+                    console.log("Device Pixel Ratio:", window.devicePixelRatio);
+                    console.log("window.innerHeight", window.innerHeight);
+                }
 
                 // Scale drawing operations
                 context.scale(devicePixelRatio, devicePixelRatio);
@@ -1971,7 +1973,9 @@
                 const viewportEnd = screenXToMhz(canvas.width);
                 const newActiveLabelRows = [];
 
-                console.log(`First updateActiveLabelRows is running`);
+                if (DEBUG) {
+                    console.log(`First updateActiveLabelRows is running`);
+                }
 
                 // Add Wi-Fi rows based on visibility and channel widths
                 if (showWifi) {
@@ -2100,21 +2104,19 @@
                 }
 
                 labelRows.activeLabelRows = newActiveLabelRows;
-                logActiveLabelRows();
+
+                if (DEBUG) {
+                    logActiveLabelRows();
+                }
             }
 
             // Generate an offset, based on the label row position
             function getRowOffset(rowData) {
                 // First, search through the activeLabelRows array to find the position of the row
-                // we're looking for. We now compare both `id` and `type` to ensure uniqueness.
+                // we're looking for. We now compare both `id` and `type` to ensure uniqueness
                 const rowIndex = labelRows.activeLabelRows.findIndex(
                     function (activeRow) {
-                        // Log both `id` and `type` for debugging purposes to make sure we are comparing both properties
-                        /* console.log(
-                            `Comparing rowData.id: ${rowData.id}, rowData.type: ${rowData.type} with activeRow.id: ${activeRow.id}, activeRow.type: ${activeRow.type}`,
-                        );*/
-
-                        // Compare both `id` and `type` of the activeRow with the rowData to find an exact match.
+                        // Compare both `id` and `type` of the activeRow with the rowData to find an exact match
                         return (
                             activeRow.id === rowData.id &&
                             activeRow.type === rowData.type
@@ -2124,218 +2126,20 @@
 
                 // If the row is not found in the activeLabelRows array, `findIndex` returns -1.
                 // In this case, return a total offset of 0 because the row doesn't exist.
-                /*if (rowIndex === -1) {
-                    console.log("Row not found. Returning 5.");
+                if (rowIndex === -1) {
+                    if (DEBUG) {
+                        console.log("Row not found. Returning 0.");
+                    }
                     return 0;
-                }*/
-
-                // Debugging output to log the rowIndex. This helps to confirm the position
-                // of the row we found in the array.
-                // console.log(`rowIndex: ${rowIndex}`);
+                }
 
                 // Calculate the total offset for the row based on the baseOffset,
                 // the index of the row (rowIndex), and the rowHeight.
                 // Each unique row (based on `id` and `type`) gets a specific height and offset.
                 const totalOffset =
                     labelRows.baseOffset + rowIndex * labelRows.rowHeight;
-
-                // Debugging output to log the total offset. This confirms the calculated
-                // offset value for the given row.
-                // console.log(`Total Offset: ${totalOffset}`);
-
-                // Return the calculated total offset.
                 return totalOffset;
             }
-
-            /*function updateActiveLabelRows() {
-                const viewportStart = screenXToMhz(0);
-                const viewportEnd = screenXToMhz(canvas.width);
-                const newActiveLabelRows = [];
-
-                // Add each type of row based on conditions
-                addWifiRows();
-                addBluetoothRow();
-                addZigbeeRow();
-                addLoRaRows();
-
-                // Update the active label rows
-                labelRows.activeLabelRows = newActiveLabelRows;
-
-                // Helper function to check if a frequency is in viewport
-                function isFrequencyVisible(frequency, width) {
-                    return (
-                        frequency >= viewportStart - width * 2 &&
-                        frequency <= viewportEnd + width * 2
-                    );
-                }
-
-                // Helper function to add a row if conditions are met
-                function addRowIfVisible(id, type) {
-                    const row = { id, type };
-                    // It looks like width only gets added if we have it. I'm not sure we need it...
-                    // if (width !== null) row.width = width;
-                    newActiveLabelRows.push(row);
-                }
-
-                // Add Wi-Fi rows with explicit conditions
-                function addWifiRows() {
-                    if (!showWifi) return;
-
-                    // Check each Wi-Fi width configuration explicitly
-                    if (show1MHz) {
-                        if (hasVisibleWifiChannels(1)) {
-                            addRowIfVisible("wi-fi", 1);
-                        }
-                    }
-
-                    if (show2MHz) {
-                        if (hasVisibleWifiChannels(2)) {
-                            addRowIfVisible("wi-fi", 2);
-                        }
-                    }
-
-                    if (show4MHz) {
-                        if (hasVisibleWifiChannels(4)) {
-                            addRowIfVisible("wi-fi", 4);
-                        }
-                    }
-
-                    if (show8MHz) {
-                        if (hasVisibleWifiChannels(8)) {
-                            addRowIfVisible("wi-fi", 8);
-                        }
-                    }
-
-                    if (show16MHz) {
-                        if (hasVisibleWifiChannels(16)) {
-                            addRowIfVisible("wi-fi", 16);
-                        }
-                    }
-
-                    if (show20MHz) {
-                        if (hasVisibleWifiChannels(20)) {
-                            addRowIfVisible("wi-fi", 20);
-                        }
-                    }
-
-                    if (show40MHz) {
-                        if (hasVisibleWifiChannels(40)) {
-                            addRowIfVisible("wi-fi", 40);
-                        }
-                    }
-
-                    if (show80MHz) {
-                        if (hasVisibleWifiChannels(80)) {
-                            addRowIfVisible("wi-fi", 80);
-                        }
-                    }
-
-                    if (show160MHz) {
-                        if (hasVisibleWifiChannels(160)) {
-                            addRowIfVisible("wi-fi", 160);
-                        }
-                    }
-                }
-
-                // Check if any Wi-Fi channels of a specific width are visible
-                function hasVisibleWifiChannels(width) {
-                    return Object.values(wifiChannels).some((bandChannels) =>
-                        bandChannels.some(
-                            (channel) =>
-                                channel.width === width &&
-                                isFrequencyVisible(
-                                    channel.frequency,
-                                    channel.width,
-                                ),
-                        ),
-                    );
-                }
-
-                // Add Bluetooth row with explicit conditions
-                function addBluetoothRow() {
-                    if (!showBluetooth) return;
-
-                    const hasVisibleChannel = bluetoothChannels[
-                        bluetoothMode
-                    ].some((channel) =>
-                        isFrequencyVisible(channel.frequency, channel.width),
-                    );
-
-                    if (hasVisibleChannel) {
-                        addRowIfVisible("bluetooth", "bluetooth");
-                    }
-                }
-
-                // Add Zigbee row with explicit conditions
-                function addZigbeeRow() {
-                    if (!showZigbee) return;
-
-                    const hasVisibleChannel = Object.values(
-                        zigbeeChannels,
-                    ).some((bandChannels) =>
-                        bandChannels.some((channel) =>
-                            isFrequencyVisible(
-                                channel.frequency,
-                                channel.width,
-                            ),
-                        ),
-                    );
-
-                    if (hasVisibleChannel) {
-                        addRowIfVisible("zigbee", "zigbee");
-                    }
-                }
-
-                function addLoRaRows() {
-                    if (!showLoRa) return;
-
-                    if (showLoRa125) {
-                        //addRowIfVisible("lora", 25);
-                        newActiveLabelRows.push("lora", 0.125);
-                    }
-
-                    if (showLoRa500) {
-                        //addRowIfVisible("lora", 50);
-                        newActiveLabelRows.push("lora", 0.5);
-                    }
-                }
-
-                // Add LoRa rows with explicit conditions
-                function OldaddLoRaRows() {
-                    if (!showLoRa) return;
-
-                    const hasVisibleChannel = Object.values(loRaChannels).some(
-                        (bandChannels) =>
-                            bandChannels.some((channel) =>
-                                isFrequencyVisible(
-                                    channel.frequency,
-                                    channel.width,
-                                ),
-                            ),
-                    );
-
-                    if (hasVisibleChannel) {
-                        if (showLoRa125) {
-                            addRowIfVisible("lora", 125);
-                        }
-
-                        if (showLoRa500) {
-                            addRowIfVisible("lora", 500);
-                        }
-                    }
-                }
-
-
-                console.log("=== Active Label Rows ===");
-                if (labelRows.activeLabelRows.length === 0) {
-                    console.log("No active label rows currently.");
-                } else {
-                    labelRows.activeLabelRows.forEach((row, index) => {
-                        console.log(`Row ${index}:`, row);
-                    });
-                }
-                console.log("=========================");
-            }*/
 
             function drawChannelLabel(
                 centerX,
