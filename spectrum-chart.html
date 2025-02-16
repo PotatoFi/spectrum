@@ -248,6 +248,47 @@
                         ><input type="checkbox" id="lora-500-visibility" /> 500
                         KHz channels
                     </label>
+                    <h4>Regulatory Domain</h4>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="ww-domain-visibility"
+                            checked
+                        />
+                        🌍 Show Worldwide (harmonized)
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="us-domain-visibility"
+                            checked
+                        />
+                        🇺🇸 Show US
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="eu-domain-visibility"
+                            checked
+                        />
+                        🇪🇺 Show EU
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="au-domain-visibility"
+                            checked
+                        />
+                        🇦🇺 Show AU
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="jp-domain-visibility"
+                            checked
+                        />
+                        🇯🇵 Show JP
+                    </label>
                     <h4>General</h4>
                     <label>
                         <input
@@ -369,6 +410,11 @@
             let showBandLabels = true;
             let showSubbands = true;
             let selectedDomain = "FCC";
+            let showWWDomain = true;
+            let showUSDomain = true;
+            let showEUDomain = true;
+            let showJPDomain = true;
+            let showAUDomain = true;
 
             // Other variables
             let offset = { x: 0, y: 0 };
@@ -485,36 +531,168 @@
             ];
 
             const zigbeeChannels = {
-                "868 MHz": [{ channel: 0, frequency: 868, width: 2 }],
+                "868 MHz": [
+                    { channel: 0, frequency: 868, width: 2, domain: ["EU"] },
+                ],
                 "915 MHz": [
-                    { channel: 1, frequency: 906, width: 2 },
-                    { channel: 2, frequency: 908, width: 2 },
-                    { channel: 3, frequency: 910, width: 2 },
-                    { channel: 4, frequency: 912, width: 2 },
-                    { channel: 5, frequency: 914, width: 2 },
-                    { channel: 6, frequency: 916, width: 2 },
-                    { channel: 7, frequency: 918, width: 2 },
-                    { channel: 8, frequency: 920, width: 2 },
-                    { channel: 9, frequency: 922, width: 2 },
-                    { channel: 10, frequency: 924, width: 2 },
+                    {
+                        channel: 1,
+                        frequency: 906,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 2,
+                        frequency: 908,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 3,
+                        frequency: 910,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 4,
+                        frequency: 912,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 5,
+                        frequency: 914,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 6,
+                        frequency: 916,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 7,
+                        frequency: 918,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 8,
+                        frequency: 920,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 9,
+                        frequency: 922,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 10,
+                        frequency: 924,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
                 ],
                 "2.4 GHz": [
-                    { channel: 11, frequency: 2405, width: 2 },
-                    { channel: 12, frequency: 2410, width: 2 },
-                    { channel: 13, frequency: 2415, width: 2 },
-                    { channel: 14, frequency: 2420, width: 2 },
-                    { channel: 15, frequency: 2425, width: 2 },
-                    { channel: 16, frequency: 2430, width: 2 },
-                    { channel: 17, frequency: 2435, width: 2 },
-                    { channel: 18, frequency: 2440, width: 2 },
-                    { channel: 19, frequency: 2445, width: 2 },
-                    { channel: 20, frequency: 2450, width: 2 },
-                    { channel: 21, frequency: 2455, width: 2 },
-                    { channel: 22, frequency: 2460, width: 2 },
-                    { channel: 23, frequency: 2465, width: 2 },
-                    { channel: 24, frequency: 2470, width: 2 },
-                    { channel: 25, frequency: 2475, width: 2 },
-                    { channel: 26, frequency: 2480, width: 2 },
+                    {
+                        channel: 11,
+                        frequency: 2405,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 12,
+                        frequency: 2410,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 13,
+                        frequency: 2415,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 14,
+                        frequency: 2420,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 15,
+                        frequency: 2425,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 16,
+                        frequency: 2430,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 17,
+                        frequency: 2435,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 18,
+                        frequency: 2440,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 19,
+                        frequency: 2445,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 20,
+                        frequency: 2450,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 21,
+                        frequency: 2455,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 22,
+                        frequency: 2460,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 23,
+                        frequency: 2465,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 24,
+                        frequency: 2470,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 25,
+                        frequency: 2475,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
+                    {
+                        channel: 26,
+                        frequency: 2480,
+                        width: 2,
+                        domain: ["WW", "US", "AU"],
+                    },
                 ],
             };
 
@@ -847,276 +1025,1221 @@
             const wifiChannels = {
                 "900 MHz": [
                     // 1 MHz channels
-                    { channel: 1, frequency: 902.5, width: 1 },
-                    { channel: 3, frequency: 903.5, width: 1 },
-                    { channel: 5, frequency: 904.5, width: 1 },
-                    { channel: 7, frequency: 905.5, width: 1 },
-                    { channel: 9, frequency: 906.5, width: 1 },
-                    { channel: 11, frequency: 907.5, width: 1 },
-                    { channel: 13, frequency: 908.5, width: 1 },
-                    { channel: 15, frequency: 909.5, width: 1 },
-                    { channel: 17, frequency: 910.5, width: 1 },
-                    { channel: 19, frequency: 911.5, width: 1 },
-                    { channel: 21, frequency: 912.5, width: 1 },
-                    { channel: 23, frequency: 913.5, width: 1 },
-                    { channel: 25, frequency: 914.5, width: 1 },
-                    { channel: 27, frequency: 915.5, width: 1 },
-                    { channel: 29, frequency: 916.5, width: 1 },
-                    { channel: 31, frequency: 917.5, width: 1 },
-                    { channel: 33, frequency: 918.5, width: 1 },
-                    { channel: 35, frequency: 919.5, width: 1 },
-                    { channel: 37, frequency: 920.5, width: 1 },
-                    { channel: 39, frequency: 921.5, width: 1 },
-                    { channel: 41, frequency: 922.5, width: 1 },
-                    { channel: 43, frequency: 923.5, width: 1 },
-                    { channel: 45, frequency: 924.5, width: 1 },
-                    { channel: 47, frequency: 925.5, width: 1 },
-                    { channel: 49, frequency: 926.5, width: 1 },
-                    { channel: 51, frequency: 927.5, width: 1 },
+                    { channel: 1, frequency: 863.5, width: 1, domain: ["EU"] },
+                    { channel: 3, frequency: 864.5, width: 1, domain: ["EU"] },
+                    { channel: 5, frequency: 865.5, width: 1, domain: ["EU"] },
+                    { channel: 7, frequency: 866.5, width: 1, domain: ["EU"] },
+                    { channel: 9, frequency: 867.5, width: 1, domain: ["EU"] },
+                    // Why, Japan!? WHY?!
+                    { channel: 1, frequency: 917.0, width: 1, domain: ["JP"] },
+                    { channel: 3, frequency: 918.0, width: 1, domain: ["JP"] },
+                    { channel: 5, frequency: 919.0, width: 1, domain: ["JP"] },
+                    { channel: 7, frequency: 920.0, width: 1, domain: ["JP"] },
+                    { channel: 9, frequency: 921.0, width: 1, domain: ["JP"] },
+                    { channel: 11, frequency: 922.0, width: 1, domain: ["JP"] },
+                    { channel: 13, frequency: 923.0, width: 1, domain: ["JP"] },
+                    { channel: 15, frequency: 924.0, width: 1, domain: ["JP"] },
+                    { channel: 17, frequency: 925.0, width: 1, domain: ["JP"] },
+                    { channel: 19, frequency: 926.0, width: 1, domain: ["JP"] },
+                    { channel: 21, frequency: 927.0, width: 1, domain: ["JP"] },
+                    // We now return to sanity
+                    { channel: 1, frequency: 902.5, width: 1, domain: ["US"] },
+                    { channel: 3, frequency: 903.5, width: 1, domain: ["US"] },
+                    { channel: 5, frequency: 904.5, width: 1, domain: ["US"] },
+                    { channel: 7, frequency: 905.5, width: 1, domain: ["US"] },
+                    { channel: 9, frequency: 906.5, width: 1, domain: ["US"] },
+                    { channel: 11, frequency: 907.5, width: 1, domain: ["US"] },
+                    { channel: 13, frequency: 908.5, width: 1, domain: ["US"] },
+                    { channel: 15, frequency: 909.5, width: 1, domain: ["US"] },
+                    { channel: 17, frequency: 910.5, width: 1, domain: ["US"] },
+                    { channel: 19, frequency: 911.5, width: 1, domain: ["US"] },
+                    { channel: 21, frequency: 912.5, width: 1, domain: ["US"] },
+                    { channel: 23, frequency: 913.5, width: 1, domain: ["US"] },
+                    { channel: 25, frequency: 914.5, width: 1, domain: ["US"] },
+                    {
+                        channel: 27,
+                        frequency: 915.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 29,
+                        frequency: 916.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 31,
+                        frequency: 917.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 33,
+                        frequency: 918.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 35,
+                        frequency: 919.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 37,
+                        frequency: 920.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 39,
+                        frequency: 921.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 41,
+                        frequency: 922.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 43,
+                        frequency: 923.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 45,
+                        frequency: 924.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 47,
+                        frequency: 925.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 49,
+                        frequency: 926.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 51,
+                        frequency: 927.5,
+                        width: 1,
+                        domain: ["US", "AU"],
+                    },
 
                     // 2 MHz channels
-                    { channel: 2, frequency: 903, width: 2 },
-                    { channel: 6, frequency: 905, width: 2 },
-                    { channel: 10, frequency: 907, width: 2 },
-                    { channel: 14, frequency: 909, width: 2 },
-                    { channel: 18, frequency: 911, width: 2 },
-                    { channel: 22, frequency: 913, width: 2 },
-                    { channel: 26, frequency: 915, width: 2 },
-                    { channel: 30, frequency: 917, width: 2 },
-                    { channel: 34, frequency: 919, width: 2 },
-                    { channel: 38, frequency: 921, width: 2 },
-                    { channel: 42, frequency: 923, width: 2 },
-                    { channel: 46, frequency: 925, width: 2 },
-                    { channel: 50, frequency: 927, width: 2 },
+                    { channel: 2, frequency: 903, width: 2, domain: ["US"] },
+                    { channel: 6, frequency: 905, width: 2, domain: ["US"] },
+                    { channel: 10, frequency: 907, width: 2, domain: ["US"] },
+                    { channel: 14, frequency: 909, width: 2, domain: ["US"] },
+                    { channel: 18, frequency: 911, width: 2, domain: ["US"] },
+                    { channel: 22, frequency: 913, width: 2, domain: ["US"] },
+                    { channel: 26, frequency: 915, width: 2, domain: ["US"] },
+                    {
+                        channel: 30,
+                        frequency: 917,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 34,
+                        frequency: 919,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 38,
+                        frequency: 921,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 42,
+                        frequency: 923,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 46,
+                        frequency: 925,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 50,
+                        frequency: 927,
+                        width: 2,
+                        domain: ["US", "AU"],
+                    },
 
                     // 4 MHz channels
-                    { channel: 8, frequency: 906, width: 4 },
-                    { channel: 16, frequency: 910, width: 4 },
-                    { channel: 24, frequency: 914, width: 4 },
-                    { channel: 32, frequency: 918, width: 4 },
-                    { channel: 40, frequency: 922, width: 4 },
-                    { channel: 48, frequency: 926, width: 4 },
+                    { channel: 8, frequency: 906, width: 4, domain: ["US"] },
+                    { channel: 16, frequency: 910, width: 4, domain: ["US"] },
+                    { channel: 24, frequency: 914, width: 4, domain: ["US"] },
+                    {
+                        channel: 32,
+                        frequency: 918,
+                        width: 4,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 40,
+                        frequency: 922,
+                        width: 4,
+                        domain: ["US", "AU"],
+                    },
+                    {
+                        channel: 48,
+                        frequency: 926,
+                        width: 4,
+                        domain: ["US", "AU"],
+                    },
 
                     // 8 MHz channels
-                    { channel: 12, frequency: 908, width: 8 },
-                    { channel: 28, frequency: 916, width: 8 },
-                    { channel: 44, frequency: 924, width: 8 },
+                    { channel: 12, frequency: 908, width: 8, domain: ["US"] },
+                    { channel: 28, frequency: 916, width: 8, domain: ["US"] },
+                    {
+                        channel: 44,
+                        frequency: 924,
+                        width: 8,
+                        domain: ["US", "AU"],
+                    },
 
                     // 16 MHz channel
-                    { channel: 20, frequency: 912, width: 16 },
+                    { channel: 20, frequency: 912, width: 16, domain: ["US"] },
                 ],
                 "2.4 GHz": [
-                    { channel: 1, frequency: 2412, width: 20 },
+                    {
+                        channel: 1,
+                        frequency: 2412,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
+                    },
                     {
                         channel: 2,
                         frequency: 2417,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
                     {
                         channel: 3,
                         frequency: 2422,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
                     {
                         channel: 4,
                         frequency: 2427,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
                     {
                         channel: 5,
                         frequency: 2432,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
-                    { channel: 6, frequency: 2437, width: 20 },
+                    {
+                        channel: 6,
+                        frequency: 2437,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
+                    },
                     {
                         channel: 7,
                         frequency: 2442,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
                     {
                         channel: 8,
                         frequency: 2447,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
                     {
                         channel: 9,
                         frequency: 2452,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
                     {
                         channel: 10,
                         frequency: 2457,
                         width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
                     },
-                    { channel: 11, frequency: 2462, width: 20 },
-                    // { channel: 14, frequency: 2484, width: 22, dsss: true },
-                    { channel: 14, frequency: 2484, width: 20, dsss: true },
+                    {
+                        channel: 11,
+                        frequency: 2462,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU", "JP"],
+                    },
+                    {
+                        channel: 12,
+                        frequency: 2467,
+                        width: 20,
+                        domain: ["EU", "AU", "JP"],
+                        overlapping: true,
+                    },
+                    {
+                        channel: 13,
+                        frequency: 2472,
+                        width: 20,
+                        domain: ["EU", "AU", "JP"],
+                        overlapping: true,
+                    },
+                    {
+                        channel: 14,
+                        frequency: 2484,
+                        width: 20,
+                        domain: ["JP"],
+                        dsss: true,
+                    },
                 ],
                 "5 GHz": [
-                    { channel: 36, frequency: 5180, width: 20 },
-                    { channel: 40, frequency: 5200, width: 20 },
-                    { channel: 44, frequency: 5220, width: 20 },
-                    { channel: 48, frequency: 5240, width: 20 },
-                    { channel: 52, frequency: 5260, width: 20 },
-                    { channel: 56, frequency: 5280, width: 20 },
-                    { channel: 60, frequency: 5300, width: 20 },
-                    { channel: 64, frequency: 5320, width: 20 },
-                    { channel: 100, frequency: 5500, width: 20 },
-                    { channel: 104, frequency: 5520, width: 20 },
-                    { channel: 108, frequency: 5540, width: 20 },
-                    { channel: 112, frequency: 5560, width: 20 },
-                    { channel: 116, frequency: 5580, width: 20 },
-                    { channel: 120, frequency: 5600, width: 20 },
-                    { channel: 124, frequency: 5620, width: 20 },
-                    { channel: 128, frequency: 5640, width: 20 },
-                    { channel: 132, frequency: 5660, width: 20 },
-                    { channel: 136, frequency: 5680, width: 20 },
-                    { channel: 140, frequency: 5700, width: 20 },
-                    { channel: 144, frequency: 5720, width: 20 },
-                    { channel: 149, frequency: 5745, width: 20 },
-                    { channel: 153, frequency: 5765, width: 20 },
-                    { channel: 157, frequency: 5785, width: 20 },
-                    { channel: 161, frequency: 5805, width: 20 },
-                    { channel: 165, frequency: 5825, width: 20 },
-                    { channel: 38, frequency: 5190, width: 40 },
-                    { channel: 46, frequency: 5230, width: 40 },
-                    { channel: 54, frequency: 5270, width: 40 },
-                    { channel: 62, frequency: 5310, width: 40 },
-                    { channel: 102, frequency: 5510, width: 40 },
-                    { channel: 110, frequency: 5550, width: 40 },
-                    { channel: 118, frequency: 5590, width: 40 },
-                    { channel: 126, frequency: 5630, width: 40 },
-                    { channel: 134, frequency: 5670, width: 40 },
-                    { channel: 142, frequency: 5710, width: 40 },
-                    { channel: 151, frequency: 5755, width: 40 },
-                    { channel: 159, frequency: 5795, width: 40 },
-                    { channel: 42, frequency: 5210, width: 80 },
-                    { channel: 58, frequency: 5290, width: 80 },
-                    { channel: 106, frequency: 5530, width: 80 },
-                    { channel: 122, frequency: 5610, width: 80 },
-                    { channel: 138, frequency: 5690, width: 80 },
-                    { channel: 155, frequency: 5775, width: 80 },
-                    { channel: 50, frequency: 5250, width: 160 },
-                    { channel: 114, frequency: 5570, width: 160 },
+                    {
+                        channel: 36,
+                        frequency: 5180,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 40,
+                        frequency: 5200,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 44,
+                        frequency: 5220,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 48,
+                        frequency: 5240,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 52,
+                        frequency: 5260,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 56,
+                        frequency: 5280,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 60,
+                        frequency: 5300,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 64,
+                        frequency: 5320,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 100,
+                        frequency: 5500,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 104,
+                        frequency: 5520,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 108,
+                        frequency: 5540,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 112,
+                        frequency: 5560,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 116,
+                        frequency: 5580,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 120,
+                        frequency: 5600,
+                        width: 20,
+                        domain: ["WW", "US", "EU"],
+                    },
+                    {
+                        channel: 124,
+                        frequency: 5620,
+                        width: 20,
+                        domain: ["WW", "US", "EU"],
+                    },
+                    {
+                        channel: 128,
+                        frequency: 5640,
+                        width: 20,
+                        domain: ["WW", "US", "EU"],
+                    },
+                    {
+                        channel: 132,
+                        frequency: 5660,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 136,
+                        frequency: 5680,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 140,
+                        frequency: 5700,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 144,
+                        frequency: 5720,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 149,
+                        frequency: 5745,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 153,
+                        frequency: 5765,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 157,
+                        frequency: 5785,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 161,
+                        frequency: 5805,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 165,
+                        frequency: 5825,
+                        width: 20,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 38,
+                        frequency: 5190,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 46,
+                        frequency: 5230,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 54,
+                        frequency: 5270,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 62,
+                        frequency: 5310,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 102,
+                        frequency: 5510,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 110,
+                        frequency: 5550,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 118,
+                        frequency: 5590,
+                        width: 40,
+                        domain: ["WW", "US", "EU"],
+                    },
+                    {
+                        channel: 126,
+                        frequency: 5630,
+                        width: 40,
+                        domain: ["WW", "US", "EU"],
+                    },
+                    {
+                        channel: 134,
+                        frequency: 5670,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 142,
+                        frequency: 5710,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 151,
+                        frequency: 5755,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 159,
+                        frequency: 5795,
+                        width: 40,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 42,
+                        frequency: 5210,
+                        width: 80,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 58,
+                        frequency: 5290,
+                        width: 80,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 106,
+                        frequency: 5530,
+                        width: 80,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 122,
+                        frequency: 5610,
+                        width: 80,
+                        domain: ["WW", "US", "EU"],
+                    },
+                    {
+                        channel: 138,
+                        frequency: 5690,
+                        width: 80,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 155,
+                        frequency: 5775,
+                        width: 80,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 50,
+                        frequency: 5250,
+                        width: 160,
+                        domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 114,
+                        frequency: 5570,
+                        width: 160,
+                        domain: ["WW", "US", "EU"],
+                    },
                 ],
                 "6 GHz": [
-                    { channel: "1E", frequency: 5955, width: 20 },
-                    { channel: "5E", frequency: 5975, width: 20 },
-                    { channel: "9E", frequency: 5995, width: 20 },
-                    { channel: "13E", frequency: 6015, width: 20 },
-                    { channel: "17E", frequency: 6035, width: 20 },
-                    { channel: "21E", frequency: 6055, width: 20 },
-                    { channel: "25E", frequency: 6075, width: 20 },
-                    { channel: "29E", frequency: 6095, width: 20 },
-                    { channel: "33E", frequency: 6115, width: 20 },
-                    { channel: "37E", frequency: 6135, width: 20 },
-                    { channel: "41E", frequency: 6155, width: 20 },
-                    { channel: "45E", frequency: 6175, width: 20 },
-                    { channel: "49E", frequency: 6195, width: 20 },
-                    { channel: "53E", frequency: 6215, width: 20 },
-                    { channel: "57E", frequency: 6235, width: 20 },
-                    { channel: "61E", frequency: 6255, width: 20 },
-                    { channel: "65E", frequency: 6275, width: 20 },
-                    { channel: "69E", frequency: 6295, width: 20 },
-                    { channel: "73E", frequency: 6315, width: 20 },
-                    { channel: "77E", frequency: 6335, width: 20 },
-                    { channel: "81E", frequency: 6355, width: 20 },
-                    { channel: "85E", frequency: 6375, width: 20 },
-                    { channel: "89E", frequency: 6395, width: 20 },
-                    { channel: "93E", frequency: 6415, width: 20 },
-                    { channel: "97E", frequency: 6435, width: 20 },
-                    { channel: "101E", frequency: 6455, width: 20 },
-                    { channel: "105E", frequency: 6475, width: 20 },
-                    { channel: "109E", frequency: 6495, width: 20 },
-                    { channel: "113E", frequency: 6515, width: 20 },
-                    { channel: "117E", frequency: 6535, width: 20 },
-                    { channel: "121E", frequency: 6555, width: 20 },
-                    { channel: "125E", frequency: 6575, width: 20 },
-                    { channel: "129E", frequency: 6595, width: 20 },
-                    { channel: "133E", frequency: 6615, width: 20 },
-                    { channel: "137E", frequency: 6635, width: 20 },
-                    { channel: "141E", frequency: 6655, width: 20 },
-                    { channel: "145E", frequency: 6675, width: 20 },
-                    { channel: "149E", frequency: 6695, width: 20 },
-                    { channel: "153E", frequency: 6715, width: 20 },
-                    { channel: "157E", frequency: 6735, width: 20 },
-                    { channel: "161E", frequency: 6755, width: 20 },
-                    { channel: "165E", frequency: 6775, width: 20 },
-                    { channel: "169E", frequency: 6795, width: 20 },
-                    { channel: "173E", frequency: 6815, width: 20 },
-                    { channel: "177E", frequency: 6835, width: 20 },
-                    { channel: "181E", frequency: 6855, width: 20 },
-                    { channel: "185E", frequency: 6875, width: 20 },
-                    { channel: "189E", frequency: 6895, width: 20 },
-                    { channel: "193E", frequency: 6915, width: 20 },
-                    { channel: "197E", frequency: 6935, width: 20 },
-                    { channel: "201E", frequency: 6955, width: 20 },
-                    { channel: "205E", frequency: 6975, width: 20 },
-                    { channel: "209E", frequency: 6995, width: 20 },
-                    { channel: "213E", frequency: 7015, width: 20 },
-                    { channel: "217E", frequency: 7035, width: 20 },
-                    { channel: "221E", frequency: 7055, width: 20 },
-                    { channel: "225E", frequency: 7075, width: 20 },
-                    { channel: "229E", frequency: 7095, width: 20 },
-                    { channel: "233E", frequency: 7115, width: 20 },
-                    { channel: "3E", frequency: 5965, width: 40 },
-                    { channel: "11E", frequency: 6005, width: 40 },
-                    { channel: "19E", frequency: 6045, width: 40 },
-                    { channel: "27E", frequency: 6085, width: 40 },
-                    { channel: "35E", frequency: 6125, width: 40 },
-                    { channel: "43E", frequency: 6165, width: 40 },
-                    { channel: "51E", frequency: 6205, width: 40 },
-                    { channel: "59E", frequency: 6245, width: 40 },
-                    { channel: "67E", frequency: 6285, width: 40 },
-                    { channel: "75E", frequency: 6325, width: 40 },
-                    { channel: "83E", frequency: 6365, width: 40 },
-                    { channel: "91E", frequency: 6405, width: 40 },
-                    { channel: "99E", frequency: 6445, width: 40 },
-                    { channel: "107E", frequency: 6485, width: 40 },
-                    { channel: "115E", frequency: 6525, width: 40 },
-                    { channel: "123E", frequency: 6565, width: 40 },
-                    { channel: "131E", frequency: 6605, width: 40 },
-                    { channel: "139E", frequency: 6645, width: 40 },
-                    { channel: "147E", frequency: 6685, width: 40 },
-                    { channel: "155E", frequency: 6725, width: 40 },
-                    { channel: "163E", frequency: 6765, width: 40 },
-                    { channel: "171E", frequency: 6805, width: 40 },
-                    { channel: "179E", frequency: 6845, width: 40 },
-                    { channel: "187E", frequency: 6885, width: 40 },
-                    { channel: "195E", frequency: 6925, width: 40 },
-                    { channel: "203E", frequency: 6965, width: 40 },
-                    { channel: "211E", frequency: 7005, width: 40 },
-                    { channel: "219E", frequency: 7045, width: 40 },
-                    { channel: "227E", frequency: 7085, width: 40 },
-                    { channel: "7E", frequency: 5985, width: 80 },
-                    { channel: "23E", frequency: 6065, width: 80 },
-                    { channel: "39E", frequency: 6145, width: 80 },
-                    { channel: "55E", frequency: 6225, width: 80 },
-                    { channel: "71E", frequency: 6305, width: 80 },
-                    { channel: "87E", frequency: 6385, width: 80 },
-                    { channel: "103E", frequency: 6465, width: 80 },
-                    { channel: "119E", frequency: 6545, width: 80 },
-                    { channel: "135E", frequency: 6625, width: 80 },
-                    { channel: "151E", frequency: 6705, width: 80 },
-                    { channel: "167E", frequency: 6785, width: 80 },
-                    { channel: "183E", frequency: 6865, width: 80 },
-                    { channel: "199E", frequency: 6945, width: 80 },
-                    { channel: "215E", frequency: 7025, width: 80 },
-                    { channel: "15E", frequency: 6025, width: 160 },
-                    { channel: "47E", frequency: 6185, width: 160 },
-                    { channel: "79E", frequency: 6345, width: 160 },
-                    { channel: "111E", frequency: 6505, width: 160 },
-                    { channel: "143E", frequency: 6665, width: 160 },
-                    { channel: "175E", frequency: 6825, width: 160 },
-                    { channel: "207E", frequency: 6985, width: 160 },
+                    {
+                        channel: "1E",
+                        frequency: 5955,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "5E",
+                        frequency: 5975,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "9E",
+                        frequency: 5995,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "13E",
+                        frequency: 6015,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "17E",
+                        frequency: 6035,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "21E",
+                        frequency: 6055,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "25E",
+                        frequency: 6075,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "29E",
+                        frequency: 6095,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "33E",
+                        frequency: 6115,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "37E",
+                        frequency: 6135,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "41E",
+                        frequency: 6155,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "45E",
+                        frequency: 6175,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "49E",
+                        frequency: 6195,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "53E",
+                        frequency: 6215,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "57E",
+                        frequency: 6235,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "61E",
+                        frequency: 6255,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "65E",
+                        frequency: 6275,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "69E",
+                        frequency: 6295,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "73E",
+                        frequency: 6315,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "77E",
+                        frequency: 6335,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "81E",
+                        frequency: 6355,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "85E",
+                        frequency: 6375,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "89E",
+                        frequency: 6395,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "93E",
+                        frequency: 6415,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "97E",
+                        frequency: 6435,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "101E",
+                        frequency: 6455,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "105E",
+                        frequency: 6475,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "109E",
+                        frequency: 6495,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "113E",
+                        frequency: 6515,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "117E",
+                        frequency: 6535,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "121E",
+                        frequency: 6555,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "125E",
+                        frequency: 6575,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "129E",
+                        frequency: 6595,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "133E",
+                        frequency: 6615,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "137E",
+                        frequency: 6635,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "141E",
+                        frequency: 6655,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "145E",
+                        frequency: 6675,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "149E",
+                        frequency: 6695,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "153E",
+                        frequency: 6715,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "157E",
+                        frequency: 6735,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "161E",
+                        frequency: 6755,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "165E",
+                        frequency: 6775,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "169E",
+                        frequency: 6795,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "173E",
+                        frequency: 6815,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "177E",
+                        frequency: 6835,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "181E",
+                        frequency: 6855,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "185E",
+                        frequency: 6875,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "189E",
+                        frequency: 6895,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "193E",
+                        frequency: 6915,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "197E",
+                        frequency: 6935,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "201E",
+                        frequency: 6955,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "205E",
+                        frequency: 6975,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "209E",
+                        frequency: 6995,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "213E",
+                        frequency: 7015,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "217E",
+                        frequency: 7035,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "221E",
+                        frequency: 7055,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "225E",
+                        frequency: 7075,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "229E",
+                        frequency: 7095,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "233E",
+                        frequency: 7115,
+                        width: 20,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "3E",
+                        frequency: 5965,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "11E",
+                        frequency: 6005,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "19E",
+                        frequency: 6045,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "27E",
+                        frequency: 6085,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "35E",
+                        frequency: 6125,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "43E",
+                        frequency: 6165,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "51E",
+                        frequency: 6205,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "59E",
+                        frequency: 6245,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "67E",
+                        frequency: 6285,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "75E",
+                        frequency: 6325,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "83E",
+                        frequency: 6365,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "91E",
+                        frequency: 6405,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "99E",
+                        frequency: 6445,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "107E",
+                        frequency: 6485,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "115E",
+                        frequency: 6525,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "123E",
+                        frequency: 6565,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "131E",
+                        frequency: 6605,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "139E",
+                        frequency: 6645,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "147E",
+                        frequency: 6685,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "155E",
+                        frequency: 6725,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "163E",
+                        frequency: 6765,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "171E",
+                        frequency: 6805,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "179E",
+                        frequency: 6845,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "187E",
+                        frequency: 6885,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "195E",
+                        frequency: 6925,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "203E",
+                        frequency: 6965,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "211E",
+                        frequency: 7005,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "219E",
+                        frequency: 7045,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "227E",
+                        frequency: 7085,
+                        width: 40,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "7E",
+                        frequency: 5985,
+                        width: 80,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "23E",
+                        frequency: 6065,
+                        width: 80,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "39E",
+                        frequency: 6145,
+                        width: 80,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "55E",
+                        frequency: 6225,
+                        width: 80,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "71E",
+                        frequency: 6305,
+                        width: 80,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "87E",
+                        frequency: 6385,
+                        width: 80,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "103E",
+                        frequency: 6465,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "119E",
+                        frequency: 6545,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "135E",
+                        frequency: 6625,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "151E",
+                        frequency: 6705,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "167E",
+                        frequency: 6785,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "183E",
+                        frequency: 6865,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "199E",
+                        frequency: 6945,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "215E",
+                        frequency: 7025,
+                        width: 80,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "15E",
+                        frequency: 6025,
+                        width: 160,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "47E",
+                        frequency: 6185,
+                        width: 160,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "79E",
+                        frequency: 6345,
+                        width: 160,
+                        domain: ["US", "EU", "AU"],
+                    },
+                    {
+                        channel: "111E",
+                        frequency: 6505,
+                        width: 160,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "143E",
+                        frequency: 6665,
+                        width: 160,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "175E",
+                        frequency: 6825,
+                        width: 160,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "207E",
+                        frequency: 6985,
+                        width: 160,
+                        domain: ["US"],
+                    },
                 ],
             };
 
@@ -1126,476 +2249,567 @@
                         channel: 0,
                         frequency: 902.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 1,
                         frequency: 902.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 2,
                         frequency: 902.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 3,
                         frequency: 902.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 4,
                         frequency: 903.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 5,
                         frequency: 903.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 6,
                         frequency: 903.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 7,
                         frequency: 903.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 8,
                         frequency: 903.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 9,
                         frequency: 904.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 10,
                         frequency: 904.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 11,
                         frequency: 904.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 12,
                         frequency: 904.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 13,
                         frequency: 904.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 14,
                         frequency: 905.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 15,
                         frequency: 905.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 16,
                         frequency: 905.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 17,
                         frequency: 905.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 18,
                         frequency: 905.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 19,
                         frequency: 906.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 20,
                         frequency: 906.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 21,
                         frequency: 906.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 22,
                         frequency: 906.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 23,
                         frequency: 906.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 24,
                         frequency: 907.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 25,
                         frequency: 907.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 26,
                         frequency: 907.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 27,
                         frequency: 907.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 28,
                         frequency: 907.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 29,
                         frequency: 908.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 30,
                         frequency: 908.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 31,
                         frequency: 908.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 32,
                         frequency: 908.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 33,
                         frequency: 908.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 34,
                         frequency: 909.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 35,
                         frequency: 909.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 36,
                         frequency: 909.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 37,
                         frequency: 909.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 38,
                         frequency: 909.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 39,
                         frequency: 910.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 40,
                         frequency: 910.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 41,
                         frequency: 910.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 42,
                         frequency: 910.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 43,
                         frequency: 910.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 44,
                         frequency: 911.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 45,
                         frequency: 911.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 46,
                         frequency: 911.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 47,
                         frequency: 911.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 48,
                         frequency: 911.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 49,
                         frequency: 912.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 50,
                         frequency: 912.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 51,
                         frequency: 912.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 52,
                         frequency: 912.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 53,
                         frequency: 912.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 54,
                         frequency: 913.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 55,
                         frequency: 913.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 56,
                         frequency: 913.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 57,
                         frequency: 913.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 58,
                         frequency: 913.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 59,
                         frequency: 914.1,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 60,
                         frequency: 914.3,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 61,
                         frequency: 914.5,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 62,
                         frequency: 914.7,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 63,
                         frequency: 914.9,
                         width: 0.125,
+                        domain: ["US"],
                         type: "uplink",
                     },
-                    { channel: 64, frequency: 903, width: 0.5, type: "uplink" },
+                    {
+                        channel: 64,
+                        frequency: 903,
+                        width: 0.5,
+                        domain: ["US"],
+                        type: "uplink",
+                    },
                     {
                         channel: 65,
                         frequency: 904.6,
                         width: 0.5,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 66,
                         frequency: 906.2,
                         width: 0.5,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 67,
                         frequency: 907.8,
                         width: 0.5,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 68,
                         frequency: 909.4,
                         width: 0.5,
+                        domain: ["US"],
                         type: "uplink",
                     },
-                    { channel: 69, frequency: 911, width: 0.5, type: "uplink" },
+                    {
+                        channel: 69,
+                        frequency: 911,
+                        width: 0.5,
+                        domain: ["US"],
+                        type: "uplink",
+                    },
                     {
                         channel: 70,
                         frequency: 912.6,
                         width: 0.5,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 71,
                         frequency: 914.2,
                         width: 0.5,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 71,
                         frequency: 914.2,
                         width: 0.5,
+                        domain: ["US"],
                         type: "uplink",
                     },
                     {
                         channel: 0,
                         frequency: 923.3,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                     {
                         channel: 1,
                         frequency: 923.9,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                     {
                         channel: 2,
                         frequency: 924.5,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                     {
                         channel: 3,
                         frequency: 925.1,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                     {
                         channel: 4,
                         frequency: 925.7,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                     {
                         channel: 5,
                         frequency: 926.3,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                     {
                         channel: 6,
                         frequency: 926.9,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                     {
                         channel: 7,
                         frequency: 927.5,
                         width: 0.5,
+                        domain: ["US"],
                         type: "downlink",
                     },
                 ],
@@ -2308,11 +3522,13 @@
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
+                //
+
                 // Draw WiFi channels
                 if (showWifi) {
                     ["900 MHz", "2.4 GHz", "5 GHz", "6 GHz"].forEach((band) => {
                         wifiChannels[band].forEach((channel) => {
-                            // Skip overlapping channels if not enabled
+                            // Filter overlapping channels in 2.4 GHz
                             if (
                                 band === "2.4 GHz" &&
                                 channel.overlapping &&
@@ -2321,7 +3537,7 @@
                                 return;
                             }
 
-                            // Block standard widths if their toggle is off
+                            // Filter by channel width
                             if (
                                 (channel.width === 1 && !show1MHz) ||
                                 (channel.width === 2 && !show2MHz) ||
@@ -2336,7 +3552,52 @@
                                 return;
                             }
 
-                            drawWiFiChannel(channel, scale, channel.width);
+                            // First verify that channel and domain exist
+                            if (!channel || !channel.domain) {
+                                console.warn(
+                                    `Found channel without domain in band ${band}:`,
+                                    channel,
+                                );
+                                return;
+                            }
+
+                            // Show if channel is worldwide
+                            if (channel.domain.includes("WW") && showWWDomain) {
+                                drawWiFiChannel(channel, scale, channel.width);
+                                return;
+                            }
+
+                            if (channel.domain.includes("US") && showUSDomain) {
+                                drawWiFiChannel(channel, scale, channel.width);
+                                return;
+                            }
+
+                            if (channel.domain.includes("EU") && showEUDomain) {
+                                drawWiFiChannel(channel, scale, channel.width);
+                                return;
+                            }
+
+                            if (channel.domain.includes("JP") && showJPDomain) {
+                                drawWiFiChannel(channel, scale, channel.width);
+                                return;
+                            }
+
+                            if (channel.domain.includes("AU") && showAUDomain) {
+                                drawWiFiChannel(channel, scale, channel.width);
+                                return;
+                            }
+
+                            /*
+                            // Filter regulatory domains
+                            if (
+                                (channel.domain.includes("US") &&
+                                    !showUSDomain) ||
+                                (channel.domain.includes("EU") && !showEUDomain)
+                            ) {
+                                return;
+                            }*/
+
+                            //drawWiFiChannel(channel, scale, channel.width);
                         });
                     });
                 }
@@ -2352,6 +3613,21 @@
                 if (showZigbee) {
                     Object.keys(zigbeeChannels).forEach((band) => {
                         zigbeeChannels[band].forEach((channel) => {
+                            // Show if channel is worldwide
+                            if (channel.domain.includes("WW") && showWWDomain) {
+                                drawZigbeeChannel(channel, scale);
+                                return;
+                            }
+
+                            // Filter regulatory domains
+                            if (
+                                (channel.domain.includes("US") &&
+                                    !showUSDomain) ||
+                                (channel.domain.includes("EU") && !showEUDomain)
+                            ) {
+                                return;
+                            }
+
                             drawZigbeeChannel(channel, scale);
                         });
                     });
@@ -2360,10 +3636,25 @@
                 if (showLoRa) {
                     Object.keys(loRaChannels).forEach((band) => {
                         loRaChannels[band].forEach((channel) => {
-                            // Block channel widths if their toggle is off
+                            // Filter by channel width
                             if (
                                 (channel.width === 0.125 && !showLoRa125) ||
                                 (channel.width === 0.5 && !showLoRa500)
+                            ) {
+                                return;
+                            }
+
+                            // Show if channel is worldwide
+                            if (channel.domain.includes("WW") && showWWDomain) {
+                                drawZigbeeChannel(channel, scale);
+                                return;
+                            }
+
+                            // Filter regulatory domains
+                            if (
+                                (channel.domain.includes("US") &&
+                                    !showUSDomain) ||
+                                (channel.domain.includes("EU") && !showEUDomain)
                             ) {
                                 return;
                             }
@@ -2778,6 +4069,45 @@
                         selectedDomain = e.target.value;
                     });
                 });
+
+            // Regulatory domain visibility selectors
+
+            document
+                .getElementById("ww-domain-visibility")
+                .addEventListener("change", (e) => {
+                    showWWDomain = e.target.checked;
+                    updateActiveLabelRows(); // Not sure this is needed here
+                });
+
+            document
+                .getElementById("us-domain-visibility")
+                .addEventListener("change", (e) => {
+                    showUSDomain = e.target.checked;
+                    updateActiveLabelRows(); // Not sure this is needed here
+                });
+
+            document
+                .getElementById("eu-domain-visibility")
+                .addEventListener("change", (e) => {
+                    showEUDomain = e.target.checked;
+                    updateActiveLabelRows(); // Not sure this is needed here
+                });
+
+            document
+                .getElementById("au-domain-visibility")
+                .addEventListener("change", (e) => {
+                    showAUDomain = e.target.checked;
+                    updateActiveLabelRows(); // Not sure this is needed here
+                });
+
+            document
+                .getElementById("jp-domain-visibility")
+                .addEventListener("change", (e) => {
+                    showJPDomain = e.target.checked;
+                    updateActiveLabelRows(); // Not sure this is needed here
+                });
+
+            // Signature height slider
 
             heightSlider.addEventListener("input", (e) => {
                 chartSettings.channelHeight = parseInt(e.target.value);
