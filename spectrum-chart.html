@@ -444,6 +444,11 @@
                 textSize: 12,
             };
 
+            // Rowless labels
+            const labelPositions = [];
+            const ROW_HEIGHT = 40;
+            const BASE_OFFSET = -50;
+
             const zoomTiers = {
                 lowest: {
                     threshold: 0.25,
@@ -1030,19 +1035,6 @@
                     { channel: 5, frequency: 865.5, width: 1, domain: ["EU"] },
                     { channel: 7, frequency: 866.5, width: 1, domain: ["EU"] },
                     { channel: 9, frequency: 867.5, width: 1, domain: ["EU"] },
-                    // Why, Japan!? WHY?!
-                    { channel: 1, frequency: 917.0, width: 1, domain: ["JP"] },
-                    { channel: 3, frequency: 918.0, width: 1, domain: ["JP"] },
-                    { channel: 5, frequency: 919.0, width: 1, domain: ["JP"] },
-                    { channel: 7, frequency: 920.0, width: 1, domain: ["JP"] },
-                    { channel: 9, frequency: 921.0, width: 1, domain: ["JP"] },
-                    { channel: 11, frequency: 922.0, width: 1, domain: ["JP"] },
-                    { channel: 13, frequency: 923.0, width: 1, domain: ["JP"] },
-                    { channel: 15, frequency: 924.0, width: 1, domain: ["JP"] },
-                    { channel: 17, frequency: 925.0, width: 1, domain: ["JP"] },
-                    { channel: 19, frequency: 926.0, width: 1, domain: ["JP"] },
-                    { channel: 21, frequency: 927.0, width: 1, domain: ["JP"] },
-                    // We now return to sanity
                     { channel: 1, frequency: 902.5, width: 1, domain: ["US"] },
                     { channel: 3, frequency: 903.5, width: 1, domain: ["US"] },
                     { channel: 5, frequency: 904.5, width: 1, domain: ["US"] },
@@ -1134,6 +1126,18 @@
                         width: 1,
                         domain: ["US", "AU"],
                     },
+                    // Japanese channels
+                    { channel: 1, frequency: 917.0, width: 1, domain: ["JP"] },
+                    { channel: 3, frequency: 918.0, width: 1, domain: ["JP"] },
+                    { channel: 5, frequency: 919.0, width: 1, domain: ["JP"] },
+                    { channel: 7, frequency: 920.0, width: 1, domain: ["JP"] },
+                    { channel: 9, frequency: 921.0, width: 1, domain: ["JP"] },
+                    { channel: 11, frequency: 922.0, width: 1, domain: ["JP"] },
+                    { channel: 13, frequency: 923.0, width: 1, domain: ["JP"] },
+                    { channel: 15, frequency: 924.0, width: 1, domain: ["JP"] },
+                    { channel: 17, frequency: 925.0, width: 1, domain: ["JP"] },
+                    { channel: 19, frequency: 926.0, width: 1, domain: ["JP"] },
+                    { channel: 21, frequency: 927.0, width: 1, domain: ["JP"] },
 
                     // 2 MHz channels
                     { channel: 2, frequency: 903, width: 2, domain: ["US"] },
@@ -2750,13 +2754,6 @@
                         type: "uplink",
                     },
                     {
-                        channel: 71,
-                        frequency: 914.2,
-                        width: 0.5,
-                        domain: ["US"],
-                        type: "uplink",
-                    },
-                    {
                         channel: 0,
                         frequency: 923.3,
                         width: 0.5,
@@ -3067,7 +3064,7 @@
                     width,
                     style.lineColor,
                     style.textColor,
-                    "wifi",
+                    // "wifi",
                     channel.channel,
                     rowOffsetInPx,
                 );
@@ -3107,7 +3104,7 @@
                     width,
                     style.lineColor,
                     style.textColor,
-                    "zigbee",
+                    // "zigbee",
                     channel.channel,
                     rowOffsetInPx,
                 );
@@ -3147,7 +3144,7 @@
                     width,
                     style.lineColor,
                     style.textColor,
-                    "lora",
+                    // "lora",
                     channel.channel,
                     rowOffsetInPx,
                 );
@@ -3187,7 +3184,7 @@
                     width,
                     style.lineColor,
                     style.textColor,
-                    "bluetooth",
+                    // "bluetooth",
                     channel.channel,
                     rowOffsetInPx,
                 );
@@ -3386,37 +3383,37 @@
                 width,
                 backgroundColor,
                 foregroundColor,
-                technology,
                 text,
-                rowOffsetInPx,
             ) {
-                centerY = centerY - rowOffsetInPx;
+                // Calculate label position
+                const labelStart = centerX - width / 2;
 
-                width = width - 4; // Set the width of the rectangle
-                const height = 30; // Should this come from labelHeight instead?
-                let backgroundCenterX = width / 2; // Calculate how to translate the rectangle
-                let backgroundCenterY = height / 2;
+                // Find which row this label should go in
+                const row = findRowForLabel(labelStart, width - 4);
 
-                // Draw rectangle
+                // Calculate vertical offset based on row
+                const offset = BASE_OFFSET - row * ROW_HEIGHT;
+
+                // Draw the label
+                const height = 30;
+                centerY = centerY - offset;
+
                 context.beginPath();
                 context.roundRect(
-                    centerX - backgroundCenterX,
-                    centerY - backgroundCenterY,
-                    width,
-                    height,
+                    centerX - width / 2,
+                    centerY - height / 2,
+                    width - 2,
+                    height - 2,
                     6,
                 );
                 context.fillStyle = backgroundColor;
                 context.fill();
 
-                // Calculate the text width and add padding
+                // Draw text if it fits
                 const textWidth = context.measureText(text).width + 4;
-
-                // Draw the text
                 if (width >= textWidth) {
                     context.fillStyle = foregroundColor;
                     context.fillText(text, centerX, centerY);
-                } else {
                 }
             }
 
@@ -3518,11 +3515,47 @@
                 return Math.max(0, Math.min(8000, freq));
             }
 
+            // Simple function to check if a new label overlaps with existing ones
+            function findRowForLabel(labelStart, labelWidth) {
+                const labelEnd = labelStart + labelWidth;
+                let row = 0;
+
+                // Keep checking rows until we find one where the label fits
+                while (true) {
+                    // Get all labels in current row
+                    const labelsInRow = labelPositions.filter(
+                        (label) => label.row === row,
+                    );
+
+                    // Check if label overlaps with any existing labels in this row
+                    const hasOverlap = labelsInRow.some(
+                        (existingLabel) =>
+                            !(
+                                labelEnd < existingLabel.start ||
+                                labelStart > existingLabel.end
+                            ),
+                    );
+
+                    if (!hasOverlap) {
+                        // Found a row where the label fits! Add it to our positions
+                        labelPositions.push({
+                            row,
+                            start: labelStart,
+                            end: labelEnd,
+                        });
+                        return row;
+                    }
+
+                    // Try next row
+                    row++;
+                }
+            }
+
             function draw() {
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
-                //
+                labelPositions.length = 0;
 
                 // Draw WiFi channels
                 if (showWifi) {
