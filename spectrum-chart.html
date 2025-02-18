@@ -383,7 +383,7 @@
 
             const DEBUG = false;
 
-            const minZoom = 0.15;
+            const minZoom = 0.06;
             const maxZoom = 120;
 
             // Setting state variables
@@ -3056,17 +3056,13 @@
                     type: widthForID,
                 };
 
-                let rowOffsetInPx = getRowOffset(rowData);
-
                 drawChannelLabel(
                     centerX,
                     centerY,
                     width,
                     style.lineColor,
                     style.textColor,
-                    // "wifi",
                     channel.channel,
-                    rowOffsetInPx,
                 );
             }
 
@@ -3096,17 +3092,13 @@
                     type: "zigbee",
                 };
 
-                let rowOffsetInPx = getRowOffset(rowData);
-
                 drawChannelLabel(
                     centerX,
                     centerY,
                     width,
                     style.lineColor,
                     style.textColor,
-                    // "zigbee",
                     channel.channel,
-                    rowOffsetInPx,
                 );
             }
 
@@ -3136,17 +3128,13 @@
                     type: widthForID,
                 };
 
-                let rowOffsetInPx = getRowOffset(rowData);
-
                 drawChannelLabel(
                     centerX,
                     centerY,
                     width,
                     style.lineColor,
                     style.textColor,
-                    // "lora",
                     channel.channel,
-                    rowOffsetInPx,
                 );
             }
 
@@ -3176,7 +3164,7 @@
                     type: "bluetooth",
                 };
 
-                let rowOffsetInPx = getRowOffset(rowData);
+                let technology = "bluetooth";
 
                 drawChannelLabel(
                     centerX,
@@ -3184,237 +3172,9 @@
                     width,
                     style.lineColor,
                     style.textColor,
-                    // "bluetooth",
                     channel.channel,
-                    rowOffsetInPx,
+                    technology,
                 );
-            }
-
-            const labelRows = {
-                activeLabelRows: [],
-                rowHeight: -40,
-                baseOffset: -50,
-            };
-
-            function logActiveLabelRows() {
-                console.log("=== Active Label Rows ===");
-                labelRows.activeLabelRows.forEach((row, index) => {
-                    console.log(`Row ${index}:`, row);
-                });
-                console.log("=========================");
-            }
-
-            function updateActiveLabelRows() {
-                const viewportStart = screenXToMhz(0);
-                const viewportEnd = screenXToMhz(canvas.width);
-                const newActiveLabelRows = [];
-
-                if (DEBUG) {
-                    console.log(`UpdateActiveLabelRows is running`);
-                }
-
-                // Add Wi-Fi rows based on visibility and channel widths
-                if (showWifi) {
-                    // Helper function to check if any channels of a given width are visible
-                    const hasVisibleChannels = (width) => {
-                        return Object.values(wifiChannels).some(
-                            (bandChannels) =>
-                                bandChannels.some(
-                                    (channel) =>
-                                        channel.width === width &&
-                                        channel.frequency >=
-                                            viewportStart - channel.width * 2 &&
-                                        channel.frequency <=
-                                            viewportEnd + channel.width * 2,
-                                ),
-                        );
-                    };
-
-                    // Only add rows for channel widths that are both enabled and visible
-                    if (show1MHz && hasVisibleChannels(1))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 1,
-                        });
-                    if (show2MHz && hasVisibleChannels(2))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 2,
-                        });
-                    if (show4MHz && hasVisibleChannels(4))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 4,
-                        });
-                    if (show8MHz && hasVisibleChannels(8))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 8,
-                        });
-                    if (show16MHz && hasVisibleChannels(16))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 16,
-                        });
-                    if (show20MHz && hasVisibleChannels(20))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 20,
-                        });
-                    if (show40MHz && hasVisibleChannels(40))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 40,
-                        });
-                    if (show80MHz && hasVisibleChannels(80))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 80,
-                        });
-                    if (show160MHz && hasVisibleChannels(160))
-                        newActiveLabelRows.push({
-                            id: "wi-fi",
-                            type: 160,
-                        });
-                }
-
-                // Add Bluetooth row if visible and enabled
-                if (
-                    showBluetooth &&
-                    bluetoothChannels[bluetoothMode].some(
-                        (channel) =>
-                            channel.frequency >=
-                                viewportStart - channel.width * 2 &&
-                            channel.frequency <=
-                                viewportEnd + channel.width * 2,
-                    )
-                ) {
-                    newActiveLabelRows.push({
-                        id: "bluetooth",
-                        type: "bluetooth",
-                    });
-                }
-
-                // Add Zigbee row if visible and enabled
-                if (
-                    showZigbee &&
-                    Object.values(zigbeeChannels).some((bandChannels) =>
-                        bandChannels.some(
-                            (channel) =>
-                                channel.frequency >=
-                                    viewportStart - channel.width * 2 &&
-                                channel.frequency <=
-                                    viewportEnd + channel.width * 2,
-                        ),
-                    )
-                ) {
-                    newActiveLabelRows.push({ id: "zigbee", type: "zigbee" });
-                }
-
-                // Add LoRa row if visible and enabled
-                if (
-                    showLoRa &&
-                    Object.values(loRaChannels).some((bandChannels) =>
-                        bandChannels.some(
-                            (channel) =>
-                                channel.frequency >=
-                                    viewportStart - channel.width * 2 &&
-                                channel.frequency <=
-                                    viewportEnd + channel.width * 2,
-                        ),
-                    )
-                ) {
-                    if (showLoRa125) {
-                        newActiveLabelRows.push({
-                            id: "lora",
-                            type: 0.125,
-                        });
-                    }
-
-                    if (showLoRa500) {
-                        newActiveLabelRows.push({
-                            id: "lora",
-                            type: 0.5,
-                        });
-                    }
-                }
-
-                labelRows.activeLabelRows = newActiveLabelRows;
-
-                if (DEBUG) {
-                    logActiveLabelRows();
-                }
-            }
-
-            // Generate an offset, based on the label row position
-            function getRowOffset(rowData) {
-                // First, search through the activeLabelRows array to find the position of the row
-                // we're looking for. We now compare both `id` and `type` to ensure uniqueness
-                const rowIndex = labelRows.activeLabelRows.findIndex(
-                    function (activeRow) {
-                        // Compare both `id` and `type` of the activeRow with the rowData to find an exact match
-                        return (
-                            activeRow.id === rowData.id &&
-                            activeRow.type === rowData.type
-                        );
-                    },
-                );
-
-                // If the row is not found in the activeLabelRows array, `findIndex` returns -1.
-                // In this case, return a total offset of 0 because the row doesn't exist.
-                if (rowIndex === -1) {
-                    if (DEBUG) {
-                        console.log("Row not found. Returning 0.");
-                    }
-                    return 0;
-                }
-
-                // Calculate the total offset for the row based on the baseOffset,
-                // the index of the row (rowIndex), and the rowHeight.
-                // Each unique row (based on `id` and `type`) gets a specific height and offset.
-                const totalOffset =
-                    labelRows.baseOffset + rowIndex * labelRows.rowHeight;
-                return totalOffset;
-            }
-
-            function drawChannelLabel(
-                centerX,
-                centerY,
-                width,
-                backgroundColor,
-                foregroundColor,
-                text,
-            ) {
-                // Calculate label position
-                const labelStart = centerX - width / 2;
-
-                // Find which row this label should go in
-                const row = findRowForLabel(labelStart, width - 4);
-
-                // Calculate vertical offset based on row
-                const offset = BASE_OFFSET - row * ROW_HEIGHT;
-
-                // Draw the label
-                const height = 30;
-                centerY = centerY - offset;
-
-                context.beginPath();
-                context.roundRect(
-                    centerX - width / 2,
-                    centerY - height / 2,
-                    width - 2,
-                    height - 2,
-                    6,
-                );
-                context.fillStyle = backgroundColor;
-                context.fill();
-
-                // Draw text if it fits
-                const textWidth = context.measureText(text).width + 4;
-                if (width >= textWidth) {
-                    context.fillStyle = foregroundColor;
-                    context.fillText(text, centerX, centerY);
-                }
             }
 
             function drawZiggurat(
@@ -3551,6 +3311,53 @@
                 }
             }
 
+            const labelRows = {
+                activeLabelRows: [],
+                rowHeight: -40,
+                baseOffset: -50,
+            };
+
+            function drawChannelLabel(
+                centerX,
+                centerY,
+                width,
+                backgroundColor,
+                foregroundColor,
+                text,
+                technology,
+            ) {
+                // Calculate label position
+                const labelStart = centerX - width / 2;
+
+                // Find which row this label should go in
+                const row = findRowForLabel(labelStart, width - 4);
+
+                // Calculate vertical offset based on row
+                const offset = BASE_OFFSET - row * ROW_HEIGHT;
+
+                // Draw the label
+                const height = 30;
+                centerY = centerY - offset;
+
+                context.beginPath();
+                context.roundRect(
+                    centerX - width / 2,
+                    centerY - height / 2,
+                    width - 2,
+                    height - 2,
+                    6,
+                );
+                context.fillStyle = backgroundColor;
+                context.fill();
+
+                // Draw text if it fits
+                const textWidth = context.measureText(text).width + 4;
+                if (width >= textWidth) {
+                    context.fillStyle = foregroundColor;
+                    context.fillText(text, centerX, centerY);
+                }
+            }
+
             function draw() {
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
@@ -3619,18 +3426,6 @@
                                 drawWiFiChannel(channel, scale, channel.width);
                                 return;
                             }
-
-                            /*
-                            // Filter regulatory domains
-                            if (
-                                (channel.domain.includes("US") &&
-                                    !showUSDomain) ||
-                                (channel.domain.includes("EU") && !showEUDomain)
-                            ) {
-                                return;
-                            }*/
-
-                            //drawWiFiChannel(channel, scale, channel.width);
                         });
                     });
                 }
@@ -3697,7 +3492,7 @@
                     });
                 }
 
-                updateActiveLabelRows();
+                //updateActiveLabelRows();
 
                 // Draw baseline
                 const baselineY = getBaselineY();
@@ -3959,14 +3754,14 @@
                 .getElementById("wifi-visibility")
                 .addEventListener("change", (e) => {
                     showWifi = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-overlapping-visibility")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             // Wi-Fi channel width checkboxes
@@ -3974,63 +3769,63 @@
                 .getElementById("wifi-20mhz-visibility")
                 .addEventListener("change", (e) => {
                     show20MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-40mhz-visibility")
                 .addEventListener("change", (e) => {
                     show40MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-80mhz-visibility")
                 .addEventListener("change", (e) => {
                     show80MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-160mhz-visibility")
                 .addEventListener("change", (e) => {
                     show160MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-1mhz-visibility")
                 .addEventListener("change", (e) => {
                     show1MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-2mhz-visibility")
                 .addEventListener("change", (e) => {
                     show2MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-4mhz-visibility")
                 .addEventListener("change", (e) => {
                     show4MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-8mhz-visibility")
                 .addEventListener("change", (e) => {
                     show8MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-16mhz-visibility")
                 .addEventListener("change", (e) => {
                     show16MHz = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             // Bluetooth
@@ -4039,7 +3834,7 @@
                 .getElementById("bluetooth-visibility")
                 .addEventListener("change", (e) => {
                     showBluetooth = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
@@ -4047,7 +3842,7 @@
                 .forEach((radio) => {
                     radio.addEventListener("change", (e) => {
                         bluetoothMode = e.target.value;
-                        updateActiveLabelRows();
+                        // updateActiveLabelRows();
                     });
                 });
 
@@ -4057,7 +3852,7 @@
                 .getElementById("zigbee-visibility")
                 .addEventListener("change", (e) => {
                     showZigbee = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             // LoRa
@@ -4065,21 +3860,21 @@
                 .getElementById("lora-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("lora-125-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa125 = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("lora-500-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa500 = e.target.checked;
-                    updateActiveLabelRows();
+                    // updateActiveLabelRows();
                 });
 
             // General
@@ -4109,35 +3904,35 @@
                 .getElementById("ww-domain-visibility")
                 .addEventListener("change", (e) => {
                     showWWDomain = e.target.checked;
-                    updateActiveLabelRows(); // Not sure this is needed here
+                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("us-domain-visibility")
                 .addEventListener("change", (e) => {
                     showUSDomain = e.target.checked;
-                    updateActiveLabelRows(); // Not sure this is needed here
+                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("eu-domain-visibility")
                 .addEventListener("change", (e) => {
                     showEUDomain = e.target.checked;
-                    updateActiveLabelRows(); // Not sure this is needed here
+                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("au-domain-visibility")
                 .addEventListener("change", (e) => {
                     showAUDomain = e.target.checked;
-                    updateActiveLabelRows(); // Not sure this is needed here
+                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("jp-domain-visibility")
                 .addEventListener("change", (e) => {
                     showJPDomain = e.target.checked;
-                    updateActiveLabelRows(); // Not sure this is needed here
+                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             // Signature height slider
@@ -4200,7 +3995,7 @@
                     setViewportFrequencyRange(5930, 7140);
                 });
 
-            updateActiveLabelRows();
+            //updateActiveLabelRows();
 
             draw();
         </script>
