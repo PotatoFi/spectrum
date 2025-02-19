@@ -15,6 +15,7 @@
             href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
             rel="stylesheet"
         />
+        <meta charset="UTF-8" />
 
         <title>Spectrum Chart</title>
         <style>
@@ -30,83 +31,72 @@
                 height: 100vh;
                 display: block;
             }
-            .labels {
+            .menu {
                 position: fixed;
                 top: 20px;
-                right: 20px;
+                left: 20px;
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
-                z-index: 1000;
-                padding-right: env(safe-area-inset-right);
+                z-index: 3;
+                padding-left: env(safe-area-inset-left);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .dropdown-button {
+                position: relative;
             }
             .button {
                 width: 40px;
                 height: 40px;
-                border-radius: 50%;
+                border-radius: 6px;
                 border: none;
-                background-color: rgba(255, 255, 255, 0.8);
+                background-color: rgba(255, 255, 255, 1);
                 cursor: pointer;
                 font-size: 24px;
+                color: #000;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-                transition: background-color 0.2s;
+                transition: background-color 0.1s;
                 -webkit-appearance: none;
                 touch-action: manipulation;
-                padding: 0;
             }
             .button:hover {
-                background-color: rgba(255, 255, 255, 0.9);
+                background-color: #f0f0f0;
             }
             .button:active {
-                background-color: rgba(255, 255, 255, 1);
+                background-color: #d0e7fe;
                 transform: translateY(1px);
-                .labels-dropdown {
-                    position: fixed;
-                    top: 120px;
-                    right: 20px;
-                    z-index: 1000;
-                }
             }
 
-            .dropdown-content {
+            .dropdown-menu {
                 display: none;
                 position: absolute;
-                right: 0;
+                left: calc(100% + 10px);
+                top: 0;
                 background-color: white;
                 min-width: 300px;
                 max-height: 80vh;
+                min-height: 100px;
                 overflow-y: auto;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
                 border-radius: 6px;
                 padding: 10px;
             }
 
-            .labels-dropdown:hover .dropdown-content {
+            .dropdown-menu label {
                 display: block;
-            }
-
-            .dropdown-content label {
-                display: block;
-                padding: 5px;
+                padding: 6px;
                 cursor: pointer;
             }
 
-            .dropdown-content label:hover {
+            .dropdown-menu label:hover {
                 background-color: #f0f0f0;
                 border-radius: 6px;
             }
 
-            .dropdown-content hr {
-                border: none;
-                height: 1px;
-                background-color: #ddd;
-                margin: 8px 0;
-            }
-
-            .dropdown-content h4 {
+            .dropdown-menu h4 {
                 margin: 5px 0;
                 color: #666;
                 font-weight: 700;
@@ -114,39 +104,35 @@
                 padding: 0 5px;
             }
 
-            .dropdown-content input[type="button"] {
+            .dropdown-menu input[type="button"] {
                 -webkit-appearance: none;
                 -moz-appearance: none;
                 appearance: none;
                 background: none;
                 border: none;
+                padding: 6px;
                 width: 100%;
                 text-align: left;
-                padding: 5px;
                 cursor: pointer;
+                color: #000000;
                 font-family: inherit;
                 font-size: inherit;
             }
 
-            .dropdown-content input[type="button"]:hover {
+            .dropdown-menu input[type="button"]:hover {
                 background-color: #f0f0f0;
                 border-radius: 6px;
-            }
-
-            .dropdown-content label input[type="button"] {
-                display: block;
-                width: 100%;
             }
         </style>
     </head>
     <body>
         <canvas id="canvas"></canvas>
-        <div class="labels">
-            <div class="labels-dropdown">
-                <button class="button" id="settings">
+        <div class="menu">
+            <div class="dropdown-button">
+                <button class="button">
                     <i class="bx bx-menu"></i>
                 </button>
-                <div class="dropdown-content">
+                <div class="dropdown-menu">
                     <h4>Wi-Fi</h4>
                     <label
                         ><input type="checkbox" id="wifi-visibility" checked />
@@ -248,47 +234,6 @@
                         ><input type="checkbox" id="lora-500-visibility" /> 500
                         KHz channels
                     </label>
-                    <h4>Regulatory Domain</h4>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="ww-domain-visibility"
-                            checked
-                        />
-                        🌍 Show Worldwide (harmonized)
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="us-domain-visibility"
-                            checked
-                        />
-                        🇺🇸 Show US
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="eu-domain-visibility"
-                            checked
-                        />
-                        🇪🇺 Show EU
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="au-domain-visibility"
-                            checked
-                        />
-                        🇦🇺 Show AU
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="jp-domain-visibility"
-                            checked
-                        />
-                        🇯🇵 Show JP
-                    </label>
                     <h4>General</h4>
                     <label>
                         <input
@@ -331,40 +276,77 @@
                     </label>
                 </div>
             </div>
-            <div class="labels-dropdown">
+            <div class="dropdown-button">
+                <button class="button" id="domain">
+                    <i class="bx bx-globe"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <h4>Regulatory Domains</h4>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="ww-domain-visibility"
+                            checked
+                        />
+                        🌍 Show Worldwide (harmonized)
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="us-domain-visibility"
+                            checked
+                        />
+                        🇺🇸 Show US
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="eu-domain-visibility"
+                            checked
+                        />
+                        🇪🇺 Show EU
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="au-domain-visibility"
+                            checked
+                        />
+                        🇦🇺 Show AU
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="jp-domain-visibility"
+                            checked
+                        />
+                        🇯🇵 Show JP
+                    </label>
+                </div>
+            </div>
+            <div class="dropdown-button">
                 <button class="button" id="shortcuts">
                     <i class="bx bx-star"></i>
                 </button>
-                <div class="dropdown-content">
+                <div class="dropdown-menu">
                     <h4>Bands</h4>
-                    <label>
-                        <input
-                            type="button"
-                            value="900 MHz"
-                            id="900-MHz-shortcut"
-                        />
-                    </label>
-                    <label>
-                        <input
-                            type="button"
-                            value="2.4 GHz"
-                            id="2400-MHz-shortcut"
-                        />
-                    </label>
-                    <label>
-                        <input
-                            type="button"
-                            value="5 GHz"
-                            id="5000-MHz-shortcut"
-                        />
-                    </label>
-                    <label>
-                        <input
-                            type="button"
-                            value="6 GHz"
-                            id="6000-MHz-shortcut"
-                        />
-                    </label>
+                    <input
+                        type="button"
+                        value="900 MHz"
+                        id="900-MHz-shortcut"
+                    />
+                    <input
+                        type="button"
+                        value="2.4 GHz"
+                        id="2400-MHz-shortcut"
+                    />
+                    <input type="button" value="5 GHz" id="5000-MHz-shortcut" />
+                    <input type="button" value="6 GHz" id="6000-MHz-shortcut" />
+                    <input
+                        type="button"
+                        value="Entire spectrum"
+                        id="full-spectrum-shortcut"
+                    />
                 </div>
             </div>
             <button class="button" id="export">
@@ -3748,20 +3730,63 @@
                     // Adjust offset to maintain center point
                     offset.x += canvasCenter - newCenterX;
                 });
+
+            // Menu handler
+            document.addEventListener("DOMContentLoaded", () => {
+                const buttons = document.querySelectorAll(".dropdown-button");
+                const menus = document.querySelectorAll(".dropdown-menu");
+
+                // Handle each button
+                buttons.forEach((button) => {
+                    button.addEventListener("click", (e) => {
+                        const menu =
+                            button.nextElementSibling.classList.contains(
+                                "dropdown-menu",
+                            )
+                                ? button.nextElementSibling
+                                : button.querySelector(".dropdown-menu");
+
+                        menu.style.display =
+                            menu.style.display === "block" ? "none" : "block";
+
+                        // Close other menus
+                        menus.forEach((otherMenu) => {
+                            if (otherMenu !== menu) {
+                                otherMenu.style.display = "none";
+                            }
+                        });
+
+                        e.stopPropagation();
+                    });
+                });
+
+                // Close all menus when clicking outside
+                document.addEventListener("click", () => {
+                    menus.forEach((menu) => {
+                        menu.style.display = "none";
+                    });
+                });
+
+                // Prevent clicks inside any menu from closing it
+                menus.forEach((menu) => {
+                    menu.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                    });
+                });
+            });
+
             // Wi-Fi
 
             document
                 .getElementById("wifi-visibility")
                 .addEventListener("change", (e) => {
                     showWifi = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-overlapping-visibility")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             // Wi-Fi channel width checkboxes
@@ -3769,63 +3794,54 @@
                 .getElementById("wifi-20mhz-visibility")
                 .addEventListener("change", (e) => {
                     show20MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-40mhz-visibility")
                 .addEventListener("change", (e) => {
                     show40MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-80mhz-visibility")
                 .addEventListener("change", (e) => {
                     show80MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-160mhz-visibility")
                 .addEventListener("change", (e) => {
                     show160MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-1mhz-visibility")
                 .addEventListener("change", (e) => {
                     show1MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-2mhz-visibility")
                 .addEventListener("change", (e) => {
                     show2MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-4mhz-visibility")
                 .addEventListener("change", (e) => {
                     show4MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-8mhz-visibility")
                 .addEventListener("change", (e) => {
                     show8MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("wifi-16mhz-visibility")
                 .addEventListener("change", (e) => {
                     show16MHz = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             // Bluetooth
@@ -3834,7 +3850,6 @@
                 .getElementById("bluetooth-visibility")
                 .addEventListener("change", (e) => {
                     showBluetooth = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
@@ -3842,7 +3857,6 @@
                 .forEach((radio) => {
                     radio.addEventListener("change", (e) => {
                         bluetoothMode = e.target.value;
-                        // updateActiveLabelRows();
                     });
                 });
 
@@ -3904,38 +3918,33 @@
                 .getElementById("ww-domain-visibility")
                 .addEventListener("change", (e) => {
                     showWWDomain = e.target.checked;
-                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("us-domain-visibility")
                 .addEventListener("change", (e) => {
                     showUSDomain = e.target.checked;
-                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("eu-domain-visibility")
                 .addEventListener("change", (e) => {
                     showEUDomain = e.target.checked;
-                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("au-domain-visibility")
                 .addEventListener("change", (e) => {
                     showAUDomain = e.target.checked;
-                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
             document
                 .getElementById("jp-domain-visibility")
                 .addEventListener("change", (e) => {
                     showJPDomain = e.target.checked;
-                    // updateActiveLabelRows(); // Not sure this is needed here
                 });
 
-            // Signature height slider
+            // Spectral mask height slider
 
             heightSlider.addEventListener("input", (e) => {
                 chartSettings.channelHeight = parseInt(e.target.value);
@@ -3995,7 +4004,11 @@
                     setViewportFrequencyRange(5930, 7140);
                 });
 
-            //updateActiveLabelRows();
+            document
+                .getElementById("full-spectrum-shortcut")
+                .addEventListener("click", (e) => {
+                    setViewportFrequencyRange(-200, 8200);
+                });
 
             draw();
         </script>
