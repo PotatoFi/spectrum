@@ -54,6 +54,7 @@ For now, I've worked on this project alone to learn HTML, CSS, and JavaScript, a
 I might add some of these features, but I am a novice developer. We'll see what I can get done.
 
 * Overhaul the band label system, as there are tons of band labels out there that I'd like to apply but the system isn't flexible enough.
+* Figure out how to add technologies without having to write tons of bespoke and repeat code for them. This is mentally blocking me from adding CBRS/private celluar right now, for example.
 * Add more technologies, such as cellular bands (I have a pretty extensive list from Keith at Wireless LAN Pros).
 * Show subcarriers for 40, 80, and 160 MHz Wi-Fi channels.
 * Show 802.11ax subcarriers.
