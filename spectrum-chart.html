@@ -504,6 +504,33 @@
             };
 
             const bands = [
+                { name: "Very high frequency", start: 30, stop: 300 },
+
+                { name: "T-GSM-380 Uplink", start: 380.2, stop: 389.8 }, // Mobile to base
+                { name: "T-GSM-380 Downlink", start: 390.2, stop: 399.8 }, // Base to mobile
+
+                { name: "T-GSM-410 Uplink", start: 410.2, stop: 419.8 },
+                { name: "T-GSM-410 Downlink", start: 420.2, stop: 429.8 },
+                { name: "GSM-450 Uplink", start: 450.6, stop: 457.6 },
+                { name: "GSM-450 Downlink", start: 460.6, stop: 467.6 },
+
+                { name: "GSM-480 Uplink", start: 479.0, stop: 486.0 },
+                { name: "GSM-480 Downlink", start: 489.0, stop: 496.0 },
+
+                { name: "GSM-710 Uplink", start: 698.2, stop: 716.2 },
+                { name: "GSM-710 Downlink", start: 728.2, stop: 746.2 },
+
+                { name: "GSM-750 Uplink", start: 777.2, stop: 792.2 },
+                { name: "GSM-750 Downlink", start: 747.2, stop: 762.2 },
+
+                { name: "T-GSM-810 Uplink", start: 806.2, stop: 821.2 },
+                { name: "T-GSM-810 Downlink", start: 851.2, stop: 866.2 },
+
+                { name: "GSM-850 Uplink", start: 824.2, stop: 848.8 },
+                { name: "GSM-850 Downlink", start: 869.2, stop: 893.8 },
+
+                // There are more bands to add: https://en.wikipedia.org/wiki/GSM_frequency_bands
+
                 { name: "900 MHz", start: 902, stop: 928 },
                 { name: "CBRS", start: 3550, stop: 3700 },
                 { name: "2.4 GHz", start: 2400, stop: 2500 },
