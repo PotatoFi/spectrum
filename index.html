@@ -1,6 +1,20 @@
 <!doctype html>
 <html>
     <head>
+        <!-- Google tag (gtag.js) -->
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-HTQY7L5NTF"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "G-HTQY7L5NTF");
+        </script>
         <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -398,7 +412,7 @@
             let canvas = document.querySelector("#canvas");
             let context = canvas.getContext("2d");
 
-            const DEBUG = true;
+            const DEBUG = false;
 
             const minZoom = 0.06;
             const maxZoom = 120;
