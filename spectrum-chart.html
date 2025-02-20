@@ -372,7 +372,7 @@
             let canvas = document.querySelector("#canvas");
             let context = canvas.getContext("2d");
 
-            const DEBUG = false;
+            const DEBUG = true;
 
             const minZoom = 0.06;
             const maxZoom = 120;
@@ -3068,6 +3068,48 @@
                     );
                 }
 
+                // Draw subcarriers
+                if (scale >= 18 && !channel.dsss) {
+                    const subCarrierWidth = 0.312; // This should be both width and spacing
+                    const subCarrierCount = 26;
+                    const channelStart = centerX; // Start from the center of the channel and go right
+
+                    let currentSubCarrierX = centerX; // Track the current subcarrier position
+
+                    for (let i = 1; i <= subCarrierCount; i++) {
+                        if (i > 1) {
+                            // Skip the null subcarrier in the center
+                            drawParabola(
+                                currentSubCarrierX,
+                                centerY,
+                                subCarrierWidth * 2 * scale,
+                                height,
+                                style.lineColor,
+                                style.fillColor,
+                            );
+                        }
+                        currentSubCarrierX =
+                            currentSubCarrierX + subCarrierWidth * 2 * scale;
+                    }
+
+                    // Draw left half (negative direction from center)
+                    currentSubCarrierX = centerX;
+                    for (let i = 1; i <= subCarrierCount; i++) {
+                        if (i > 1) {
+                            // Skip the null subcarrier in the center
+                            drawParabola(
+                                currentSubCarrierX,
+                                centerY,
+                                subCarrierWidth * 2 * scale,
+                                height,
+                                style.lineColor,
+                                style.fillColor,
+                            );
+                        }
+                        currentSubCarrierX -= subCarrierWidth * 2 * scale;
+                    }
+                }
+
                 // Create the rowData object
                 const rowData = {
                     id: "wi-fi",
@@ -3509,8 +3551,6 @@
                         });
                     });
                 }
-
-                //updateActiveLabelRows();
 
                 // Draw baseline
                 const baselineY = getBaselineY();
