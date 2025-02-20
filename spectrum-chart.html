@@ -161,6 +161,14 @@
                         />
                         2.4 GHz overlapping channels</label
                     >
+                    <label
+                        ><input
+                            type="checkbox"
+                            id="20-mhz-subcarrier-visibility"
+                            checked
+                        />
+                        20 MHz subcarriers</label
+                    >
                     <h4>Wi-Fi (802.11ah)</h4>
                     <label>
                         <input
@@ -381,6 +389,7 @@
             let showWifi = true;
             let showWifiChannels = true;
             let showOverlapping = false;
+            let show20MHzSubcarriers = true;
             let show1MHz = true;
             let show2MHz = false;
             let show4MHz = false;
@@ -3069,13 +3078,18 @@
                 }
 
                 // Draw subcarriers
-                if (scale >= 18 && !channel.dsss) {
-                    const subCarrierWidth = 0.312; // This should be both width and spacing
+                if (
+                    show20MHzSubcarriers &&
+                    scale >= 12 &&
+                    !channel.dsss &&
+                    channel.width == 20
+                ) {
                     const subCarrierCount = 26;
+                    const subCarrierWidth = 0.312; // This should be both width and spacing
                     const channelStart = centerX; // Start from the center of the channel and go right
-
                     let currentSubCarrierX = centerX; // Track the current subcarrier position
 
+                    // Draw right half (starting from center working right)
                     for (let i = 1; i <= subCarrierCount; i++) {
                         if (i > 1) {
                             // Skip the null subcarrier in the center
@@ -3083,7 +3097,7 @@
                                 currentSubCarrierX,
                                 centerY,
                                 subCarrierWidth * 2 * scale,
-                                height,
+                                height - 2,
                                 style.lineColor,
                                 style.fillColor,
                             );
@@ -3092,7 +3106,7 @@
                             currentSubCarrierX + subCarrierWidth * 2 * scale;
                     }
 
-                    // Draw left half (negative direction from center)
+                    // Draw left half (starting from center working left)
                     currentSubCarrierX = centerX;
                     for (let i = 1; i <= subCarrierCount; i++) {
                         if (i > 1) {
@@ -3101,7 +3115,7 @@
                                 currentSubCarrierX,
                                 centerY,
                                 subCarrierWidth * 2 * scale,
-                                height,
+                                height - 2,
                                 style.lineColor,
                                 style.fillColor,
                             );
@@ -3252,7 +3266,7 @@
                 if (channelWidthMhz <= 16) {
                     mhzInset = 0.25;
                 } else {
-                    mhzInset = 2;
+                    mhzInset = 2.1;
                 }
 
                 const insetPixels = mhzInset * 2 * scale;
@@ -3863,6 +3877,12 @@
                 .getElementById("wifi-overlapping-visibility")
                 .addEventListener("change", (e) => {
                     showOverlapping = e.target.checked;
+                });
+
+            document
+                .getElementById("20-mhz-subcarrier-visibility")
+                .addEventListener("change", (e) => {
+                    show20MHzSubcarriers = e.target.checked;
                 });
 
             // Wi-Fi channel width checkboxes
