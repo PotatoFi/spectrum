@@ -2989,6 +2989,7 @@
                     const startX = mhzToScreenX(band.start);
                     const stopX = mhzToScreenX(band.stop);
                     const width = stopX - startX;
+                    if (width < 4) return;
                     const centerX = startX + width / 2;
 
                     // Draw rectangle with rounded corners
@@ -3035,6 +3036,7 @@
                     const startX = mhzToScreenX(band.start);
                     const stopX = mhzToScreenX(band.stop);
                     const width = stopX - startX - 4;
+                    if (width < 4) return;
                     const centerX = startX + width / 2;
 
                     // Draw rectangle
@@ -3476,6 +3478,9 @@
                 text,
                 technology,
             ) {
+                // If the label is too narrow, don't draw it
+                if (width < 4) return;
+
                 // Calculate label position
                 const labelStart = centerX - width / 2;
 
