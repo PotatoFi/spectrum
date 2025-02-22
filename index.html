@@ -186,8 +186,12 @@
                         <input type="checkbox" id="wifi-160mhz-visibility" />
                         160 MHz channels
                     </label>
-                    <label
-                        ><input
+                    <label>
+                        <input type="checkbox" id="wifi-320mhz-visibility" />
+                        320 MHz channels
+                    </label>
+                    <label>
+                        <input
                             type="checkbox"
                             id="wifi-overlapping-visibility"
                         />
@@ -431,6 +435,7 @@
             let show40MHz = false;
             let show80MHz = false;
             let show160MHz = false;
+            let show320MHz = false;
             let showBluetooth = true;
             let showBluetoothChannels = false;
             let bluetoothMode = "Low Energy";
@@ -2306,6 +2311,42 @@
                         width: 160,
                         domain: ["US"],
                     },
+                    {
+                        channel: "31E",
+                        frequency: 6105,
+                        width: 320,
+                        domain: ["US", "EU", "AU", "JP"],
+                    },
+                    {
+                        channel: "63E",
+                        frequency: 6265,
+                        width: 320,
+                        domain: ["US", "EU", "AU", "JP"],
+                    },
+                    {
+                        channel: "95E",
+                        frequency: 6425,
+                        width: 320,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "127E",
+                        frequency: 6585,
+                        width: 320,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "159E",
+                        frequency: 6745,
+                        width: 320,
+                        domain: ["US"],
+                    },
+                    {
+                        channel: "191E",
+                        frequency: 6905,
+                        width: 320,
+                        domain: ["US"],
+                    },
                 ],
             };
 
@@ -3496,7 +3537,8 @@
                                 (channel.width === 20 && !show20MHz) ||
                                 (channel.width === 40 && !show40MHz) ||
                                 (channel.width === 80 && !show80MHz) ||
-                                (channel.width === 160 && !show160MHz)
+                                (channel.width === 160 && !show160MHz) ||
+                                (channel.width === 320 && !show320MHz)
                             ) {
                                 return;
                             }
@@ -3943,6 +3985,12 @@
                 .getElementById("wifi-160mhz-visibility")
                 .addEventListener("change", (e) => {
                     show160MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("wifi-320mhz-visibility")
+                .addEventListener("change", (e) => {
+                    show320MHz = e.target.checked;
                 });
 
             document
