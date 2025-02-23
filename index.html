@@ -274,36 +274,38 @@
                         ><input type="checkbox" id="lora-500-visibility" /> 500
                         KHz channels
                     </label>
-                    <h4>General</h4>
+                    <h4>Band Labels</h4>
                     <label>
                         <input
                             type="checkbox"
-                            id="band-label-visibility"
-                            checked
-                        />
-                        Show Band Labels
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="sub-band-label-visibility"
-                            checked
-                        />
-                        Show Sub-Band Labels
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="domain-select"
-                            value="FCC"
+                            id="fcc-band-visibility"
                             checked
                         />
                         FCC
                     </label>
                     <label>
-                        <input type="radio" name="domain-select" value="ETSI" />
+                        <input
+                            type="checkbox"
+                            id="etsi-band-visibility"
+                            checked
+                        />
                         ETSI
                     </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="gsm-cellular-band-visibility"
+                        />
+                        GSM Cellular
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="5G-NR-cellular-band-visibility"
+                        />
+                        5G NR Cellular
+                    </label>
+                    <h4>General</h4>
                     <label>
                         Height:
                         <input
@@ -444,9 +446,14 @@
             let showLoRa = true;
             let showLoRa125 = false;
             let showLoRa500 = false;
-            let showBandLabels = true;
-            let showSubbands = true;
-            let selectedDomain = "FCC";
+
+            // Bands
+            let showBandFCC = true;
+            let showBandETSI = true;
+            let showBandCellularGSM = false;
+            let showBandCellular5GNR = false;
+
+            // Domains
             let showWWDomain = true;
             let showUSDomain = true;
             let showEUDomain = true;
@@ -476,15 +483,18 @@
 
             // Visual settings
             const chartSettings = {
-                channelHeight: 100, // Default signature height
+                spectralMaskHeight: 100, // Default signature height
                 baselineOffset: 20, // Offsets the text below the baseline
                 textSize: 12,
             };
 
             // Rowless labels
-            const labelPositions = [];
-            const ROW_HEIGHT = 40;
-            const BASE_OFFSET = -50;
+            const channelLabelPositions = [];
+            const bandLabelPositions = [];
+            const BASE_OFFSET = -56; // Down from center
+            const BAND_LABEL_OFFSET = 56; // Up from the top of the spectral masks
+            const LABEL_HEIGHT = 28; // Height of labels
+            const ROW_HEIGHT = LABEL_HEIGHT + 6;
 
             const zoomTiers = {
                 lowest: {
@@ -549,55 +559,190 @@
                 },
             };
 
-            const bands = [
-                { name: "Very high frequency", start: 30, stop: 300 },
+            const bands = {
+                FCC: [
+                    {
+                        name: "VHF",
+                        start: 30,
+                        stop: 300,
+                    },
+                    {
+                        name: "900 MHz",
+                        start: 902,
+                        stop: 928,
+                    },
+                    {
+                        name: "2.4 GHz",
+                        start: 2400,
+                        stop: 2500,
+                    },
+                    { name: "CBRS", start: 3550, stop: 3700 },
+                    {
+                        name: "UNII-1",
+                        start: 5150,
+                        stop: 5250,
+                    },
+                    { name: "UNII-2", start: 5250, stop: 5350 },
+                    { name: "UNII-2e", start: 5470, stop: 5725 },
+                    { name: "UNII-3", start: 5725, stop: 5850 },
+                    { name: "UNII-4", start: 5850, stop: 5925 },
+                    { name: "UNII-5", start: 5925, stop: 6425 },
+                    { name: "UNII-6", start: 6425, stop: 6525 },
+                    { name: "UNII-7", start: 6525, stop: 6875 },
+                    { name: "UNII-8", start: 6875, stop: 7125 },
+                ],
+                ETSI: [
+                    { name: "EU863-870", start: 863, stop: 870 },
+                    // From https://www.thethingsnetwork.org/docs/lorawan/regional-parameters/eu868/
 
-                { name: "T-GSM-380 Uplink", start: 380.2, stop: 389.8 }, // Mobile to base
-                { name: "T-GSM-380 Downlink", start: 390.2, stop: 399.8 }, // Base to mobile
+                    { name: "Band A", start: 5150, stop: 5350 },
+                    { name: "Band B", start: 5470, stop: 5725 },
+                    { name: "Band C", start: 5725, stop: 5875 },
+                ],
+                "GSM Cellular": [
+                    { name: "T-GSM-380 Uplink", start: 380.2, stop: 389.8 }, // Mobile to base
+                    { name: "T-GSM-380 Downlink", start: 390.2, stop: 399.8 }, // Base to mobile
 
-                { name: "T-GSM-410 Uplink", start: 410.2, stop: 419.8 },
-                { name: "T-GSM-410 Downlink", start: 420.2, stop: 429.8 },
-                { name: "GSM-450 Uplink", start: 450.6, stop: 457.6 },
-                { name: "GSM-450 Downlink", start: 460.6, stop: 467.6 },
+                    { name: "T-GSM-410 Uplink", start: 410.2, stop: 419.8 },
+                    { name: "T-GSM-410 Downlink", start: 420.2, stop: 429.8 },
 
-                { name: "GSM-480 Uplink", start: 479.0, stop: 486.0 },
-                { name: "GSM-480 Downlink", start: 489.0, stop: 496.0 },
+                    { name: "GSM-450 Uplink", start: 450.6, stop: 457.6 },
+                    { name: "GSM-450 Downlink", start: 460.6, stop: 467.6 },
 
-                { name: "GSM-710 Uplink", start: 698.2, stop: 716.2 },
-                { name: "GSM-710 Downlink", start: 728.2, stop: 746.2 },
+                    { name: "GSM-480 Uplink", start: 479.0, stop: 486.0 },
+                    { name: "GSM-480 Downlink", start: 489.0, stop: 496.0 },
 
-                { name: "GSM-750 Uplink", start: 777.2, stop: 792.2 },
-                { name: "GSM-750 Downlink", start: 747.2, stop: 762.2 },
+                    { name: "GSM-710 Uplink", start: 698.2, stop: 716.2 },
+                    { name: "GSM-710 Downlink", start: 728.2, stop: 746.2 },
 
-                { name: "T-GSM-810 Uplink", start: 806.2, stop: 821.2 },
-                { name: "T-GSM-810 Downlink", start: 851.2, stop: 866.2 },
+                    { name: "GSM-750 Uplink", start: 777.2, stop: 792.2 },
+                    { name: "GSM-750 Downlink", start: 747.2, stop: 762.2 },
 
-                { name: "GSM-850 Uplink", start: 824.2, stop: 848.8 },
-                { name: "GSM-850 Downlink", start: 869.2, stop: 893.8 },
+                    { name: "T-GSM-810 Uplink", start: 806.2, stop: 821.2 },
+                    { name: "T-GSM-810 Downlink", start: 851.2, stop: 866.2 },
 
-                // There are more bands to add: https://en.wikipedia.org/wiki/GSM_frequency_bands
+                    { name: "GSM-850 Uplink", start: 824.2, stop: 848.8 },
+                    { name: "GSM-850 Downlink", start: 869.2, stop: 893.8 },
 
-                { name: "900 MHz", start: 902, stop: 928 },
-                { name: "CBRS", start: 3550, stop: 3700 },
-                { name: "2.4 GHz", start: 2400, stop: 2500 },
-                { name: "5 GHz", start: 5170, stop: 5835 },
-                { name: "6 GHz", start: 5925, stop: 7125 },
-            ];
+                    { name: "E-GSM-900 Uplink", start: 880, stop: 915 },
+                    { name: "E-GSM-900 Downlink", start: 925, stop: 960 },
 
-            const subBands = [
-                { domain: "FCC", name: "UNII-1", start: 5150, stop: 5250 },
-                { domain: "FCC", name: "UNII-2", start: 5250, stop: 5350 },
-                { domain: "FCC", name: "UNII-2e", start: 5470, stop: 5725 },
-                { domain: "FCC", name: "UNII-3", start: 5725, stop: 5850 },
-                { domain: "FCC", name: "UNII-4", start: 5850, stop: 5925 },
-                { domain: "FCC", name: "UNII-5", start: 5925, stop: 6425 },
-                { domain: "FCC", name: "UNII-6", start: 6425, stop: 6525 },
-                { domain: "FCC", name: "UNII-7", start: 6525, stop: 6875 },
-                { domain: "FCC", name: "UNII-8", start: 6875, stop: 7125 },
-                { domain: "ETSI", name: "Band A", start: 5150, stop: 5350 },
-                { domain: "ETSI", name: "Band B", start: 5470, stop: 5725 },
-                { domain: "ETSI", name: "Band C", start: 5725, stop: 5875 },
-            ];
+                    { name: "R-GSM-900 Uplink", start: 876, stop: 876 },
+                    { name: "R-GSM-900 Downlink", start: 921, stop: 960 },
+
+                    { name: "T-GSM-900 Uplink", start: 870.4, stop: 876 },
+                    { name: "T-GSM-900 Downlink", start: 915.4, stop: 921 },
+
+                    { name: "DCS-1800 Uplink", start: 1710.2, stop: 1784.8 },
+                    { name: "DCS-1800 Downlink", start: 1805.2, stop: 1879.8 },
+
+                    { name: "PCS-1900 Uplink", start: 1850.2, stop: 1909.8 },
+                    { name: "PCS-1900 Downlink", start: 1930.2, stop: 1989.8 },
+
+                    // There are more bands to add: https://en.wikipedia.org/wiki/GSM_frequency_bands
+                ],
+                "5G NR Cellular": [
+                    { name: "n1 Uplink", start: 1920, stop: 1980 },
+                    { name: "n1 Downlink", start: 2110, stop: 2170 },
+                    { name: "n2 Uplink", start: 1850, stop: 1910 },
+                    { name: "n2 Downlink", start: 1930, stop: 1990 },
+                    { name: "n3 Uplink", start: 1710, stop: 1785 },
+                    { name: "n3 Downlink", start: 1805, stop: 1880 },
+                    { name: "n5 Uplink", start: 824, stop: 849 },
+                    { name: "n5 Downlink", start: 869, stop: 894 },
+                    { name: "n7 Uplink", start: 2500, stop: 2570 },
+                    { name: "n7 Downlink", start: 2620, stop: 2690 },
+                    { name: "n8 Uplink", start: 880, stop: 915 },
+                    { name: "n8 Downlink", start: 925, stop: 960 },
+                    { name: "n12 Uplink", start: 699, stop: 716 },
+                    { name: "n12 Downlink", start: 729, stop: 746 },
+                    { name: "n13 Uplink", start: 777, stop: 787 },
+                    { name: "n13 Downlink", start: 746, stop: 756 },
+                    { name: "n14 Uplink", start: 788, stop: 798 },
+                    { name: "n14 Downlink", start: 758, stop: 768 },
+                    { name: "n18 Uplink", start: 815, stop: 830 },
+                    { name: "n18 Downlink", start: 860, stop: 875 },
+                    { name: "n20 Uplink", start: 832, stop: 862 },
+                    { name: "n20 Downlink", start: 791, stop: 821 },
+                    { name: "n24 Uplink", start: 1626.5, stop: 1660.5 },
+                    { name: "n24 Downlink", start: 1525, stop: 1559 },
+                    { name: "n25 Uplink", start: 1850, stop: 1915 },
+                    { name: "n25 Downlink", start: 1930, stop: 1995 },
+                    { name: "n26 Uplink", start: 814, stop: 849 },
+                    { name: "n26 Downlink", start: 859, stop: 894 },
+                    { name: "n28 Uplink", start: 703, stop: 748 },
+                    { name: "n28 Downlink", start: 758, stop: 803 },
+                    { name: "n29 Downlink", start: 717, stop: 728 },
+                    { name: "n30 Uplink", start: 2305, stop: 2315 },
+                    { name: "n30 Downlink", start: 2350, stop: 2360 },
+                    { name: "n31 Uplink", start: 452.5, stop: 457.5 },
+                    { name: "n31 Downlink", start: 462.5, stop: 467.5 },
+                    { name: "n34", start: 2010, stop: 2025 },
+                    { name: "n38", start: 2570, stop: 2620 },
+                    { name: "n39", start: 1880, stop: 1920 },
+                    { name: "n40", start: 2300, stop: 2400 },
+                    { name: "n41", start: 2496, stop: 2690 },
+                    { name: "n46", start: 5150, stop: 5925 },
+                    { name: "n47", start: 5855, stop: 5925 },
+                    { name: "n48", start: 3550, stop: 3700 },
+                    { name: "n50", start: 1432, stop: 1517 },
+                    { name: "n51", start: 1427, stop: 1432 },
+                    { name: "n53", start: 2483.5, stop: 2495 },
+                    { name: "n54", start: 1670, stop: 1675 },
+                    { name: "n65 Uplink", start: 1920, stop: 2010 },
+                    { name: "n65 Downlink", start: 2110, stop: 2200 },
+                    { name: "n66 Uplink", start: 1710, stop: 1780 },
+                    { name: "n66 Downlink", start: 2110, stop: 2200 },
+                    { name: "n67 Downlink", start: 738, stop: 758 },
+                    { name: "n70 Uplink", start: 1695, stop: 1710 },
+                    { name: "n70 Downlink", start: 1995, stop: 2020 },
+                    { name: "n71 Uplink", start: 663, stop: 698 },
+                    { name: "n71 Downlink", start: 617, stop: 652 },
+                    { name: "n72 Uplink", start: 451, stop: 456 },
+                    { name: "n72 Downlink", start: 461, stop: 466 },
+                    { name: "n74 Uplink", start: 1427, stop: 1470 },
+                    { name: "n74 Downlink", start: 1475, stop: 1518 },
+                    { name: "n75 Downlink", start: 1432, stop: 1517 },
+                    { name: "n76 Downlink", start: 1427, stop: 1432 },
+                    { name: "n77", start: 3300, stop: 4200 },
+                    { name: "n78", start: 3300, stop: 3800 },
+                    { name: "n79", start: 4400, stop: 5000 },
+                    { name: "n80 Uplink", start: 1710, stop: 1785 },
+                    { name: "n81 Uplink", start: 880, stop: 915 },
+                    { name: "n82 Uplink", start: 832, stop: 862 },
+                    { name: "n83 Uplink", start: 703, stop: 748 },
+                    { name: "n84 Uplink", start: 1920, stop: 1980 },
+                    { name: "n85 Uplink", start: 698, stop: 716 },
+                    { name: "n85 Downlink", start: 728, stop: 746 },
+                    { name: "n86 Uplink", start: 1710, stop: 1780 },
+                    { name: "n89 Uplink", start: 824, stop: 849 },
+                    { name: "n90", start: 2496, stop: 2690 },
+                    { name: "n91 Uplink", start: 832, stop: 862 },
+                    { name: "n91 Downlink", start: 1427, stop: 1432 },
+                    { name: "n92 Uplink", start: 832, stop: 862 },
+                    { name: "n92 Downlink", start: 1432, stop: 1517 },
+                    { name: "n93 Uplink", start: 880, stop: 915 },
+                    { name: "n93 Downlink", start: 1427, stop: 1432 },
+                    { name: "n94 Uplink", start: 880, stop: 915 },
+                    { name: "n94 Downlink", start: 1432, stop: 1517 },
+                    { name: "n95", start: 2010, stop: 2025 },
+                    { name: "n96", start: 5925, stop: 7125 },
+                    { name: "n97", start: 2300, stop: 2400 },
+                    { name: "n98", start: 1880, stop: 1920 },
+                    { name: "n99 Uplink", start: 1626.5, stop: 1660.5 },
+                    { name: "n100 Uplink", start: 874.4, stop: 880 },
+                    { name: "n100 Downlink", start: 919.4, stop: 925 },
+                    { name: "n101", start: 1900, stop: 1910 },
+                    { name: "n102", start: 5925, stop: 6425 },
+                    { name: "n104", start: 6425, stop: 7125 },
+                    { name: "n105 Uplink", start: 663, stop: 703 },
+                    { name: "n105 Downlink", start: 612, stop: 652 },
+                    { name: "n106 Uplink", start: 896, stop: 901 },
+                    { name: "n106 Downlink", start: 935, stop: 940 },
+                    { name: "n109 Uplink", start: 703, stop: 733 },
+                    { name: "n109 Downlink", start: 1432, stop: 1517 },
+                ],
+            };
 
             const zigbeeChannels = {
                 "868 MHz": [
@@ -2974,86 +3119,45 @@
             function drawBandLabels() {
                 if (!showBandLabels) return;
 
-                const labelHeight = 32;
                 const yPosition =
                     getBaselineY() -
-                    chartSettings.channelHeight -
-                    labelHeight -
+                    chartSettings.spectralMaskHeight -
+                    LABEL_HEIGHT -
                     10;
 
                 context.font = "14px Quicksand";
                 context.textAlign = "center";
                 context.textBaseline = "middle";
 
-                bands.forEach((band) => {
-                    const startX = mhzToScreenX(band.start);
-                    const stopX = mhzToScreenX(band.stop);
+                bands.forEach((newBands) => {
+                    const startX = mhzToScreenX(newBands.start);
+                    const stopX = mhzToScreenX(newBands.stop);
                     const width = stopX - startX;
                     if (width < 4) return;
                     const centerX = startX + width / 2;
 
                     // Draw rectangle with rounded corners
                     context.beginPath();
-                    context.roundRect(startX, yPosition, width, labelHeight, 6);
+                    context.roundRect(
+                        startX,
+                        yPosition,
+                        width,
+                        LABEL_HEIGHT,
+                        6,
+                    );
                     context.fillStyle = "#E5E5E5";
                     context.fill();
 
                     // Calculate the text width and add padding
-                    const textWidth = context.measureText(band.name).width + 4;
+                    const textWidth =
+                        context.measureText(newBands.name).width + 4;
 
                     if (width >= textWidth) {
                         context.fillStyle = "#000000";
                         context.fillText(
-                            band.name,
+                            newBands.name,
                             centerX,
-                            yPosition + labelHeight / 2,
-                        );
-                    } else {
-                    }
-                });
-            }
-
-            function drawSubbandLabels() {
-                if (!showSubbands) return;
-
-                const labelHeight = 32;
-                const yPosition =
-                    getBaselineY() -
-                    chartSettings.channelHeight -
-                    labelHeight * 2 -
-                    20; // Position above band labels
-
-                context.font = "14px Quicksand";
-                context.textAlign = "center";
-                context.textBaseline = "middle";
-
-                // Filter sub-bands for selected domain
-                const relevantSubBands = subBands.filter(
-                    (band) => band.domain === selectedDomain,
-                );
-
-                relevantSubBands.forEach((band) => {
-                    const startX = mhzToScreenX(band.start);
-                    const stopX = mhzToScreenX(band.stop);
-                    const width = stopX - startX - 4;
-                    if (width < 4) return;
-                    const centerX = startX + width / 2;
-
-                    // Draw rectangle
-                    context.beginPath();
-                    context.roundRect(startX, yPosition, width, labelHeight, 6);
-                    context.fillStyle = "#F2F2F2";
-                    context.fill();
-
-                    // Calculate the text width and add padding
-                    const textWidth = context.measureText(band.name).width + 4;
-
-                    if (width >= textWidth) {
-                        context.fillStyle = "#000000";
-                        context.fillText(
-                            band.name,
-                            centerX,
-                            yPosition + labelHeight / 2,
+                            yPosition + LABEL_HEIGHT / 2,
                         );
                     } else {
                     }
@@ -3126,7 +3230,7 @@
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
-                const height = chartSettings.channelHeight;
+                const height = chartSettings.spectralMaskHeight;
                 const style = {
                     lineColor: "#F5D809",
                     fillColor: "rgba(245, 216, 9, 0.2)",
@@ -3222,7 +3326,7 @@
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
-                const height = chartSettings.channelHeight;
+                const height = chartSettings.spectralMaskHeight;
                 const style = {
                     lineColor: "#EF3453",
                     fillColor: "rgba(239, 52, 83, 0.2)", // Semi-transparent red
@@ -3258,7 +3362,7 @@
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
-                const height = chartSettings.channelHeight;
+                const height = chartSettings.spectralMaskHeight;
                 const style = {
                     lineColor: "#009FE3",
                     fillColor: "rgba(0, 159, 227, 0.2)", // Semi-transparent blue
@@ -3294,7 +3398,7 @@
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
-                const height = chartSettings.channelHeight;
+                const height = chartSettings.spectralMaskHeight;
                 const style = {
                     lineColor: "#1486FC",
                     fillColor: "rgba(20, 134, 252, 0.2)", // Semi-transparent blue
@@ -3427,15 +3531,15 @@
                 return Math.max(0, Math.min(8000, freq));
             }
 
-            // Simple function to check if a new label overlaps with existing ones
-            function findRowForLabel(labelStart, labelWidth) {
+            // Check if a new channel label overlaps with existing ones
+            function findRowForChannelLabel(labelStart, labelWidth) {
                 const labelEnd = labelStart + labelWidth;
                 let row = 0;
 
                 // Keep checking rows until we find one where the label fits
                 while (true) {
                     // Get all labels in current row
-                    const labelsInRow = labelPositions.filter(
+                    const labelsInRow = channelLabelPositions.filter(
                         (label) => label.row === row,
                     );
 
@@ -3450,7 +3554,7 @@
 
                     if (!hasOverlap) {
                         // Found a row where the label fits! Add it to our positions
-                        labelPositions.push({
+                        channelLabelPositions.push({
                             row,
                             start: labelStart,
                             end: labelEnd,
@@ -3463,11 +3567,40 @@
                 }
             }
 
-            const labelRows = {
-                activeLabelRows: [],
-                rowHeight: -40,
-                baseOffset: -50,
-            };
+            // Check if a new band label overlaps with existing ones
+            function findRowForBandLabel(labelStart, labelEnd) {
+                let row = 0;
+
+                // Keep checking rows until we find one where the label fits
+                while (true) {
+                    // Get all labels in current row
+                    const labelsInRow = bandLabelPositions.filter(
+                        (label) => label.row === row,
+                    );
+
+                    // Check if label overlaps with any existing labels in this row
+                    const hasOverlap = labelsInRow.some(
+                        (existingLabel) =>
+                            !(
+                                labelEnd < existingLabel.start ||
+                                labelStart > existingLabel.end
+                            ),
+                    );
+
+                    if (!hasOverlap) {
+                        // Found a row where the label fits! Add it to our positions
+                        bandLabelPositions.push({
+                            row,
+                            start: labelStart,
+                            end: labelEnd,
+                        });
+                        return row;
+                    }
+
+                    // Try next row
+                    row++;
+                }
+            }
 
             function drawChannelLabel(
                 centerX,
@@ -3485,7 +3618,7 @@
                 const labelStart = centerX - width / 2;
 
                 // Find which row this label should go in
-                const row = findRowForLabel(labelStart, width - 4);
+                const row = findRowForChannelLabel(labelStart, width - 4);
 
                 // Calculate vertical offset based on row
                 const offset = BASE_OFFSET - row * ROW_HEIGHT;
@@ -3499,11 +3632,16 @@
                     centerX - width / 2,
                     centerY - height / 2,
                     width - 2,
-                    height - 2,
+                    LABEL_HEIGHT,
                     6,
                 );
                 context.fillStyle = backgroundColor;
                 context.fill();
+
+                // Stop-gap, temporary fix
+                context.font = "14px Quicksand";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
 
                 // Draw text if it fits
                 const textWidth = context.measureText(text).width + 4;
@@ -3517,7 +3655,8 @@
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
-                labelPositions.length = 0;
+                channelLabelPositions.length = 0;
+                bandLabelPositions.length = 0;
 
                 // Draw WiFi channels
                 if (showWifi) {
@@ -3648,6 +3787,78 @@
                     });
                 }
 
+                // Draw band labels
+                Object.keys(bands).forEach((bandType) => {
+                    bands[bandType].forEach((band) => {
+                        // Filter by band type
+                        if (bandType == "FCC" && !showBandFCC) {
+                            return;
+                        }
+
+                        if (bandType == "ETSI" && !showBandETSI) {
+                            return;
+                        }
+
+                        if (
+                            bandType == "GSM Cellular" &&
+                            !showBandCellularGSM
+                        ) {
+                            return;
+                        }
+
+                        if (
+                            bandType == "5G NR Cellular" &&
+                            !showBandCellular5GNR
+                        ) {
+                            return;
+                        }
+
+                        const startX = mhzToScreenX(band.start);
+                        const stopX = mhzToScreenX(band.stop);
+
+                        const width = stopX - startX - 4;
+                        if (width < 4) return;
+                        const centerX = startX + width / 2;
+
+                        // Find which row this label should go in
+                        const row = findRowForBandLabel(startX + 2, stopX - 2);
+
+                        // Calculate vertical offset based on row
+                        const centerY =
+                            getBaselineY() -
+                            chartSettings.spectralMaskHeight -
+                            BAND_LABEL_OFFSET -
+                            row * ROW_HEIGHT;
+
+                        // Move this into drawBandLabel()?
+                        // Draw rectangle
+                        context.beginPath();
+                        context.roundRect(
+                            startX,
+                            centerY,
+                            width,
+                            LABEL_HEIGHT,
+                            6,
+                        );
+                        context.fillStyle = "#F2F2F2";
+                        context.fill();
+
+                        // Calculate the text width and add padding
+                        const textWidth =
+                            context.measureText(band.name).width + 4;
+
+                        if (width >= textWidth) {
+                            context.fillStyle = "#000000";
+                            context.fillText(
+                                band.name,
+                                centerX,
+                                centerY + LABEL_HEIGHT / 2,
+                            );
+                        } else {
+                        }
+                    });
+                });
+
                 // Draw baseline
                 const baselineY = getBaselineY();
                 context.beginPath();
@@ -3666,10 +3877,6 @@
                     screenXToMhz(0),
                     screenXToMhz(canvas.width),
                 );
-
-                // Draw band and sub-band labels
-                drawBandLabels();
-                drawSubbandLabels();
 
                 requestAnimationFrame(draw);
             }
@@ -4050,7 +4257,6 @@
                 .getElementById("zigbee-visibility")
                 .addEventListener("change", (e) => {
                     showZigbee = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             // LoRa
@@ -4058,42 +4264,43 @@
                 .getElementById("lora-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("lora-125-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa125 = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
             document
                 .getElementById("lora-500-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa500 = e.target.checked;
-                    // updateActiveLabelRows();
                 });
 
-            // General
+            // Frequency Band Labels
             document
-                .getElementById("band-label-visibility")
+                .getElementById("fcc-band-visibility")
                 .addEventListener("change", (e) => {
-                    showBandLabels = e.target.checked;
+                    showBandFCC = e.target.checked;
                 });
 
             document
-                .getElementById("sub-band-label-visibility")
+                .getElementById("etsi-band-visibility")
                 .addEventListener("change", (e) => {
-                    showSubbands = e.target.checked;
+                    showBandETSI = e.target.checked;
                 });
 
             document
-                .querySelectorAll('input[name="domain-select"]')
-                .forEach((radio) => {
-                    radio.addEventListener("change", (e) => {
-                        selectedDomain = e.target.value;
-                    });
+                .getElementById("gsm-cellular-band-visibility")
+                .addEventListener("change", (e) => {
+                    showBandCellularGSM = e.target.checked;
+                });
+
+            document
+                .getElementById("5G-NR-cellular-band-visibility")
+                .addEventListener("change", (e) => {
+                    showBandCellular5GNR = e.target.checked;
                 });
 
             // Regulatory domain visibility selectors
@@ -4131,7 +4338,7 @@
             // Spectral mask height slider
 
             heightSlider.addEventListener("input", (e) => {
-                chartSettings.channelHeight = parseInt(e.target.value);
+                chartSettings.spectralMaskHeight = parseInt(e.target.value);
             });
 
             document.getElementById("export").addEventListener("click", () => {
