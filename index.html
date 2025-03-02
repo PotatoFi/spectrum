@@ -4401,6 +4401,77 @@
                     setViewportFrequencyRange(-200, 8200);
                 });
 
+            let lastTapTime = 0;
+            let doubleTapZooming = false;
+            let doubleTapStartY = 0;
+            let initialScale = 0;
+            let zoomCenterX = 0;
+
+            canvas.addEventListener("touchstart", (e) => {
+                const currentTime = Date.now();
+                const tapDelay = currentTime - lastTapTime;
+
+                if (tapDelay < 300) {
+                    // Double tap detected
+                    e.preventDefault();
+
+                    // Store initial touch position and current scale
+                    doubleTapStartY = e.touches[0].clientY;
+                    initialScale = scale;
+                    doubleTapZooming = true;
+
+                    // Store the frequency at the touch point
+                    const touchX = e.touches[0].clientX;
+                    zoomCenterX = touchX;
+
+                    // Prevent panning
+                    isDragging = false;
+                }
+
+                lastTapTime = currentTime;
+            });
+
+            canvas.addEventListener("touchmove", (e) => {
+                if (doubleTapZooming) {
+                    e.preventDefault();
+
+                    // Calculate vertical distance moved
+                    const deltaY = doubleTapStartY - e.touches[0].clientY;
+
+                    // Make zoom behavior more linear
+                    let zoomFactor;
+                    if (deltaY > 0) {
+                        zoomFactor = 1 * (1 + Math.abs(deltaY) / 40);
+                    } else {
+                        // Zooming out - use linear reduction
+                        zoomFactor = 1 / (1 + Math.abs(deltaY) / 40);
+                    }
+
+                    // Store the frequency at zoom center before scaling
+                    const freqAtZoom = screenXToMhz(zoomCenterX);
+
+                    // Apply zoom
+                    const newScale = Math.min(
+                        Math.max(minZoom, initialScale * zoomFactor),
+                        maxZoom,
+                    );
+
+                    if (newScale !== scale) {
+                        scale = newScale;
+
+                        // Calculate the new x position for the same frequency after scaling
+                        const newZoomX = mhzToScreenX(freqAtZoom);
+
+                        // Adjust offset to maintain zoom center
+                        offset.x += zoomCenterX - newZoomX;
+                    }
+                }
+            });
+
+            canvas.addEventListener("touchend", () => {
+                doubleTapZooming = false;
+            });
+
             draw();
         </script>
     </body>
