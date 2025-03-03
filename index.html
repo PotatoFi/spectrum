@@ -530,19 +530,19 @@
                     secondaryColor: "rgba(0, 159, 227, 0.2)",
                     textColor: "#FFFFFF",
                 },
-                fcc: {
-                    primaryColor: "#F2F2F2",
+                FCC: {
+                    primaryColor: "red",
                     textColor: "#FFFFFF",
                 },
-                etsi: {
-                    primaryColor: "#5e5e5e",
+                ETSI: {
+                    primaryColor: "blue", //"#F2F2F2"
                     textColor: "#FFFFFF",
                 },
                 gsm: {
                     primaryColor: "#2b2b2b",
                     textColor: "#FFFFFF",
                 },
-                nr: {
+                fiveg: {
                     primaryColor: "#2b2b2b",
                     textColor: "#FFFFFF",
                 },
@@ -3260,54 +3260,6 @@
                 );
             }
 
-            function drawBandLabels() {
-                if (!showBandLabels) return;
-
-                const yPosition =
-                    getBaselineY() -
-                    chartSettings.spectralMaskHeight -
-                    LABEL_HEIGHT -
-                    10;
-
-                context.font = "14px Quicksand";
-                context.textAlign = "center";
-                context.textBaseline = "middle";
-
-                bands.forEach((newBands) => {
-                    const startX = mhzToScreenX(newBands.start);
-                    const stopX = mhzToScreenX(newBands.stop);
-                    const width = stopX - startX;
-                    if (width < 4) return;
-                    const centerX = startX + width / 2;
-
-                    // Draw rectangle with rounded corners
-                    context.beginPath();
-                    context.roundRect(
-                        startX,
-                        yPosition,
-                        width,
-                        LABEL_HEIGHT,
-                        6,
-                    );
-                    context.fillStyle = "#E5E5E5";
-                    context.fill();
-
-                    // Calculate the text width and add padding
-                    const textWidth =
-                        context.measureText(newBands.name).width + 4;
-
-                    if (width >= textWidth) {
-                        context.fillStyle = "#000000";
-                        context.fillText(
-                            newBands.name,
-                            centerX,
-                            yPosition + LABEL_HEIGHT / 2,
-                        );
-                    } else {
-                    }
-                });
-            }
-
             function drawFrequencyMarkers(
                 context,
                 scale,
@@ -3771,6 +3723,31 @@
                 }
             }
 
+            function drawBandLabel(
+                startX,
+                centerX,
+                centerY,
+                width,
+                primaryColor,
+                textColor,
+                text,
+            ) {
+                // Draw rectangle
+                context.beginPath();
+                context.roundRect(startX, centerY, width, LABEL_HEIGHT, 6);
+                context.fillStyle = primaryColor;
+                context.fill();
+
+                // Calculate the text width and add padding
+                const textWidth = context.measureText(text).width + 4;
+
+                if (width >= textWidth) {
+                    context.fillStyle = textColor;
+                    context.fillText(text, centerX, centerY + LABEL_HEIGHT / 2);
+                } else {
+                }
+            }
+
             function draw() {
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
@@ -3957,32 +3934,17 @@
                             BAND_LABEL_OFFSET -
                             row * ROW_HEIGHT;
 
-                        // Move this into drawBandLabel()?
-                        // Draw rectangle
-                        context.beginPath();
-                        context.roundRect(
+                        // GSM, fiveg, and LTE all break because they don't match everywhere
+                        // I can fix that, it's just going to take a little bit of manual work
+                        drawBandLabel(
                             startX,
+                            centerX,
                             centerY,
                             width,
-                            LABEL_HEIGHT,
-                            6,
+                            style[bandType].primaryColor,
+                            style[bandType].textColor,
+                            band.name,
                         );
-                        context.fillStyle = "#F2F2F2";
-                        context.fill();
-
-                        // Calculate the text width and add padding
-                        const textWidth =
-                            context.measureText(band.name).width + 4;
-
-                        if (width >= textWidth) {
-                            context.fillStyle = "#000000";
-                            context.fillText(
-                                band.name,
-                                centerX,
-                                centerY + LABEL_HEIGHT / 2,
-                            );
-                        } else {
-                        }
                     });
                 });
 
