@@ -301,6 +301,13 @@
                     <label>
                         <input
                             type="checkbox"
+                            id="LTE-cellular-band-visibility"
+                        />
+                        LTE Cellular
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
                             id="5G-NR-cellular-band-visibility"
                         />
                         5G NR Cellular
@@ -452,6 +459,7 @@
             let showBandETSI = true;
             let showBandCellularGSM = false;
             let showBandCellular5GNR = false;
+            let showBandCellularLTE = false;
 
             // Domains
             let showWWDomain = true;
@@ -496,10 +504,57 @@
             const LABEL_HEIGHT = 28; // Height of labels
             const ROW_HEIGHT = LABEL_HEIGHT + 6;
 
+            const style = {
+                wifi: {
+                    primaryColor: "rgba(245, 216, 9)",
+                    secondaryColor: "rgba(245, 216, 9, 0.2)",
+                    textColor: "#000000",
+                },
+                wifi1: {
+                    primaryColor: "rgb(0, 153, 51)",
+                    secondaryColor: "rgb(0, 153, 51, 0.2)",
+                    textColor: "#FFFFFF",
+                },
+                bluetooth: {
+                    primaryColor: "rgba(20, 134, 252)",
+                    secondaryColor: "rgba(20, 134, 252, 0.2)",
+                    textColor: "#FFFFFF",
+                },
+                zigbee: {
+                    primaryColor: "rgba(239, 52, 83)",
+                    secondaryColor: "rgba(239, 52, 83, 0.2)",
+                    textColor: "#FFFFFF",
+                },
+                lora: {
+                    primaryColor: "rgba(0, 159, 227)",
+                    secondaryColor: "rgba(0, 159, 227, 0.2)",
+                    textColor: "#FFFFFF",
+                },
+                fcc: {
+                    primaryColor: "#F2F2F2",
+                    textColor: "#FFFFFF",
+                },
+                etsi: {
+                    primaryColor: "#5e5e5e",
+                    textColor: "#FFFFFF",
+                },
+                gsm: {
+                    primaryColor: "#2b2b2b",
+                    textColor: "#FFFFFF",
+                },
+                nr: {
+                    primaryColor: "#2b2b2b",
+                    textColor: "#FFFFFF",
+                },
+                lte: {
+                    primaryColor: "#141414",
+                    textColor: "#FFFFFF",
+                },
+            };
+
             const zoomTiers = {
                 lowest: {
                     threshold: 0.25,
-                    lineWidth: 0.5,
                     frequency: {
                         step: 1000,
                         minorSteps: 250,
@@ -509,7 +564,6 @@
                 },
                 low: {
                     threshold: 1,
-                    lineWidth: 1,
                     frequency: {
                         step: 500,
                         minorSteps: 100,
@@ -519,7 +573,6 @@
                 },
                 medium: {
                     threshold: 2,
-                    lineWidth: 1,
                     frequency: {
                         step: 100,
                         minorSteps: 50,
@@ -529,7 +582,6 @@
                 },
                 high: {
                     threshold: 10,
-                    lineWidth: 2,
                     frequency: {
                         step: 20,
                         minorSteps: 10,
@@ -539,7 +591,6 @@
                 },
                 highest: {
                     threshold: 20,
-                    lineWidth: 3,
                     frequency: {
                         step: 10,
                         minorSteps: 1,
@@ -549,7 +600,6 @@
                 },
                 infinity: {
                     threshold: Infinity,
-                    lineWidth: 3,
                     frequency: {
                         step: 2,
                         minorSteps: 1,
@@ -741,6 +791,99 @@
                     { name: "n106 Downlink", start: 935, stop: 940 },
                     { name: "n109 Uplink", start: 703, stop: 733 },
                     { name: "n109 Downlink", start: 1432, stop: 1517 },
+                ],
+                "LTE Cellular": [
+                    { name: "1 Uplink", start: 1920, stop: 1980 },
+                    { name: "1 Downlink", start: 2110, stop: 2170 },
+                    { name: "2 Uplink", start: 1850, stop: 1910 },
+                    { name: "2 Downlink", start: 1930, stop: 1990 },
+                    { name: "3 Uplink", start: 1710, stop: 1785 },
+                    { name: "3 Downlink", start: 1805, stop: 1880 },
+                    { name: "4 Uplink", start: 1710, stop: 1755 },
+                    { name: "4 Downlink", start: 2110, stop: 2155 },
+                    { name: "5 Uplink", start: 824, stop: 849 },
+                    { name: "5 Downlink", start: 869, stop: 894 },
+                    { name: "7 Uplink", start: 2500, stop: 2570 },
+                    { name: "7 Downlink", start: 2620, stop: 2690 },
+                    { name: "8 Uplink", start: 880, stop: 915 },
+                    { name: "8 Downlink", start: 925, stop: 960 },
+                    { name: "11 Uplink", start: 1427.9, stop: 1447.9 },
+                    { name: "11 Downlink", start: 1475.9, stop: 1495.9 },
+                    { name: "12 Uplink", start: 699, stop: 716 },
+                    { name: "12 Downlink", start: 729, stop: 746 },
+                    { name: "13 Uplink", start: 777, stop: 787 },
+                    { name: "13 Downlink", start: 746, stop: 756 },
+                    { name: "14 Uplink", start: 788, stop: 798 },
+                    { name: "14 Downlink", start: 758, stop: 768 },
+                    { name: "17 Uplink", start: 704, stop: 716 },
+                    { name: "17 Downlink", start: 734, stop: 746 },
+                    { name: "18 Uplink", start: 815, stop: 830 },
+                    { name: "18 Downlink", start: 860, stop: 875 },
+                    { name: "19 Uplink", start: 830, stop: 845 },
+                    { name: "19 Downlink", start: 875, stop: 890 },
+                    { name: "20 Uplink", start: 832, stop: 862 },
+                    { name: "20 Downlink", start: 791, stop: 821 },
+                    { name: "21 Uplink", start: 1447.9, stop: 1462.9 },
+                    { name: "21 Downlink", start: 1495.9, stop: 1510.9 },
+                    { name: "24 Uplink", start: 1626.5, stop: 1660.5 },
+                    { name: "24 Downlink", start: 1525, stop: 1559 },
+                    { name: "25 Uplink", start: 1850, stop: 1915 },
+                    { name: "25 Downlink", start: 1930, stop: 1995 },
+                    { name: "26 Uplink", start: 814, stop: 849 },
+                    { name: "26 Downlink", start: 859, stop: 894 },
+                    { name: "28 Uplink", start: 703, stop: 748 },
+                    { name: "28 Downlink", start: 758, stop: 803 },
+                    { name: "29", start: 717, stop: 728 },
+                    { name: "30 Uplink", start: 2305, stop: 2315 },
+                    { name: "30 Downlink", start: 2350, stop: 2360 },
+                    { name: "31 Uplink", start: 452.5, stop: 457.5 },
+                    { name: "31 Downlink", start: 462.5, stop: 467.5 },
+                    { name: "32", start: 1452, stop: 1496 },
+                    { name: "34 Uplink", start: 2010, stop: 2025 },
+                    { name: "37 Uplink", start: 1910, stop: 1930 },
+                    { name: "38 Uplink", start: 2570, stop: 2620 },
+                    { name: "39 Uplink", start: 1880, stop: 1920 },
+                    { name: "40 Uplink", start: 2300, stop: 2400 },
+                    { name: "41 Uplink", start: 2496, stop: 2690 },
+                    { name: "42 Uplink", start: 3400, stop: 3600 },
+                    { name: "43 Uplink", start: 3600, stop: 3800 },
+                    { name: "46 Uplink", start: 5150, stop: 5925 },
+                    { name: "47 Uplink", start: 5855, stop: 5925 },
+                    { name: "48 Uplink", start: 3550, stop: 3700 },
+                    { name: "50 Uplink", start: 1432, stop: 1517 },
+                    { name: "51 Uplink", start: 1427, stop: 1432 },
+                    { name: "53 Uplink", start: 2483.5, stop: 2495 },
+                    { name: "54 Uplink", start: 1670, stop: 1675 },
+                    { name: "65 Uplink", start: 1920, stop: 2010 },
+                    { name: "65 Downlink", start: 2110, stop: 2200 },
+                    { name: "66 Uplink", start: 1710, stop: 1780 },
+                    { name: "66 Downlink", start: 2110, stop: 2200 },
+                    { name: "67", start: 738, stop: 758 },
+                    { name: "69", start: 2570, stop: 2620 },
+                    { name: "70 Uplink", start: 1695, stop: 1710 },
+                    { name: "70 Downlink", start: 1995, stop: 2020 },
+                    { name: "71 Uplink", start: 663, stop: 698 },
+                    { name: "71 Downlink", start: 617, stop: 652 },
+                    { name: "72 Uplink", start: 451, stop: 456 },
+                    { name: "72 Downlink", start: 461, stop: 466 },
+                    { name: "73 Uplink", start: 450, stop: 455 },
+                    { name: "73 Downlink", start: 460, stop: 465 },
+                    { name: "74 Uplink", start: 1427, stop: 1470 },
+                    { name: "74 Downlink", start: 1475, stop: 1518 },
+                    { name: "75", start: 1432, stop: 1517 },
+                    { name: "76", start: 1427, stop: 1432 },
+                    { name: "85 Uplink", start: 698, stop: 716 },
+                    { name: "85 Downlink", start: 728, stop: 746 },
+                    { name: "87 Uplink", start: 410, stop: 415 },
+                    { name: "87 Downlink", start: 420, stop: 425 },
+                    { name: "88 Uplink", start: 412, stop: 417 },
+                    { name: "88 Downlink", start: 422, stop: 427 },
+                    { name: "103 Uplink", start: 787, stop: 788 },
+                    { name: "103 Downlink", start: 757, stop: 758 },
+                    { name: "106 Uplink", start: 896, stop: 901 },
+                    { name: "106 Downlink", start: 935, stop: 940 },
+                    { name: "107", start: 612, stop: 652 },
+                    { name: "108", start: 470, stop: 698 },
                 ],
             };
 
@@ -3072,6 +3215,7 @@
 
                 // Scale drawing operations
                 context.scale(devicePixelRatio, devicePixelRatio);
+                context.lineWidth = 2;
 
                 // scale everything down using CSS
                 canvas.style.width = window.innerWidth + "px";
@@ -3231,12 +3375,6 @@
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.spectralMaskHeight;
-                const style = {
-                    lineColor: "#F5D809",
-                    fillColor: "rgba(245, 216, 9, 0.2)",
-                    lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "#000000",
-                };
 
                 // Use parabola for DSSS channels, ziggurat for others
                 if (channel.dsss) {
@@ -3245,8 +3383,8 @@
                         centerY,
                         width,
                         height,
-                        style.lineColor,
-                        style.fillColor,
+                        style.wifi.primaryColor,
+                        style.wifi.secondaryColor,
                     );
                 } else {
                     drawZiggurat(
@@ -3254,8 +3392,8 @@
                         centerY,
                         width,
                         height,
-                        style.lineColor,
-                        style.fillColor,
+                        style.wifi.primaryColor,
+                        style.wifi.secondaryColor,
                     );
                 }
 
@@ -3280,8 +3418,8 @@
                                 centerY,
                                 subCarrierWidth * 2 * scale,
                                 height - 2,
-                                style.lineColor,
-                                style.fillColor,
+                                style.wifi.primaryColor,
+                                style.wifi.secondaryColor,
                             );
                         }
                         currentSubCarrierX =
@@ -3298,8 +3436,8 @@
                                 centerY,
                                 subCarrierWidth * 2 * scale,
                                 height - 2,
-                                style.lineColor,
-                                style.fillColor,
+                                style.wifi.primaryColor,
+                                style.wifi.secondaryColor,
                             );
                         }
                         currentSubCarrierX -= subCarrierWidth * 2 * scale;
@@ -3316,8 +3454,8 @@
                     centerX,
                     centerY,
                     width,
-                    style.lineColor,
-                    style.textColor,
+                    style.wifi.primaryColor,
+                    style.wifi.textColor,
                     channel.channel,
                 );
             }
@@ -3327,20 +3465,14 @@
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.spectralMaskHeight;
-                const style = {
-                    lineColor: "#EF3453",
-                    fillColor: "rgba(239, 52, 83, 0.2)", // Semi-transparent red
-                    lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "#FFFFFF",
-                };
 
                 drawParabola(
                     centerX,
                     centerY,
                     width,
                     height,
-                    style.lineColor,
-                    style.fillColor,
+                    style.zigbee.primaryColor,
+                    style.zigbee.secondaryColor,
                 );
 
                 const rowData = {
@@ -3352,8 +3484,8 @@
                     centerX,
                     centerY,
                     width,
-                    style.lineColor,
-                    style.textColor,
+                    style.zigbee.primaryColor,
+                    style.zigbee.textColor,
                     channel.channel,
                 );
             }
@@ -3363,20 +3495,14 @@
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.spectralMaskHeight;
-                const style = {
-                    lineColor: "#009FE3",
-                    fillColor: "rgba(0, 159, 227, 0.2)", // Semi-transparent blue
-                    lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "#FFFFFF",
-                };
 
                 drawParabola(
                     centerX,
                     centerY,
                     width,
                     height,
-                    style.lineColor,
-                    style.fillColor,
+                    style.lora.primaryColor,
+                    style.lora.secondaryColor,
                 );
 
                 const rowData = {
@@ -3388,8 +3514,8 @@
                     centerX,
                     centerY,
                     width,
-                    style.lineColor,
-                    style.textColor,
+                    style.lora.primaryColor,
+                    style.lora.textColor,
                     channel.channel,
                 );
             }
@@ -3399,20 +3525,14 @@
                 const centerY = getBaselineY();
                 const width = channel.width * 2 * scale;
                 const height = chartSettings.spectralMaskHeight;
-                const style = {
-                    lineColor: "#1486FC",
-                    fillColor: "rgba(20, 134, 252, 0.2)", // Semi-transparent blue
-                    lineWidth: getZoomTier(scale).lineWidth,
-                    textColor: "#FFFFFF",
-                };
 
                 drawParabola(
                     centerX,
                     centerY,
                     width,
                     height,
-                    style.lineColor,
-                    style.fillColor,
+                    style.bluetooth.primaryColor,
+                    style.bluetooth.secondaryColor,
                 );
 
                 const rowData = {
@@ -3426,8 +3546,8 @@
                     centerX,
                     centerY,
                     width,
-                    style.lineColor,
-                    style.textColor,
+                    style.bluetooth.primaryColor,
+                    style.bluetooth.textColor,
                     channel.channel,
                     technology,
                 );
@@ -3809,6 +3929,13 @@
                         if (
                             bandType == "5G NR Cellular" &&
                             !showBandCellular5GNR
+                        ) {
+                            return;
+                        }
+
+                        if (
+                            bandType == "LTE Cellular" &&
+                            !showBandCellularLTE
                         ) {
                             return;
                         }
@@ -4303,7 +4430,11 @@
                     showBandCellular5GNR = e.target.checked;
                 });
 
-            // Regulatory domain visibility selectors
+            document
+                .getElementById("LTE-cellular-band-visibility")
+                .addEventListener("change", (e) => {
+                    showBandCellularLTE = e.target.checked;
+                });
 
             document
                 .getElementById("ww-domain-visibility")
