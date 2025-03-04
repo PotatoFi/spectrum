@@ -312,6 +312,10 @@
                         />
                         5G NR Cellular
                     </label>
+                    <label>
+                        <input type="checkbox" id="ITU-band-visibility" />
+                        ITU
+                    </label>
                     <h4>General</h4>
                     <label>
                         Height:
@@ -460,6 +464,7 @@
             let showBandCellularGSM = false;
             let showBandCellular5GNR = false;
             let showBandCellularLTE = false;
+            let showBandITU = false;
 
             // Domains
             let showWWDomain = true;
@@ -492,7 +497,7 @@
             // Visual settings
             const chartSettings = {
                 spectralMaskHeight: 100, // Default signature height
-                baselineOffset: 20, // Offsets the text below the baseline
+                baselineOffset: 14, // Offsets the text below the baseline
                 textSize: 12,
             };
 
@@ -500,7 +505,7 @@
             const channelLabelPositions = [];
             const bandLabelPositions = [];
             const BASE_OFFSET = -56; // Down from center
-            const BAND_LABEL_OFFSET = 56; // Up from the top of the spectral masks
+            const BAND_LABEL_OFFSET = 42; // Up from the top of the spectral masks
             const LABEL_HEIGHT = 28; // Height of labels
             const ROW_HEIGHT = LABEL_HEIGHT + 6;
 
@@ -509,11 +514,6 @@
                     primaryColor: "rgba(245, 216, 9)",
                     secondaryColor: "rgba(245, 216, 9, 0.2)",
                     textColor: "#000000",
-                },
-                wifi1: {
-                    primaryColor: "rgb(0, 153, 51)",
-                    secondaryColor: "rgb(0, 153, 51, 0.2)",
-                    textColor: "#FFFFFF",
                 },
                 bluetooth: {
                     primaryColor: "rgba(20, 134, 252)",
@@ -530,24 +530,28 @@
                     secondaryColor: "rgba(0, 159, 227, 0.2)",
                     textColor: "#FFFFFF",
                 },
-                FCC: {
-                    primaryColor: "red",
-                    textColor: "#FFFFFF",
+                itu: {
+                    primaryColor: "#e5e7eb",
+                    textColor: "#000000",
                 },
-                ETSI: {
-                    primaryColor: "blue", //"#F2F2F2"
+                fcc: {
+                    primaryColor: "#e5e7eb",
+                    textColor: "#000000",
+                },
+                etsi: {
+                    primaryColor: "#6b7280", //"#F2F2F2"
                     textColor: "#FFFFFF",
                 },
                 gsm: {
-                    primaryColor: "#2b2b2b",
-                    textColor: "#FFFFFF",
-                },
-                fiveg: {
-                    primaryColor: "#2b2b2b",
+                    primaryColor: "#2dd4bf",
                     textColor: "#FFFFFF",
                 },
                 lte: {
-                    primaryColor: "#141414",
+                    primaryColor: "#38bdf8",
+                    textColor: "#FFFFFF",
+                },
+                nr: {
+                    primaryColor: "#818cf8",
                     textColor: "#FFFFFF",
                 },
             };
@@ -610,12 +614,7 @@
             };
 
             const bands = {
-                FCC: [
-                    {
-                        name: "VHF",
-                        start: 30,
-                        stop: 300,
-                    },
+                fcc: [
                     {
                         name: "900 MHz",
                         start: 902,
@@ -641,15 +640,21 @@
                     { name: "UNII-7", start: 6525, stop: 6875 },
                     { name: "UNII-8", start: 6875, stop: 7125 },
                 ],
-                ETSI: [
+                etsi: [
                     { name: "EU863-870", start: 863, stop: 870 },
                     // From https://www.thethingsnetwork.org/docs/lorawan/regional-parameters/eu868/
-
                     { name: "Band A", start: 5150, stop: 5350 },
                     { name: "Band B", start: 5470, stop: 5725 },
                     { name: "Band C", start: 5725, stop: 5875 },
                 ],
-                "GSM Cellular": [
+                itu: [
+                    { name: "MF", start: 0.0003, stop: 3 },
+                    { name: "HF", start: 3, stop: 30 },
+                    { name: "VHF", start: 30, stop: 300 },
+                    { name: "UHF", start: 300, stop: 3000 },
+                    // There are more bands outside the current range of the chart at https://www.everythingrf.com/community/itu-frequency-bands
+                ],
+                gsm: [
                     { name: "T-GSM-380 Uplink", start: 380.2, stop: 389.8 }, // Mobile to base
                     { name: "T-GSM-380 Downlink", start: 390.2, stop: 399.8 }, // Base to mobile
 
@@ -688,10 +693,8 @@
 
                     { name: "PCS-1900 Uplink", start: 1850.2, stop: 1909.8 },
                     { name: "PCS-1900 Downlink", start: 1930.2, stop: 1989.8 },
-
-                    // There are more bands to add: https://en.wikipedia.org/wiki/GSM_frequency_bands
                 ],
-                "5G NR Cellular": [
+                nr: [
                     { name: "n1 Uplink", start: 1920, stop: 1980 },
                     { name: "n1 Downlink", start: 2110, stop: 2170 },
                     { name: "n2 Uplink", start: 1850, stop: 1910 },
@@ -792,7 +795,7 @@
                     { name: "n109 Uplink", start: 703, stop: 733 },
                     { name: "n109 Downlink", start: 1432, stop: 1517 },
                 ],
-                "LTE Cellular": [
+                lte: [
                     { name: "1 Uplink", start: 1920, stop: 1980 },
                     { name: "1 Downlink", start: 2110, stop: 2170 },
                     { name: "2 Uplink", start: 1850, stop: 1910 },
@@ -3888,32 +3891,27 @@
                 Object.keys(bands).forEach((bandType) => {
                     bands[bandType].forEach((band) => {
                         // Filter by band type
-                        if (bandType == "FCC" && !showBandFCC) {
+                        if (bandType == "fcc" && !showBandFCC) {
                             return;
                         }
 
-                        if (bandType == "ETSI" && !showBandETSI) {
+                        if (bandType == "etsi" && !showBandETSI) {
                             return;
                         }
 
-                        if (
-                            bandType == "GSM Cellular" &&
-                            !showBandCellularGSM
-                        ) {
+                        if (bandType == "gsm" && !showBandCellularGSM) {
                             return;
                         }
 
-                        if (
-                            bandType == "5G NR Cellular" &&
-                            !showBandCellular5GNR
-                        ) {
+                        if (bandType == "nr" && !showBandCellular5GNR) {
                             return;
                         }
 
-                        if (
-                            bandType == "LTE Cellular" &&
-                            !showBandCellularLTE
-                        ) {
+                        if (bandType == "lte" && !showBandCellularLTE) {
+                            return;
+                        }
+
+                        if (bandType == "itu" && !showBandITU) {
                             return;
                         }
 
@@ -3934,8 +3932,6 @@
                             BAND_LABEL_OFFSET -
                             row * ROW_HEIGHT;
 
-                        // GSM, fiveg, and LTE all break because they don't match everywhere
-                        // I can fix that, it's just going to take a little bit of manual work
                         drawBandLabel(
                             startX,
                             centerX,
@@ -4396,6 +4392,12 @@
                 .getElementById("LTE-cellular-band-visibility")
                 .addEventListener("change", (e) => {
                     showBandCellularLTE = e.target.checked;
+                });
+
+            document
+                .getElementById("ITU-band-visibility")
+                .addEventListener("change", (e) => {
+                    showBandITU = e.target.checked;
                 });
 
             document
