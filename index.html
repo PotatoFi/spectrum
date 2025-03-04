@@ -479,6 +479,12 @@
             let isDragging = false;
             let lastPosition = { x: 0, y: 0 };
             let lastPinchDistance = null;
+            let lastTapTime = 0;
+            let doubleTapZooming = false;
+            let pinchZooming = false;
+            let doubleTapStartY = 0;
+            let initialScale = 0;
+            let zoomCenterX = 0;
             let lastScale = scale; // For scale tuning purposes
             const heightSlider = document.getElementById("height-slider");
 
@@ -4496,38 +4502,97 @@
                     setViewportFrequencyRange(-200, 8200);
                 });
 
-            let lastTapTime = 0;
-            let doubleTapZooming = false;
-            let doubleTapStartY = 0;
-            let initialScale = 0;
-            let zoomCenterX = 0;
-
             canvas.addEventListener("touchstart", (e) => {
-                const currentTime = Date.now();
-                const tapDelay = currentTime - lastTapTime;
+                isCoasting = false;
+                velocity = 0;
 
-                if (tapDelay < 150) {
-                    // Double tap detected
-                    e.preventDefault();
-
-                    // Store initial touch position and current scale
-                    doubleTapStartY = e.touches[0].clientY;
-                    initialScale = scale;
-                    doubleTapZooming = true;
-
-                    // Store the frequency at the touch point
-                    const touchX = e.touches[0].clientX;
-                    zoomCenterX = touchX;
-
-                    // Prevent panning
+                if (e.touches.length === 2) {
+                    // Two fingers - this is a pinch gesture
                     isDragging = false;
-                }
+                    doubleTapZooming = false;
+                    pinchZooming = true;
 
-                lastTapTime = currentTime;
+                    // Handle pinch start as before
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    lastPinchDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY,
+                    );
+                } else if (e.touches.length === 1) {
+                    // Check for double-tap
+                    const currentTime = Date.now();
+                    const tapDelay = currentTime - lastTapTime;
+
+                    if (tapDelay < 300 && tapDelay > 0) {
+                        // Double tap detected
+                        e.preventDefault();
+
+                        // Cancel any ongoing drag
+                        isDragging = false;
+
+                        // Start double-tap zoom
+                        doubleTapZooming = true;
+                        pinchZooming = false;
+                        doubleTapStartY = e.touches[0].clientY;
+                        initialScale = scale;
+                        zoomCenterX = e.touches[0].clientX;
+                    } else {
+                        // Single tap - prepare for potential drag
+                        isDragging = true;
+                        doubleTapZooming = false;
+                        pinchZooming = false;
+                        lastPosition = {
+                            x: e.touches[0].clientX,
+                            y: e.touches[0].clientY,
+                        };
+                        lastTimestamp = Date.now();
+                    }
+
+                    lastTapTime = currentTime;
+                }
             });
 
             canvas.addEventListener("touchmove", (e) => {
-                if (doubleTapZooming) {
+                // Track velocity
+                const currentTimestamp = Date.now();
+
+                if (pinchZooming && e.touches.length === 2) {
+                    // Handle pinch zooming
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+
+                    // Calculate center of pinch in screen coordinates
+                    const pinchCenterX = (touch1.clientX + touch2.clientX) / 2;
+
+                    // Calculate current pinch distance
+                    const currentDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY,
+                    );
+
+                    if (lastPinchDistance) {
+                        // Calculate scale change
+                        const scaleChange = currentDistance / lastPinchDistance;
+
+                        // Store the frequency at pinch center before scaling
+                        const freqAtPinch = screenXToMhz(pinchCenterX);
+
+                        // Update scale
+                        scale *= scaleChange;
+                        scale = Math.min(Math.max(minZoom, scale), maxZoom);
+
+                        // Calculate the new x position for the same frequency after scaling
+                        const newPinchX = mhzToScreenX(freqAtPinch);
+
+                        // Adjust offset to maintain pinch center
+                        offset.x += pinchCenterX - newPinchX;
+                    }
+
+                    lastPinchDistance = currentDistance;
+                    e.preventDefault();
+                } else if (doubleTapZooming && e.touches.length === 1) {
+                    // Handle double-tap zoom
                     e.preventDefault();
 
                     // Calculate vertical distance moved
@@ -4560,11 +4625,35 @@
                         // Adjust offset to maintain zoom center
                         offset.x += zoomCenterX - newZoomX;
                     }
+                } else if (isDragging && e.touches.length === 1) {
+                    // Handle panning
+                    const deltaX = e.touches[0].clientX - lastPosition.x;
+                    const deltaTime = currentTimestamp - lastTimestamp;
+
+                    if (deltaTime > 0) {
+                        // Update velocity (pixels per millisecond)
+                        velocity = deltaX / deltaTime;
+                    }
+
+                    offset.x += deltaX;
+                    lastPosition.x = e.touches[0].clientX;
+                    e.preventDefault();
                 }
+
+                lastTimestamp = currentTimestamp;
             });
 
-            canvas.addEventListener("touchend", () => {
+            canvas.addEventListener("touchend", (e) => {
+                isDragging = false;
                 doubleTapZooming = false;
+                pinchZooming = false;
+                lastPinchDistance = null;
+
+                // Only start coasting if there is significant velocity
+                if (Math.abs(velocity) > 0.1) {
+                    isCoasting = true;
+                    coastingAnimation();
+                }
             });
 
             draw();
