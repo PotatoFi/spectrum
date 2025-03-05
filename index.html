@@ -197,6 +197,10 @@
                         />
                         2.4 GHz overlapping channels</label
                     >
+                    <label>
+                        <input type="checkbox" id="unii-4-visibility" />
+                        UNII-4</label
+                    >
                     <label
                         ><input
                             type="checkbox"
@@ -437,6 +441,7 @@
             // Setting state variables
             let showWifi = true;
             let showWifiChannels = true;
+            let showUNII4 = false;
             let showOverlapping = false;
             let show20MHzSubcarriers = true;
             let show1MHz = true;
@@ -1829,6 +1834,27 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU"],
                     },
+                    {
+                        channel: 169,
+                        frequency: 5845,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                        attributes: "UNII-4",
+                    },
+                    {
+                        channel: 173,
+                        frequency: 5865,
+                        width: 20,
+                        domain: ["US", "EU", "AU"],
+                        attributes: "UNII-4",
+                    },
+                    {
+                        channel: 177,
+                        frequency: 5885,
+                        width: 20,
+                        domain: ["US"],
+                        attributes: "UNII-4",
+                    },
                     // 40 MHz channels
                     {
                         channel: 38,
@@ -1888,7 +1914,7 @@
                         channel: 142,
                         frequency: 5710,
                         width: 40,
-                        domain: ["WW", "US", "EU", "AU", "JP"],
+                        domain: ["US", "AU", "JP"],
                     },
                     {
                         channel: 151,
@@ -1901,6 +1927,20 @@
                         frequency: 5795,
                         width: 40,
                         domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 167,
+                        frequency: 5835,
+                        width: 40,
+                        domain: ["US", "EU", "AU"],
+                        attributes: "UNII-4",
+                    },
+                    {
+                        channel: 175,
+                        frequency: 5875,
+                        width: 40,
+                        domain: ["US"],
+                        attributes: "UNII-4",
                     },
                     // 80 MHz channels
                     {
@@ -1931,13 +1971,20 @@
                         channel: 138,
                         frequency: 5690,
                         width: 80,
-                        domain: ["WW", "US", "EU", "AU", "JP"],
+                        domain: ["US", "AU", "JP"],
                     },
                     {
                         channel: 155,
                         frequency: 5775,
                         width: 80,
                         domain: ["WW", "US", "EU", "AU"],
+                    },
+                    {
+                        channel: 171,
+                        frequency: 5855,
+                        width: 80,
+                        domain: ["US"],
+                        attributes: "UNII-4",
                     },
                     // 160 MHz channels
                     {
@@ -1951,6 +1998,13 @@
                         frequency: 5570,
                         width: 160,
                         domain: ["WW", "US", "EU", "JP"],
+                    },
+                    {
+                        channel: 163,
+                        frequency: 5815,
+                        width: 160,
+                        domain: ["US"],
+                        attributes: "UNII-4",
                     },
                 ],
                 "6 GHz": [
@@ -3777,6 +3831,10 @@
                                 return;
                             }
 
+                            if (!showUNII4 && channel.attributes == "UNII-4") {
+                                return;
+                            }
+
                             // Filter by channel width
                             if (
                                 (channel.width === 1 && !show1MHz) ||
@@ -4260,6 +4318,12 @@
                 });
 
             document
+                .getElementById("unii-4-visibility")
+                .addEventListener("change", (e) => {
+                    showUNII4 = e.target.checked;
+                });
+
+            document
                 .getElementById("20-mhz-subcarrier-visibility")
                 .addEventListener("change", (e) => {
                     show20MHzSubcarriers = e.target.checked;
@@ -4487,7 +4551,7 @@
             document
                 .getElementById("5000-MHz-shortcut")
                 .addEventListener("click", (e) => {
-                    setViewportFrequencyRange(5160, 5845);
+                    setViewportFrequencyRange(5150, 5925);
                 });
 
             document
