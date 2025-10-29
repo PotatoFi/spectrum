@@ -201,22 +201,32 @@
                         <input type="checkbox" id="unii-4-visibility" />
                         UNII-4</label
                     >
-                    <label
-                        ><input
+                    <label>
+                        <input
                             type="checkbox"
-                            id="312-khz-subcarrier-visibility"
+                            id="subcarrier-visibility"
                             checked
                         />
-                        312.5 KHz subcarriers</label
+                        Subcarriers</label
                     >
-                    <label
-                        ><input
-                            type="checkbox"
-                            id="78-khz-subcarrier-visibility"
+                    <label>
+                        <input
+                            type="radio"
+                            name="subcarrier-select"
+                            value="312 KHz"
                             checked
                         />
-                        78.125 KHz subcarriers</label
-                    >
+                        312 KHz
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="subcarrier-select"
+                            value="78 KHz"
+                        />
+                        78 KHz
+                    </label>
+
                     <h4>Wi-Fi (802.11ah)</h4>
                     <label>
                         <input
@@ -449,18 +459,17 @@
             let canvas = document.querySelector("#canvas");
             let context = canvas.getContext("2d");
 
-            const DEBUG = false;
+            const DEBUG = true;
 
             const minZoom = 0.06;
-            const maxZoom = 120;
+            const maxZoom = 400;
 
             // Setting state variables
             let showWifi = true;
             let showWifiChannels = true;
             let showUNII4 = false;
             let showOverlapping = false;
-            let show312KHzSubcarriers = true;
-            let show78KHzSubcarriers = true;
+            let showSubcarriers = true;
             let show3KHzSubcarriers = true;
             let show1MHz = true;
             let show2MHz = false;
@@ -475,6 +484,7 @@
             let showBluetooth = true;
             let showBluetoothChannels = false;
             let bluetoothMode = "Low Energy";
+            let subCarrierMode = "312 KHz";
             let showZigbee = false;
             let showZigbeeChannels = false;
             let showLoRa = true;
@@ -3430,43 +3440,74 @@
                     );
                 }
 
-                // Draw subcarriers
-                // if (show312KHzSubcarriers && scale >= 12 && !channel.dsss) {
-                //if (scale >= 12 && !channel.dsss) {
-                if (
-                    (show3KHzSubcarriers ||
-                        show78KHzSubcarriers ||
-                        show312KHzSubcarriers) &&
-                    !channel.dsss
-                ) {
+                // Draw subcarriers for S1G (Page 3211 in 802.11-2020)
+                // S1G information from page 3211 in 802.11-2020
+                if (show3KHzSubcarriers && scale >= 80) {
+                    subCarrierWidth = 0.03125; // I had 0.031 here earlier
+                    switch (channel.width) {
+                        case 1:
+                            subCarrierCount = 13;
+                            break;
+                        case 2:
+                            subCarrierCount = 26;
+                            break;
+                        case 4:
+                            subCarrierCount = 58;
+                            break;
+                        case 8:
+                            subCarrierCount = 122;
+                            break;
+                        case 16:
+                            subCarrierCount = 250;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    const channelStart = centerX; // Start from the center of the channel and go right
+                    let currentSubCarrierX = centerX; // Track the current subcarrier position
+
+                    // Draw right half (starting from center working right)
+                    for (let i = 1; i <= subCarrierCount; i++) {
+                        if (i > 1) {
+                            // Skip the null subcarrier in the center
+                            drawParabola(
+                                currentSubCarrierX,
+                                centerY,
+                                subCarrierWidth * 2 * scale,
+                                height - 2,
+                                style.wifi.primaryColor,
+                                style.wifi.secondaryColor,
+                            );
+                        }
+                        currentSubCarrierX =
+                            currentSubCarrierX + subCarrierWidth * 2 * scale;
+                    }
+
+                    // Draw left half (starting from center working left)
+                    currentSubCarrierX = centerX;
+                    for (let i = 1; i <= subCarrierCount; i++) {
+                        if (i > 1) {
+                            // Skip the null subcarrier in the center
+                            drawParabola(
+                                currentSubCarrierX,
+                                centerY,
+                                subCarrierWidth * 2 * scale,
+                                height - 2,
+                                style.wifi.primaryColor,
+                                style.wifi.secondaryColor,
+                            );
+                        }
+                        currentSubCarrierX -= subCarrierWidth * 2 * scale;
+                    }
+                }
+
+                // Draw subcarriers for 20 MHz and higher
+                if (showSubcarriers && !channel.dsss) {
                     var subCarrierCount = 0;
                     var subCarrierWidth = 0;
 
-                    // S1G information from page 3211 in 802.11-2020
-                    if (show3KHzSubcarriers && scale >= 12) {
-                        subCarrierWidth = 0.03125; // I had 0.031 here earlier
-                        switch (channel.width) {
-                            case 1:
-                                subCarrierCount = 13;
-                                break;
-                            case 2:
-                                subCarrierCount = 26;
-                                break;
-                            case 4:
-                                subCarrierCount = 58;
-                                break;
-                            case 8:
-                                subCarrierCount = 122;
-                                break;
-                            case 16:
-                                subCarrierCount = 250;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                    if (show312KHzSubcarriers && scale >= 12) {
+                    if (subCarrierMode == "312 KHz" && scale >= 6) {
                         subCarrierWidth = 0.3125;
                         switch (channel.width) {
                             case 20:
@@ -3486,23 +3527,23 @@
                         }
                     }
 
-                    if (show78KHzSubcarriers && scale >= 12) {
+                    if (subCarrierMode == "78 KHz" && scale >= 24) {
                         subCarrierWidth = 0.078;
                         switch (channel.width) {
                             case 20:
-                                subCarrierCount = 20 * 4;
+                                subCarrierCount = 40;
                                 break;
                             case 40:
-                                subCarrierCount = 40 * 4;
+                                subCarrierCount = 100;
                                 break;
                             case 80:
-                                subCarrierCount = 80 * 4;
+                                subCarrierCount = 200;
                                 break;
                             case 160:
-                                subCarrierCount = 160 * 4;
+                                subCarrierCount = 400;
                                 break;
                             case 160:
-                                subCarrierCount = 160 * 4;
+                                subCarrierCount = 800;
                                 break;
                             default:
                                 break;
@@ -4427,15 +4468,9 @@
                 });
 
             document
-                .getElementById("312-khz-subcarrier-visibility")
+                .getElementById("subcarrier-visibility")
                 .addEventListener("change", (e) => {
-                    show312KHzSubcarriers = e.target.checked;
-                });
-
-            document
-                .getElementById("78-khz-subcarrier-visibility")
-                .addEventListener("change", (e) => {
-                    show78KHzSubcarriers = e.target.checked;
+                    showSubcarriers = e.target.checked;
                 });
 
             document
@@ -4518,6 +4553,14 @@
                 .forEach((radio) => {
                     radio.addEventListener("change", (e) => {
                         bluetoothMode = e.target.value;
+                    });
+                });
+
+            document
+                .querySelectorAll('input[name="subcarrier-select"]')
+                .forEach((radio) => {
+                    radio.addEventListener("change", (e) => {
+                        subCarrierMode = e.target.value;
                     });
                 });
 
