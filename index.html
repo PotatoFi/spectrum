@@ -271,7 +271,7 @@
                     <label
                         ><input
                             type="checkbox"
-                            id="3-khz-subcarrier-visibility"
+                            id="S1G-subcarrier-visibility"
                             checked
                         />
                         Subcarriers</label
@@ -486,7 +486,7 @@
             let showUNII4 = false;
             let showOverlapping = false;
             let showSubcarriers = true;
-            let show3KHzSubcarriers = true;
+            let showS1GSubcarriers = true;
             let show1MHz = true;
             let show2MHz = false;
             let show4MHz = false;
@@ -3514,7 +3514,7 @@
                 context.stroke();
             }
 
-            function drawWiFiSubcarriers({
+            function drawSubcarriers({
                 centerX,
                 centerY,
                 channelType,
@@ -3706,10 +3706,10 @@
                 }
 
                 // Draw subcarriers for S1G (Page 3211 and 3125 in 802.11-2020)
-                if (show3KHzSubcarriers && scale >= 50) {
+                if (showS1GSubcarriers && scale >= 50) {
                     switch (channel.width) {
                         case 1:
-                            drawWiFiSubcarriers({
+                            drawSubcarriers({
                                 centerX: mhzToScreenX(channel.frequency),
                                 centerY: getBaselineY(),
                                 channelType: "S1G-1",
@@ -3720,7 +3720,7 @@
                             });
                             break;
                         case 2:
-                            drawWiFiSubcarriers({
+                            drawSubcarriers({
                                 centerX: mhzToScreenX(channel.frequency),
                                 centerY: getBaselineY(),
                                 channelType: "S1G-2",
@@ -3731,7 +3731,7 @@
                             });
                             break;
                         case 4:
-                            drawWiFiSubcarriers({
+                            drawSubcarriers({
                                 centerX: mhzToScreenX(channel.frequency),
                                 centerY: getBaselineY(),
                                 channelType: "S1G-4",
@@ -3742,7 +3742,7 @@
                             });
                             break;
                         case 8:
-                            drawWiFiSubcarriers({
+                            drawSubcarriers({
                                 centerX: mhzToScreenX(channel.frequency),
                                 centerY: getBaselineY(),
                                 channelType: "S1G-8",
@@ -3753,7 +3753,7 @@
                             });
                             break;
                         case 16:
-                            drawWiFiSubcarriers({
+                            drawSubcarriers({
                                 centerX: mhzToScreenX(channel.frequency),
                                 centerY: getBaselineY(),
                                 channelType: "S1G-16",
@@ -3776,7 +3776,7 @@
                     channel.width == 20 &&
                     !channel.dsss
                 ) {
-                    drawWiFiSubcarriers({
+                    drawSubcarriers({
                         centerX: mhzToScreenX(channel.frequency),
                         centerY: getBaselineY(),
                         channelType: "OFDM",
@@ -3792,7 +3792,7 @@
                     if (subCarrierMode == "HT" && scale >= 6) {
                         switch (channel.width) {
                             case 20:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "HT-20",
@@ -3804,7 +3804,7 @@
                                 });
                                 break;
                             case 40:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "HT-40",
@@ -3826,7 +3826,7 @@
                     if (subCarrierMode == "VHT" && scale >= 6) {
                         switch (channel.width) {
                             case 20:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "VHT-20",
@@ -3838,7 +3838,7 @@
                                 });
                                 break;
                             case 40:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "VHT-40",
@@ -3850,7 +3850,7 @@
                                 });
                                 break;
                             case 80:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "VHT-80",
@@ -3862,7 +3862,7 @@
                                 });
                                 break;
                             case 160:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "VHT-160",
@@ -3885,7 +3885,7 @@
                     if (subCarrierMode == "HE-20" && scale >= 6) {
                         switch (channel.width) {
                             case 20:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "HT-20",
@@ -3897,7 +3897,7 @@
                                 });
                                 break;
                             case 40:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "HT-40",
@@ -3909,7 +3909,7 @@
                                 });
                                 break;
                             case 80:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "VHT-80",
@@ -3921,7 +3921,7 @@
                                 });
                                 break;
                             case 160:
-                                drawWiFiSubcarriers({
+                                drawSubcarriers({
                                     centerX: mhzToScreenX(channel.frequency),
                                     centerY: getBaselineY(),
                                     channelType: "VHT-160",
@@ -4809,9 +4809,9 @@
                 });
 
             document
-                .getElementById("3-khz-subcarrier-visibility")
+                .getElementById("S1G-subcarrier-visibility")
                 .addEventListener("change", (e) => {
-                    show3KHzSubcarriers = e.target.checked;
+                    showS1GSubcarriers = e.target.checked;
                 });
 
             // Wi-Fi channel width checkboxes
