@@ -213,18 +213,34 @@
                         <input
                             type="radio"
                             name="subcarrier-select"
-                            value="312 KHz"
-                            checked
+                            value="OFDM"
                         />
-                        312 KHz
+                        OFDM
                     </label>
                     <label>
                         <input
                             type="radio"
                             name="subcarrier-select"
-                            value="78 KHz"
+                            value="HT"
+                            checked
                         />
-                        78 KHz
+                        HT
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="subcarrier-select"
+                            value="VHT"
+                        />
+                        VHT
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="subcarrier-select"
+                            value="HE-26"
+                        />
+                        HE (26-tone Resource Units)
                     </label>
 
                     <h4>Wi-Fi (802.11ah)</h4>
@@ -258,7 +274,7 @@
                             id="3-khz-subcarrier-visibility"
                             checked
                         />
-                        3.125 KHz subcarriers</label
+                        Subcarriers</label
                     >
                     <h4>Bluetooth</h4>
                     <label
@@ -484,7 +500,7 @@
             let showBluetooth = true;
             let showBluetoothChannels = false;
             let bluetoothMode = "Low Energy";
-            let subCarrierMode = "312 KHz";
+            let subCarrierMode = "HT";
             let showZigbee = false;
             let showZigbeeChannels = false;
             let showLoRa = true;
@@ -2729,6 +2745,91 @@
                 ],
             };
 
+            const wifiSubcarriers = {
+                "S1G-1": {
+                    spacing: 31.25,
+                    subcarriers: [[1, 13]],
+                    pilots: [7], // Page 3253 in 802.11-2020
+                    nulls: [0],
+                },
+
+                "S1G-2": {
+                    spacing: 31.25,
+                    subcarriers: [[1, 28]],
+                    pilots: [7, 21],
+                    nulls: [0],
+                },
+                "S1G-4": {
+                    spacing: 31.25,
+                    subcarriers: [[3, 58]],
+                    pilots: [11, 25, 53],
+                    nulls: [[0, 2]],
+                },
+                "S1G-8": {
+                    spacing: 31.25,
+                    subcarriers: [[2, 122]],
+                    pilots: [11, 39, 75, 103],
+                    nulls: [[0, 1]],
+                },
+                "S1G-16": {
+                    spacing: 31.25,
+                    subcarriers: [[6, 250]],
+                    pilots: [25, 53, 89, 117, 139, 167, 203, 231],
+                    nulls: [[0, 5]],
+                },
+
+                OFDM: {
+                    spacing: 312.5,
+                    subcarriers: [[1, 26]],
+                    pilots: [7, 21],
+                    nulls: [0],
+                },
+
+                "HT-20": {
+                    // Page 2881 and 2910 of 802.11-2020
+                    spacing: 312.5,
+                    subcarriers: [[1, 28]],
+                    pilots: [7, 21],
+                    nulls: [0],
+                },
+
+                "HT-40": {
+                    // Page 2881 2910 of 802.11-2020
+                    spacing: 312.5,
+                    subcarriers: [[2, 58]],
+                    pilots: [11, 25, 53],
+                    nulls: [0],
+                },
+
+                "VHT-20": {
+                    spacing: 312.5,
+                    subcarriers: [[2, 28]], // Page 3041 of 802.11-2020
+                    pilots: [7, 21], // Page 3086 of 802.11-2020
+                    nulls: [0],
+                },
+
+                "VHT-40": {
+                    spacing: 312.5,
+                    subcarriers: [[2, 58]], // Page 3041 of 802.11-2020
+                    pilots: [11, 25, 53], // Page 3086 of 802.11-2020
+                    nulls: [[0, 2]], // Wild guess, same as S1G?
+                },
+
+                "VHT-80": {
+                    spacing: 312.5,
+                    subcarriers: [[2, 122]], // Page 3041 of 802.11-2020
+                    pilots: [11, 39, 75, 103], // Page 3086 of 802.11-2020
+                    nulls: [[0, 1]], // Wild guess, same as S1G?
+                },
+
+                "VHT-160": {
+                    spacing: 312.5,
+                    subcarriers: [[6, 250]], // Page 3041 of 802.11-2020
+                    pilots: [25, 53, 89, 117, 139, 167, 203, 231], // Page 3087 of 802.11-2020
+                    nulls: [[0, 5]], // Wild guess, same as S1G?
+                },
+            };
+
             const loRaChannels = {
                 "900 MHz": [
                     {
@@ -3413,6 +3514,277 @@
                 context.stroke();
             }
 
+            function drawWiFiSubcarriers({
+                centerX,
+                centerY,
+                channelType,
+                scale,
+                height,
+                color,
+                fillColor,
+                points = 24,
+            }) {
+                const config = wifiSubcarriers[channelType];
+                const subCarrierWidth = config.spacing / 1000;
+                const width = subCarrierWidth * 2 * scale;
+
+                const isInRanges = (index, ranges) => {
+                    if (!ranges) return false;
+                    return ranges.some((range) => {
+                        if (Array.isArray(range)) {
+                            return index >= range[0] && index <= range[1];
+                        }
+                        return index === range;
+                    });
+                };
+
+                const getMaxIndex = () => {
+                    let max = 0;
+                    config.subcarriers.forEach((range) => {
+                        max = Math.max(
+                            max,
+                            Array.isArray(range) ? range[1] : range,
+                        );
+                    });
+                    return max;
+                };
+
+                const maxIndex = getMaxIndex();
+
+                // Draw data subcarrier fills
+                context.beginPath();
+                context.fillStyle = fillColor;
+
+                let currentX = centerX;
+                for (let i = 0; i <= maxIndex; i++) {
+                    if (
+                        isInRanges(i, config.subcarriers) &&
+                        !isInRanges(i, config.nulls) &&
+                        !isInRanges(i, config.pilots)
+                    ) {
+                        context.moveTo(currentX - width / 2, centerY);
+                        for (let j = 0; j <= points; j++) {
+                            const px = (j / points) * width - width / 2;
+                            const py =
+                                height * (1 - Math.pow((2 * px) / width, 2));
+                            context.lineTo(currentX + px, centerY - py);
+                        }
+                        context.lineTo(currentX + width / 2, centerY);
+                    }
+                    currentX += width;
+                }
+
+                currentX = centerX;
+                for (let i = 0; i <= maxIndex; i++) {
+                    if (
+                        isInRanges(i, config.subcarriers) &&
+                        !isInRanges(i, config.nulls) &&
+                        !isInRanges(i, config.pilots)
+                    ) {
+                        context.moveTo(currentX - width / 2, centerY);
+                        for (let j = 0; j <= points; j++) {
+                            const px = (j / points) * width - width / 2;
+                            const py =
+                                height * (1 - Math.pow((2 * px) / width, 2));
+                            context.lineTo(currentX + px, centerY - py);
+                        }
+                        context.lineTo(currentX + width / 2, centerY);
+                    }
+                    currentX -= width;
+                }
+
+                context.fill();
+
+                // Draw pilot fills
+                context.beginPath();
+                context.fillStyle = color;
+
+                currentX = centerX;
+                for (let i = 0; i <= maxIndex; i++) {
+                    if (isInRanges(i, config.pilots)) {
+                        context.moveTo(currentX - width / 2, centerY);
+                        for (let j = 0; j <= points; j++) {
+                            const px = (j / points) * width - width / 2;
+                            const py =
+                                height * (1 - Math.pow((2 * px) / width, 2));
+                            context.lineTo(currentX + px, centerY - py);
+                        }
+                        context.lineTo(currentX + width / 2, centerY);
+                    }
+                    currentX += width;
+                }
+
+                currentX = centerX;
+                for (let i = 0; i <= maxIndex; i++) {
+                    if (isInRanges(i, config.pilots)) {
+                        context.moveTo(currentX - width / 2, centerY);
+                        for (let j = 0; j <= points; j++) {
+                            const px = (j / points) * width - width / 2;
+                            const py =
+                                height * (1 - Math.pow((2 * px) / width, 2));
+                            context.lineTo(currentX + px, centerY - py);
+                        }
+                        context.lineTo(currentX + width / 2, centerY);
+                    }
+                    currentX -= width;
+                }
+
+                context.fill();
+
+                // Draw all strokes
+                context.beginPath();
+                context.strokeStyle = color;
+
+                currentX = centerX;
+                for (let i = 0; i <= maxIndex; i++) {
+                    if (
+                        isInRanges(i, config.subcarriers) &&
+                        !isInRanges(i, config.nulls)
+                    ) {
+                        for (let j = 0; j <= points; j++) {
+                            const px = (j / points) * width - width / 2;
+                            const py =
+                                height * (1 - Math.pow((2 * px) / width, 2));
+                            if (j === 0) {
+                                context.moveTo(currentX + px, centerY - py);
+                            } else {
+                                context.lineTo(currentX + px, centerY - py);
+                            }
+                        }
+                    }
+                    currentX += width;
+                }
+
+                currentX = centerX;
+                for (let i = 0; i <= maxIndex; i++) {
+                    if (
+                        isInRanges(i, config.subcarriers) &&
+                        !isInRanges(i, config.nulls)
+                    ) {
+                        for (let j = 0; j <= points; j++) {
+                            const px = (j / points) * width - width / 2;
+                            const py =
+                                height * (1 - Math.pow((2 * px) / width, 2));
+                            if (j === 0) {
+                                context.moveTo(currentX + px, centerY - py);
+                            } else {
+                                context.lineTo(currentX + px, centerY - py);
+                            }
+                        }
+                    }
+                    currentX -= width;
+                }
+
+                context.stroke();
+            }
+
+            // Likely to be replaced by drawWiFiSubcarriers()
+            /*
+            function drawSubcarriers({
+                centerX,
+                centerY,
+                channelWidth,
+                subCarrierWidth,
+                subCarrierStart,
+                subCarrierEnd,
+                subCarrierMaskStart = null,
+                subCarrierMaskEnd = null,
+                scale,
+                height,
+                lineColor,
+                fillColor,
+                points = 24,
+            }) {
+                const width = subCarrierWidth * 2 * scale;
+
+                // Build all parabola paths
+                const buildParabolas = (startX, direction) => {
+                    let currentX = startX;
+
+                    for (let i = 0; i <= subCarrierEnd; i++) {
+                        if (i >= subCarrierStart) {
+                            if (
+                                subCarrierMaskStart === null ||
+                                i < subCarrierMaskStart ||
+                                i > subCarrierMaskEnd
+                            ) {
+                                context.moveTo(currentX - width / 2, centerY);
+                                for (let j = 0; j <= points; j++) {
+                                    const x = (j / points) * width - width / 2;
+                                    const y =
+                                        height *
+                                        (1 - Math.pow((2 * x) / width, 2));
+                                    context.lineTo(currentX + x, centerY - y);
+                                }
+                                context.lineTo(currentX + width / 2, centerY);
+                            }
+                        }
+                        currentX += direction * width;
+                    }
+                };
+
+                // Draw all fills
+                context.beginPath();
+                buildParabolas(centerX, 1);
+                buildParabolas(centerX, -1);
+                context.fillStyle = fillColor;
+                context.fill();
+
+                // Draw all strokes
+                context.beginPath();
+                context.strokeStyle = lineColor;
+
+                // Right half
+                let currentX = centerX;
+                for (let i = 0; i <= subCarrierEnd; i++) {
+                    if (i >= subCarrierStart) {
+                        if (
+                            subCarrierMaskStart === null ||
+                            i < subCarrierMaskStart ||
+                            i > subCarrierMaskEnd
+                        ) {
+                            for (let j = 0; j <= points; j++) {
+                                const x = (j / points) * width - width / 2;
+                                const y =
+                                    height * (1 - Math.pow((2 * x) / width, 2));
+                                if (j === 0) {
+                                    context.moveTo(currentX + x, centerY - y);
+                                } else {
+                                    context.lineTo(currentX + x, centerY - y);
+                                }
+                            }
+                        }
+                    }
+                    currentX += width;
+                }
+
+                // Left half
+                currentX = centerX;
+                for (let i = 0; i <= subCarrierEnd; i++) {
+                    if (i >= subCarrierStart) {
+                        if (
+                            subCarrierMaskStart === null ||
+                            i < subCarrierMaskStart ||
+                            i > subCarrierMaskEnd
+                        ) {
+                            for (let j = 0; j <= points; j++) {
+                                const x = (j / points) * width - width / 2;
+                                const y =
+                                    height * (1 - Math.pow((2 * x) / width, 2));
+                                if (j === 0) {
+                                    context.moveTo(currentX + x, centerY - y);
+                                } else {
+                                    context.lineTo(currentX + x, centerY - y);
+                                }
+                            }
+                        }
+                    }
+                    currentX -= width;
+                }
+
+                context.stroke();
+            }*/
+
             function drawWiFiChannel(channel, scale, widthForID) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
@@ -3440,174 +3812,238 @@
                     );
                 }
 
-                // Draw subcarriers for S1G (Page 3211 in 802.11-2020)
-                // Page 3125 has a good description of how many subcarriers there are per ch width
-                // S1G information from page 3211 in 802.11-2020
-                if (show3KHzSubcarriers && scale >= 80) {
-                    subCarrierWidth = 0.03125; // I had 0.031 here earlier
-                    let subCarrierMaskStart;
-                    let subCarrierMaskEnd;
-
+                // Draw subcarriers for S1G (Page 3211 and 3125 in 802.11-2020)
+                if (show3KHzSubcarriers && scale >= 50) {
                     switch (channel.width) {
                         case 1:
-                            subCarrierStart = 1;
-                            subCarrierEnd = 13;
+                            drawWiFiSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "S1G-1",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
                             break;
                         case 2:
-                            subCarrierStart = 1;
-                            subCarrierEnd = 28;
+                            drawWiFiSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "S1G-2",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
                             break;
                         case 4:
-                            subCarrierStart = 2;
-                            subCarrierEnd = 58;
+                            drawWiFiSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "S1G-4",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
                             break;
                         case 8:
-                            subCarrierStart = 2;
-                            subCarrierEnd = 122;
+                            drawWiFiSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "S1G-8",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
                             break;
                         case 16:
-                            subCarrierStart = 6;
-                            subCarrierEnd = 250;
-                            subCarrierMaskStart = 127;
-                            subCarrierMaskEnd = 129;
+                            drawWiFiSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "S1G-16",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
                             break;
                         default:
                             break;
                     }
-
-                    // Start from the center of the channel and go right
-                    let currentSubCarrierX = centerX; // Track the current subcarrier position
-
-                    // Draw right half (starting from center working right)
-                    for (let i = 0; i <= subCarrierEnd; i++) {
-                        if (i >= subCarrierStart) {
-                            if (
-                                i >= subCarrierMaskStart &&
-                                i <= subCarrierMaskEnd
-                            ) {
-                            } else {
-                                drawParabola(
-                                    currentSubCarrierX,
-                                    centerY,
-                                    subCarrierWidth * 2 * scale,
-                                    height - 2,
-                                    style.wifi.primaryColor,
-                                    style.wifi.secondaryColor,
-                                );
-                            }
-                        }
-                        currentSubCarrierX =
-                            currentSubCarrierX + subCarrierWidth * 2 * scale;
-                    }
-
-                    // Draw left half (starting from center working left)
-                    currentSubCarrierX = centerX;
-                    for (let i = 0; i <= subCarrierEnd; i++) {
-                        if (i >= subCarrierStart) {
-                            if (
-                                i >= subCarrierMaskStart &&
-                                i <= subCarrierMaskEnd
-                            ) {
-                            } else {
-                                drawParabola(
-                                    currentSubCarrierX,
-                                    centerY,
-                                    subCarrierWidth * 2 * scale,
-                                    height - 2,
-                                    style.wifi.primaryColor,
-                                    style.wifi.secondaryColor,
-                                );
-                            }
-                        }
-                        currentSubCarrierX -= subCarrierWidth * 2 * scale;
-                    }
                 }
 
-                // Draw subcarriers for 20 MHz and higher
+                // Draw subcarriers for OFDM
+                // Does not currently filter channels that OFDM never operated on
+                if (
+                    showSubcarriers &&
+                    subCarrierMode == "OFDM" &&
+                    channel.width == 20 &&
+                    !channel.dsss
+                ) {
+                    drawWiFiSubcarriers({
+                        centerX: mhzToScreenX(channel.frequency),
+                        centerY: getBaselineY(),
+                        channelType: "OFDM",
+                        scale: scale,
+                        height: chartSettings.spectralMaskHeight - 2,
+                        color: style.wifi.primaryColor,
+                        fillColor: style.wifi.secondaryColor,
+                    });
+                }
+
+                // Draw subcarriers for HT
                 if (showSubcarriers && !channel.dsss) {
-                    var subCarrierCount = 0;
-                    var subCarrierWidth = 0;
-
-                    if (subCarrierMode == "312 KHz" && scale >= 6) {
-                        subCarrierWidth = 0.3125;
+                    if (subCarrierMode == "HT" && scale >= 6) {
                         switch (channel.width) {
                             case 20:
-                                subCarrierCount = 26;
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "HT-20",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
                                 break;
                             case 40:
-                                subCarrierCount = 58;
-                                break;
-                            case 80:
-                                subCarrierCount = 122;
-                                break;
-                            case 160:
-                                subCarrierCount = 250;
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "HT-40",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
                                 break;
                             default:
                                 break;
                         }
-                    }
-
-                    if (subCarrierMode == "78 KHz" && scale >= 24) {
-                        subCarrierWidth = 0.078;
-                        switch (channel.width) {
-                            case 20:
-                                subCarrierCount = 40;
-                                break;
-                            case 40:
-                                subCarrierCount = 100;
-                                break;
-                            case 80:
-                                subCarrierCount = 200;
-                                break;
-                            case 160:
-                                subCarrierCount = 400;
-                                break;
-                            case 160:
-                                subCarrierCount = 800;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                    const channelStart = centerX; // Start from the center of the channel and go right
-                    let currentSubCarrierX = centerX; // Track the current subcarrier position
-
-                    // Draw right half (starting from center working right)
-                    for (let i = 1; i <= subCarrierCount; i++) {
-                        if (i > 1) {
-                            // Skip the null subcarrier in the center
-                            drawParabola(
-                                currentSubCarrierX,
-                                centerY,
-                                subCarrierWidth * 2 * scale,
-                                height - 2,
-                                style.wifi.primaryColor,
-                                style.wifi.secondaryColor,
-                            );
-                        }
-                        currentSubCarrierX =
-                            currentSubCarrierX + subCarrierWidth * 2 * scale;
-                    }
-
-                    // Draw left half (starting from center working left)
-                    currentSubCarrierX = centerX;
-                    for (let i = 1; i <= subCarrierCount; i++) {
-                        if (i > 1) {
-                            // Skip the null subcarrier in the center
-                            drawParabola(
-                                currentSubCarrierX,
-                                centerY,
-                                subCarrierWidth * 2 * scale,
-                                height - 2,
-                                style.wifi.primaryColor,
-                                style.wifi.secondaryColor,
-                            );
-                        }
-                        currentSubCarrierX -= subCarrierWidth * 2 * scale;
                     }
                 }
+
+                // Draw subcarriers for VHT
+                if (showSubcarriers && !channel.dsss) {
+                    if (subCarrierMode == "VHT" && scale >= 6) {
+                        switch (channel.width) {
+                            case 20:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "VHT-20",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            case 40:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "VHT-40",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            case 80:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "VHT-80",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            case 160:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "VHT-160",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                // Draw subcarriers for HE
+                /*
+                if (showSubcarriers && !channel.dsss) {
+                    if (subCarrierMode == "HE-20" && scale >= 6) {
+                        switch (channel.width) {
+                            case 20:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "HT-20",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            case 40:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "HT-40",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            case 80:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "VHT-80",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            case 160:
+                                drawWiFiSubcarriers({
+                                    centerX: mhzToScreenX(channel.frequency),
+                                    centerY: getBaselineY(),
+                                    channelType: "VHT-160",
+                                    scale: scale,
+                                    height:
+                                        chartSettings.spectralMaskHeight - 2,
+                                    color: style.wifi.primaryColor,
+                                    fillColor: style.wifi.secondaryColor,
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }*/
 
                 // Create the rowData object
                 const rowData = {
@@ -3771,9 +4207,6 @@
                 fillColor,
             ) {
                 var points = 24;
-                if (width < 14) {
-                    points = 10;
-                }
 
                 // Draw fill first
                 context.beginPath();
