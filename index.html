@@ -459,7 +459,7 @@
             let canvas = document.querySelector("#canvas");
             let context = canvas.getContext("2d");
 
-            const DEBUG = true;
+            const DEBUG = false;
 
             const minZoom = 0.06;
             const maxZoom = 400;
@@ -3441,44 +3441,60 @@
                 }
 
                 // Draw subcarriers for S1G (Page 3211 in 802.11-2020)
+                // Page 3125 has a good description of how many subcarriers there are per ch width
                 // S1G information from page 3211 in 802.11-2020
                 if (show3KHzSubcarriers && scale >= 80) {
                     subCarrierWidth = 0.03125; // I had 0.031 here earlier
+                    let subCarrierMaskStart;
+                    let subCarrierMaskEnd;
+
                     switch (channel.width) {
                         case 1:
-                            subCarrierCount = 13;
+                            subCarrierStart = 1;
+                            subCarrierEnd = 13;
                             break;
                         case 2:
-                            subCarrierCount = 26;
+                            subCarrierStart = 1;
+                            subCarrierEnd = 28;
                             break;
                         case 4:
-                            subCarrierCount = 58;
+                            subCarrierStart = 2;
+                            subCarrierEnd = 58;
                             break;
                         case 8:
-                            subCarrierCount = 122;
+                            subCarrierStart = 2;
+                            subCarrierEnd = 122;
                             break;
                         case 16:
-                            subCarrierCount = 250;
+                            subCarrierStart = 6;
+                            subCarrierEnd = 250;
+                            subCarrierMaskStart = 127;
+                            subCarrierMaskEnd = 129;
                             break;
                         default:
                             break;
                     }
 
-                    const channelStart = centerX; // Start from the center of the channel and go right
+                    // Start from the center of the channel and go right
                     let currentSubCarrierX = centerX; // Track the current subcarrier position
 
                     // Draw right half (starting from center working right)
-                    for (let i = 1; i <= subCarrierCount; i++) {
-                        if (i > 1) {
-                            // Skip the null subcarrier in the center
-                            drawParabola(
-                                currentSubCarrierX,
-                                centerY,
-                                subCarrierWidth * 2 * scale,
-                                height - 2,
-                                style.wifi.primaryColor,
-                                style.wifi.secondaryColor,
-                            );
+                    for (let i = 0; i <= subCarrierEnd; i++) {
+                        if (i >= subCarrierStart) {
+                            if (
+                                i >= subCarrierMaskStart &&
+                                i <= subCarrierMaskEnd
+                            ) {
+                            } else {
+                                drawParabola(
+                                    currentSubCarrierX,
+                                    centerY,
+                                    subCarrierWidth * 2 * scale,
+                                    height - 2,
+                                    style.wifi.primaryColor,
+                                    style.wifi.secondaryColor,
+                                );
+                            }
                         }
                         currentSubCarrierX =
                             currentSubCarrierX + subCarrierWidth * 2 * scale;
@@ -3486,17 +3502,22 @@
 
                     // Draw left half (starting from center working left)
                     currentSubCarrierX = centerX;
-                    for (let i = 1; i <= subCarrierCount; i++) {
-                        if (i > 1) {
-                            // Skip the null subcarrier in the center
-                            drawParabola(
-                                currentSubCarrierX,
-                                centerY,
-                                subCarrierWidth * 2 * scale,
-                                height - 2,
-                                style.wifi.primaryColor,
-                                style.wifi.secondaryColor,
-                            );
+                    for (let i = 0; i <= subCarrierEnd; i++) {
+                        if (i >= subCarrierStart) {
+                            if (
+                                i >= subCarrierMaskStart &&
+                                i <= subCarrierMaskEnd
+                            ) {
+                            } else {
+                                drawParabola(
+                                    currentSubCarrierX,
+                                    centerY,
+                                    subCarrierWidth * 2 * scale,
+                                    height - 2,
+                                    style.wifi.primaryColor,
+                                    style.wifi.secondaryColor,
+                                );
+                            }
                         }
                         currentSubCarrierX -= subCarrierWidth * 2 * scale;
                     }
@@ -3715,21 +3736,6 @@
                     mhzInset = 2.1;
                 }
 
-                /*
-                switch (channelWidthMhz) {
-                    case 1:
-                        mhzInset = 4 * 0.031;
-                        break;
-                    case 2:
-                        mhzInset = 7 * 0.031;
-                        break;
-                    case 4:
-                        mhzInset = 8 * 0.031;
-                    default:
-                        mhzInset = 2.1;
-                        break;
-                }*/
-
                 const insetPixels = mhzInset * 2 * scale;
                 const lowerFreqX = centerX - width / 2 + insetPixels;
                 const upperFreqX = centerX + width / 2 - insetPixels;
@@ -3764,7 +3770,10 @@
                 lineColor,
                 fillColor,
             ) {
-                const points = 20;
+                var points = 24;
+                if (width < 14) {
+                    points = 10;
+                }
 
                 // Draw fill first
                 context.beginPath();
