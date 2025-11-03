@@ -151,6 +151,13 @@
                 font-family: inherit;
                 font-size: inherit;
             }
+
+            .subcarrier-options,
+            .bluetooth-options,
+            .lora-options {
+                display: hidden;
+                margin-left: 14px;
+            }
         </style>
     </head>
     <body>
@@ -209,7 +216,7 @@
                         />
                         Subcarriers</label
                     >
-                    <label>
+                    <label class="subcarrier-options">
                         <input
                             type="radio"
                             name="subcarrier-select"
@@ -217,7 +224,7 @@
                         />
                         OFDM
                     </label>
-                    <label>
+                    <label class="subcarrier-options">
                         <input
                             type="radio"
                             name="subcarrier-select"
@@ -226,7 +233,7 @@
                         />
                         HT
                     </label>
-                    <label>
+                    <label class="subcarrier-options">
                         <input
                             type="radio"
                             name="subcarrier-select"
@@ -234,7 +241,7 @@
                         />
                         VHT
                     </label>
-                    <label>
+                    <label class="subcarrier-options">
                         <input
                             type="radio"
                             name="subcarrier-select"
@@ -285,7 +292,7 @@
                         />
                         Bluetooth</label
                     >
-                    <label>
+                    <label class="bluetooth-options">
                         <input
                             type="radio"
                             name="bluetooth-mode-select"
@@ -293,7 +300,7 @@
                         />
                         Classic
                     </label>
-                    <label>
+                    <label class="bluetooth-options">
                         <input
                             type="radio"
                             name="bluetooth-mode-select"
@@ -312,11 +319,11 @@
                         ><input type="checkbox" id="lora-visibility" />
                         LoRa</label
                     >
-                    <label
+                    <label class="lora-options"
                         ><input type="checkbox" id="lora-125-visibility" /> 125
                         KHz channels
                     </label>
-                    <label
+                    <label class="lora-options"
                         ><input type="checkbox" id="lora-500-visibility" /> 500
                         KHz channels
                     </label>
@@ -354,7 +361,7 @@
                     <label>
                         <input
                             type="checkbox"
-                            id="5G-NR-cellular-band-visibility"
+                            id="NR-5G-cellular-band-visibility"
                         />
                         5G NR Cellular
                     </label>
@@ -4908,6 +4915,7 @@
                 });
 
             // LoRa
+
             document
                 .getElementById("lora-visibility")
                 .addEventListener("change", (e) => {
@@ -4946,7 +4954,7 @@
                 });
 
             document
-                .getElementById("5G-NR-cellular-band-visibility")
+                .getElementById("NR-5G-cellular-band-visibility")
                 .addEventListener("change", (e) => {
                     showBandCellular5GNR = e.target.checked;
                 });
@@ -4997,6 +5005,31 @@
 
             heightSlider.addEventListener("input", (e) => {
                 chartSettings.spectralMaskHeight = parseInt(e.target.value);
+            });
+
+            // Select all checkboxes that control visibility
+            const visibilityToggles = document.querySelectorAll(
+                'input[id$="-visibility"]',
+            );
+
+            visibilityToggles.forEach((toggle) => {
+                const groupName = toggle.id.replace("-visibility", "");
+                const options = document.querySelectorAll(
+                    `.${groupName}-options`,
+                );
+
+                // Function to update display based on checkbox state
+                function updateVisibility() {
+                    options.forEach((opt) => {
+                        opt.style.display = toggle.checked ? "block" : "none";
+                    });
+                }
+
+                // Run visiblity check once on page load
+                updateVisibility();
+
+                // Run whenever a visibility checkbox is changed
+                toggle.addEventListener("change", updateVisibility);
             });
 
             document.getElementById("export").addEventListener("click", () => {
