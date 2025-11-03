@@ -152,10 +152,11 @@
                 font-size: inherit;
             }
 
+            .wifi-options,
             .subcarrier-options,
             .bluetooth-options,
             .lora-options {
-                display: hidden;
+                display: none;
                 margin-left: 14px;
             }
         </style>
@@ -173,116 +174,127 @@
                         ><input type="checkbox" id="wifi-visibility" checked />
                         Wi-Fi
                     </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="wifi-20mhz-visibility"
-                            checked
-                        />
-                        20 MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-40mhz-visibility" /> 40
-                        MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-80mhz-visibility" /> 80
-                        MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-160mhz-visibility" />
-                        160 MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-320mhz-visibility" />
-                        320 MHz channels
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="wifi-overlapping-visibility"
-                        />
-                        2.4 GHz overlapping channels</label
-                    >
-                    <label>
-                        <input type="checkbox" id="unii-4-visibility" />
-                        UNII-4</label
-                    >
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="subcarrier-visibility"
-                            checked
-                        />
-                        Subcarriers</label
-                    >
-                    <label class="subcarrier-options">
-                        <input
-                            type="radio"
-                            name="subcarrier-select"
-                            value="OFDM"
-                        />
-                        OFDM
-                    </label>
-                    <label class="subcarrier-options">
-                        <input
-                            type="radio"
-                            name="subcarrier-select"
-                            value="HT"
-                            checked
-                        />
-                        HT
-                    </label>
-                    <label class="subcarrier-options">
-                        <input
-                            type="radio"
-                            name="subcarrier-select"
-                            value="VHT"
-                        />
-                        VHT
-                    </label>
-                    <label class="subcarrier-options">
-                        <input
-                            type="radio"
-                            name="subcarrier-select"
-                            value="HE-26"
-                        />
-                        HE (26-tone Resource Units)
-                    </label>
+                    <div class="wifi-options">
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="wifi-20mhz-visibility"
+                                checked
+                            />
+                            20 MHz channels
+                        </label>
+                        <label>
+                            <input type="checkbox" id="wifi-40mhz-visibility" />
+                            40 MHz channels
+                        </label>
+                        <label>
+                            <input type="checkbox" id="wifi-80mhz-visibility" />
+                            80 MHz channels
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="wifi-160mhz-visibility"
+                            />
+                            160 MHz channels
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="wifi-320mhz-visibility"
+                            />
+                            320 MHz channels
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="wifi-overlapping-visibility"
+                            />
+                            2.4 GHz overlapping channels</label
+                        >
+                        <label>
+                            <input type="checkbox" id="unii-4-visibility" />
+                            UNII-4</label
+                        >
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="subcarrier-visibility"
+                                checked
+                            />
+                            Subcarriers</label
+                        >
+                        <div class="subcarrier-options">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="subcarrier-select"
+                                    value="OFDM"
+                                />
+                                OFDM
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="subcarrier-select"
+                                    value="HT"
+                                    checked
+                                />
+                                HT
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="subcarrier-select"
+                                    value="VHT"
+                                />
+                                VHT
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="subcarrier-select"
+                                    value="HE-26"
+                                />
+                                HE (26-tone Resource Units)
+                            </label>
+                        </div>
 
-                    <h4>Wi-Fi (802.11ah)</h4>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="wifi-1mhz-visibility"
-                            checked
-                        />
-                        1 MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-2mhz-visibility" /> 2
-                        MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-4mhz-visibility" /> 4
-                        MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-8mhz-visibility" /> 8
-                        MHz channels
-                    </label>
-                    <label>
-                        <input type="checkbox" id="wifi-16mhz-visibility" /> 16
-                        MHz channels
-                    </label>
-                    <label
-                        ><input
-                            type="checkbox"
-                            id="S1G-subcarrier-visibility"
-                            checked
-                        />
-                        Subcarriers</label
-                    >
+                        <h4>Sub 1 GHz</h4>
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="wifi-1mhz-visibility"
+                                checked
+                            />
+                            1 MHz channels
+                        </label>
+                        <label>
+                            <input type="checkbox" id="wifi-2mhz-visibility" />
+                            2 MHz channels
+                        </label>
+                        <label>
+                            <input type="checkbox" id="wifi-4mhz-visibility" />
+                            4 MHz channels
+                        </label>
+                        <label>
+                            <input type="checkbox" id="wifi-8mhz-visibility" />
+                            8 MHz channels
+                        </label>
+                        <label>
+                            <input type="checkbox" id="wifi-16mhz-visibility" />
+                            16 MHz channels
+                        </label>
+                        <label
+                            ><input
+                                type="checkbox"
+                                id="S1G-subcarrier-visibility"
+                                checked
+                            />
+                            Subcarriers</label
+                        >
+                    </div>
+
                     <h4>Bluetooth</h4>
                     <label
                         ><input
@@ -493,6 +505,7 @@
             let showUNII4 = false;
             let showOverlapping = false;
             let showSubcarriers = true;
+            let showS1GWifi = true;
             let showS1GSubcarriers = true;
             let show1MHz = true;
             let show2MHz = false;
