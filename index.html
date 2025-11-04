@@ -154,6 +154,7 @@
 
             .wifi-options,
             .subcarrier-options,
+            .resource-unit-options,
             .bluetooth-options,
             .lora-options {
                 display: none;
@@ -254,10 +255,38 @@
                                 <input
                                     type="radio"
                                     name="subcarrier-select"
-                                    value="HE-26"
+                                    value="HE"
                                 />
-                                HE (26-tone Resource Units)
+                                HE
                             </label>
+                            <div class="resource-unit-options">
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="resource-unit-select"
+                                        value="26-RU"
+                                    />
+                                    26 Resource Units
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="resource-unit-select"
+                                        value="67-RU"
+                                        checked
+                                    />
+                                    67 Resource Units
+                                </label>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name="resource-unit-select"
+                                        value="128-RU"
+                                        checked
+                                    />
+                                    128 Resource Units
+                                </label>
+                            </div>
                         </div>
 
                         <h4>Sub 1 GHz</h4>
