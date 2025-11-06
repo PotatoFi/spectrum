@@ -251,14 +251,6 @@
                                 />
                                 VHT
                             </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="subcarrier-select"
-                                    value="HE"
-                                />
-                                HE
-                            </label>
                             <div class="resource-unit-options">
                                 <label>
                                     <input
@@ -3837,155 +3829,96 @@
                 }
 
                 // Draw subcarriers for HT
-                if (showSubcarriers && !channel.dsss) {
-                    if (subCarrierMode == "HT" && scale >= 6) {
-                        switch (channel.width) {
-                            case 20:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "HT-20",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            case 40:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "HT-40",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            default:
-                                break;
-                        }
+                if (
+                    showSubcarriers &&
+                    !channel.dsss &&
+                    subCarrierMode == "HT" &&
+                    scale >= 6
+                ) {
+                    switch (channel.width) {
+                        case 20:
+                            drawSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "HT-20",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
+                            break;
+                        case 40:
+                            drawSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "HT-40",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
+                            break;
+                        default:
+                            break;
                     }
                 }
 
                 // Draw subcarriers for VHT
-                if (showSubcarriers && !channel.dsss) {
-                    if (subCarrierMode == "VHT" && scale >= 6) {
-                        switch (channel.width) {
-                            case 20:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "VHT-20",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            case 40:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "VHT-40",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            case 80:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "VHT-80",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            case 160:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "VHT-160",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            default:
-                                break;
-                        }
+                if (
+                    showSubcarriers &&
+                    !channel.dsss &&
+                    subCarrierMode == "VHT" &&
+                    scale >= 6
+                ) {
+                    switch (channel.width) {
+                        case 20:
+                            drawSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "VHT-20",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
+                            break;
+                        case 40:
+                            drawSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "VHT-40",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
+                            break;
+                        case 80:
+                            drawSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "VHT-80",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
+                            break;
+                        case 160:
+                            drawSubcarriers({
+                                centerX: mhzToScreenX(channel.frequency),
+                                centerY: getBaselineY(),
+                                channelType: "VHT-160",
+                                scale: scale,
+                                height: chartSettings.spectralMaskHeight - 2,
+                                color: style.wifi.primaryColor,
+                                fillColor: style.wifi.secondaryColor,
+                            });
+                            break;
+                        default:
+                            break;
                     }
                 }
-
-                // Draw subcarriers for HE
-                /*
-                if (showSubcarriers && !channel.dsss) {
-                    if (subCarrierMode == "HE-20" && scale >= 6) {
-                        switch (channel.width) {
-                            case 20:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "HT-20",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            case 40:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "HT-40",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            case 80:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "VHT-80",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            case 160:
-                                drawSubcarriers({
-                                    centerX: mhzToScreenX(channel.frequency),
-                                    centerY: getBaselineY(),
-                                    channelType: "VHT-160",
-                                    scale: scale,
-                                    height:
-                                        chartSettings.spectralMaskHeight - 2,
-                                    color: style.wifi.primaryColor,
-                                    fillColor: style.wifi.secondaryColor,
-                                });
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }*/
 
                 // Create the rowData object
                 const rowData = {
