@@ -56,13 +56,17 @@
                 overflow: hidden;
                 touch-action: none;
                 font-family: "Quicksand", sans-serif;
+                background-color: var(--background);
+                color: var(--text);
             }
+
             #canvas {
                 touch-action: none;
                 width: 100vw;
                 height: 100vh;
                 display: block;
             }
+
             .menu {
                 position: fixed;
                 top: 20px;
@@ -74,33 +78,39 @@
                 padding-left: env(safe-area-inset-left);
                 padding-bottom: env(safe-area-inset-bottom);
             }
+
             .dropdown-button {
                 position: relative;
             }
+
             .button {
                 width: 40px;
                 height: 40px;
                 border-radius: 6px;
-                border: none;
-                background-color: rgba(255, 255, 255, 1);
+                border-width: thin;
+                border-style: solid;
+                border-color: var(--border);
+                background-color: var(--background);
                 cursor: pointer;
                 font-size: 24px;
-                color: #000;
+                color: var(--text);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                box-shadow: 0px 4px 4px 4px rgba(0, 0, 0, 0.025);
                 transition: background-color 0.1s;
                 -webkit-appearance: none;
                 touch-action: manipulation;
                 padding: 0;
             }
+
             .button:hover {
-                background-color: #f0f0f0;
+                background-color: var(--hover);
             }
+
             .button:active {
-                background-color: #d0e7fe;
-                transform: translateY(1px);
+                transform: translateY(3px);
+                box-shadow: 0px 4px 4px 4px rgba(0, 0, 0, 0.025);
             }
 
             .dropdown-menu {
@@ -108,12 +118,16 @@
                 position: absolute;
                 left: calc(100% + 10px);
                 top: 0;
-                background-color: white;
+                border-width: thin;
+                border-style: solid;
+                border-color: var(--border);
+                background-color: var(--background);
+                color: var(--text);
                 width: 300px;
                 max-width: calc(100vw - 100px + env(safe-area-inset-right));
                 max-height: calc(100dvh - 50px - env(safe-area-inset-bottom));
                 overflow-y: auto;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                box-shadow: 0px 4px 4px 4px rgba(0, 0, 0, 0.025);
                 border-radius: 6px;
                 padding: 6px;
             }
@@ -125,13 +139,13 @@
             }
 
             .dropdown-menu label:hover {
-                background-color: #f0f0f0;
+                background-color: var(--hover);
                 border-radius: 6px;
             }
 
             .dropdown-menu h4 {
                 margin: 5px 0;
-                color: #666;
+                color: var(--header);
                 font-weight: 700;
                 font-size: 12px;
                 padding: 0 5px;
@@ -147,7 +161,7 @@
                 width: 100%;
                 text-align: left;
                 cursor: pointer;
-                color: #000000;
+                color: var(--text);
                 font-family: inherit;
                 font-size: inherit;
             }
@@ -413,6 +427,23 @@
                             value="100"
                         />
                     </label>
+                    <label>
+                        <input type="radio" name="theme-select" value="light" />
+                        Light Mode
+                    </label>
+                    <label>
+                        <input type="radio" name="theme-select" value="dark" />
+                        Dark Mode
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="theme-select"
+                            value="system"
+                            checked
+                        />
+                        System
+                    </label>
                 </div>
             </div>
             <div class="dropdown-button">
@@ -605,52 +636,148 @@
             const LABEL_HEIGHT = 28; // Height of labels
             const ROW_HEIGHT = LABEL_HEIGHT + 6;
 
-            const style = {
-                wifi: {
-                    primaryColor: "rgba(245, 216, 9)",
-                    secondaryColor: "rgba(245, 216, 9, 0.2)",
-                    textColor: "#000000",
+            const themes = {
+                light: {
+                    interface: {
+                        backgroundColor: "#FFFFFF",
+                        textColor: "#000000",
+                        hoverColor: "#f0f0f0",
+                        headerColor: "#666",
+                        borderColor: "#f0f0f0",
+                    },
+                    wifi: {
+                        primaryColor: "rgba(245, 216, 9)",
+                        secondaryColor: "rgba(245, 216, 9, 0.2)",
+                        textColor: "#000000",
+                    },
+                    bluetooth: {
+                        primaryColor: "rgba(20, 134, 252)",
+                        secondaryColor: "rgba(20, 134, 252, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    zigbee: {
+                        primaryColor: "rgba(239, 52, 83)",
+                        secondaryColor: "rgba(239, 52, 83, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    lora: {
+                        primaryColor: "rgba(0, 159, 227)",
+                        secondaryColor: "rgba(0, 159, 227, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    itu: {
+                        primaryColor: "#e5e7eb",
+                        textColor: "#000000",
+                    },
+                    fcc: {
+                        primaryColor: "#e5e7eb",
+                        textColor: "#000000",
+                    },
+                    etsi: {
+                        primaryColor: "#6b7280",
+                        textColor: "#FFFFFF",
+                    },
+                    gsm: {
+                        primaryColor: "#2dd4bf",
+                        textColor: "#FFFFFF",
+                    },
+                    lte: {
+                        primaryColor: "#38bdf8",
+                        textColor: "#FFFFFF",
+                    },
+                    nr: {
+                        primaryColor: "#818cf8",
+                        textColor: "#FFFFFF",
+                    },
                 },
-                bluetooth: {
-                    primaryColor: "rgba(20, 134, 252)",
-                    secondaryColor: "rgba(20, 134, 252, 0.2)",
-                    textColor: "#FFFFFF",
-                },
-                zigbee: {
-                    primaryColor: "rgba(239, 52, 83)",
-                    secondaryColor: "rgba(239, 52, 83, 0.2)",
-                    textColor: "#FFFFFF",
-                },
-                lora: {
-                    primaryColor: "rgba(0, 159, 227)",
-                    secondaryColor: "rgba(0, 159, 227, 0.2)",
-                    textColor: "#FFFFFF",
-                },
-                itu: {
-                    primaryColor: "#e5e7eb",
-                    textColor: "#000000",
-                },
-                fcc: {
-                    primaryColor: "#e5e7eb",
-                    textColor: "#000000",
-                },
-                etsi: {
-                    primaryColor: "#6b7280", //"#F2F2F2"
-                    textColor: "#FFFFFF",
-                },
-                gsm: {
-                    primaryColor: "#2dd4bf",
-                    textColor: "#FFFFFF",
-                },
-                lte: {
-                    primaryColor: "#38bdf8",
-                    textColor: "#FFFFFF",
-                },
-                nr: {
-                    primaryColor: "#818cf8",
-                    textColor: "#FFFFFF",
+                dark: {
+                    interface: {
+                        backgroundColor: "#242835",
+                        textColor: "#94a3b8",
+                        hoverColor: "#323541",
+                        headerColor: "#64748b",
+                        borderColor: "#323541",
+                    },
+                    wifi: {
+                        primaryColor: "rgba(203, 184, 50)",
+                        secondaryColor: "rgba(203, 184, 50, 0.2)",
+                        textColor: "#000000",
+                    },
+                    bluetooth: {
+                        primaryColor: "rgba(64, 134, 207)",
+                        secondaryColor: "rgba(64, 134, 207, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    zigbee: {
+                        primaryColor: "rgba(211, 79, 101)",
+                        secondaryColor: "rgba(211, 79, 101, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    lora: {
+                        primaryColor: "rgba(45, 140, 181)",
+                        secondaryColor: "rgba(45, 140, 181, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    itu: {
+                        primaryColor: "#374151",
+                        textColor: "#FFFFFF",
+                    },
+                    fcc: {
+                        primaryColor: "#374151",
+                        textColor: "#FFFFFF",
+                    },
+                    etsi: {
+                        primaryColor: "#4b5563",
+                        textColor: "#FFFFFF",
+                    },
+                    gsm: {
+                        primaryColor: "#2dd4bf",
+                        textColor: "#FFFFFF",
+                    },
+                    lte: {
+                        primaryColor: "#38bdf8",
+                        textColor: "#FFFFFF",
+                    },
+                    nr: {
+                        primaryColor: "#818cf8",
+                        textColor: "#FFFFFF",
+                    },
                 },
             };
+
+            const getSystemTheme = () =>
+                window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+
+            function setTheme(mode) {
+                const actualTheme = mode === "system" ? getSystemTheme() : mode;
+                style = themes[actualTheme];
+
+                // Update CSS custom properties for CSS elements
+                const root = document.documentElement;
+                root.style.setProperty(
+                    "--background",
+                    style.interface.backgroundColor,
+                );
+                root.style.setProperty("--text", style.interface.textColor);
+                root.style.setProperty("--hover", style.interface.hoverColor);
+                root.style.setProperty("--header", style.interface.headerColor);
+                root.style.setProperty("--border", style.interface.borderColor);
+            }
+
+            // Initialize
+            setTheme("system");
+
+            // Listen for system theme changes
+            window
+                .matchMedia("(prefers-color-scheme: dark)")
+                .addEventListener("change", () => {
+                    const themeSelect = document.getElementById("theme-select");
+                    if (themeSelect && themeSelect.value === "system") {
+                        setTheme("system");
+                    }
+                });
 
             const zoomTiers = {
                 lowest: {
@@ -3703,8 +3830,8 @@
                     Math.ceil(viewportEnd / config.step) * config.step;
 
                 context.beginPath();
-                context.strokeStyle = "#000000";
-                context.fillStyle = "#000000";
+                context.strokeStyle = style.interface.textColor;
+                context.fillStyle = style.interface.textColor;
                 context.textAlign = "center";
 
                 for (
@@ -3726,7 +3853,7 @@
 
                         // Draw the marker labels
                         const freqMarkerY = baselineY + 20; // Apply 20px offset to label
-                        context.fillStyle = "#000000";
+                        context.fillStyle = style.interface.textColor;
                         context.fillText(label, x, freqMarkerY);
 
                         // Draw minor ticks
@@ -4687,7 +4814,7 @@
                 const endX = mhzToScreenX(8000);
                 context.moveTo(startX, baselineY);
                 context.lineTo(endX, baselineY);
-                context.strokeStyle = "black";
+                context.strokeStyle = style.interface.textColor;
                 context.lineWidth = 2;
                 context.stroke();
 
@@ -5229,7 +5356,7 @@
                 const currentCompositeOperation =
                     context.globalCompositeOperation;
                 context.globalCompositeOperation = "destination-over";
-                context.fillStyle = "white";
+                context.fillStyle = style.interface.backgroundColor;
                 context.fillRect(0, 0, canvas.width, canvas.height);
 
                 // Convert to data URL
@@ -5276,6 +5403,24 @@
                 .getElementById("full-spectrum-shortcut")
                 .addEventListener("click", (e) => {
                     setViewportFrequencyRange(-200, 8200);
+                });
+
+            // Theme selector
+            document
+                .querySelectorAll('input[name="theme-select"]')
+                .forEach((radio) => {
+                    radio.addEventListener("change", (e) => {
+                        const mode = e.target.value
+                            .toLowerCase()
+                            .replace(" mode", "");
+                        setTheme(
+                            mode === "light"
+                                ? "light"
+                                : mode === "dark"
+                                  ? "dark"
+                                  : "system",
+                        );
+                    });
                 });
 
             canvas.addEventListener("touchstart", (e) => {
