@@ -49,7 +49,7 @@
         />
         <meta charset="UTF-8" />
 
-        <title>Spectrum Chart</title>
+        <title>Interactive Spectrum Chart</title>
         <style>
             body {
                 margin: 0;
@@ -89,7 +89,7 @@
                 border-radius: 6px;
                 border-width: thin;
                 border-style: solid;
-                border-color: var(--border);
+                border-color: var(--foreground);
                 background-color: var(--background);
                 cursor: pointer;
                 font-size: 24px;
@@ -105,7 +105,7 @@
             }
 
             .button:hover {
-                background-color: var(--hover);
+                background-color: var(--foreground);
             }
 
             .button:active {
@@ -120,7 +120,7 @@
                 top: 0;
                 border-width: thin;
                 border-style: solid;
-                border-color: var(--border);
+                border-color: var(--foreground);
                 background-color: var(--background);
                 color: var(--text);
                 width: 300px;
@@ -139,7 +139,7 @@
             }
 
             .dropdown-menu label:hover {
-                background-color: var(--hover);
+                background-color: var(--foreground);
                 border-radius: 6px;
             }
 
@@ -640,10 +640,9 @@
                 light: {
                     interface: {
                         backgroundColor: "#FFFFFF",
+                        foregroundColor: "#F0F0F0",
                         textColor: "#000000",
-                        hoverColor: "#f0f0f0",
                         headerColor: "#666",
-                        borderColor: "#f0f0f0",
                     },
                     wifi: {
                         primaryColor: "rgba(245, 216, 9)",
@@ -693,13 +692,12 @@
                 dark: {
                     interface: {
                         backgroundColor: "#242835",
+                        foregroundColor: "#323541",
                         textColor: "#94a3b8",
-                        hoverColor: "#323541",
                         headerColor: "#64748b",
-                        borderColor: "#323541",
                     },
                     wifi: {
-                        primaryColor: "rgba(203, 184, 50)",
+                        primaryColor: "rgba(203, 184, 50)", // Usually 60% color saturation
                         secondaryColor: "rgba(203, 184, 50, 0.2)",
                         textColor: "#000000",
                     },
@@ -727,19 +725,19 @@
                         textColor: "#FFFFFF",
                     },
                     etsi: {
-                        primaryColor: "#4b5563",
+                        primaryColor: "#224e8b",
                         textColor: "#FFFFFF",
                     },
                     gsm: {
-                        primaryColor: "#2dd4bf",
+                        primaryColor: "#34ccb9",
                         textColor: "#FFFFFF",
                     },
                     lte: {
-                        primaryColor: "#38bdf8",
+                        primaryColor: "#5aafd5",
                         textColor: "#FFFFFF",
                     },
                     nr: {
-                        primaryColor: "#818cf8",
+                        primaryColor: "#949be4",
                         textColor: "#FFFFFF",
                     },
                 },
@@ -760,10 +758,15 @@
                     "--background",
                     style.interface.backgroundColor,
                 );
+                root.style.setProperty(
+                    "--foreground",
+                    style.interface.foregroundColor,
+                );
                 root.style.setProperty("--text", style.interface.textColor);
-                root.style.setProperty("--hover", style.interface.hoverColor);
                 root.style.setProperty("--header", style.interface.headerColor);
-                root.style.setProperty("--border", style.interface.borderColor);
+
+                // Theme scroll bars
+                document.documentElement.style.colorScheme = actualTheme;
             }
 
             // Initialize
@@ -5421,6 +5424,19 @@
                                   : "system",
                         );
                     });
+                });
+
+            // Event listener for OS theme changes
+            window
+                .matchMedia("(prefers-color-scheme: dark)")
+                .addEventListener("change", () => {
+                    // Check if any "system" radio button is selected
+                    const systemRadio = document.querySelector(
+                        'input[name="theme-select"][value="system"]',
+                    );
+                    if (systemRadio && systemRadio.checked) {
+                        setTheme("system");
+                    }
                 });
 
             canvas.addEventListener("touchstart", (e) => {
