@@ -234,6 +234,14 @@
                         <label>
                             <input
                                 type="checkbox"
+                                id="psc-visibility"
+                                checked
+                            />
+                            Primary Scan Channels</label
+                        >
+                        <label>
+                            <input
+                                type="checkbox"
                                 id="subcarrier-visibility"
                                 checked
                             />
@@ -555,6 +563,7 @@
             let showWifi = true;
             let showWifiChannels = true;
             let showUNII4 = false;
+            let showPSC = true;
             let showOverlapping = false;
             let showSubcarriers = true;
             let showS1GWifi = true;
@@ -648,6 +657,8 @@
                         primaryColor: "rgba(245, 216, 9)",
                         secondaryColor: "rgba(245, 216, 9, 0.2)",
                         textColor: "#000000",
+                        primaryColorPSC: "rgba(245, 158, 11)",
+                        secondaryColorPSC: "rgba(245, 158, 11, 0.2)",
                     },
                     bluetooth: {
                         primaryColor: "rgba(20, 134, 252)",
@@ -700,6 +711,8 @@
                         primaryColor: "rgba(203, 184, 50)", // Usually 60% color saturation
                         secondaryColor: "rgba(203, 184, 50, 0.2)",
                         textColor: "#000000",
+                        primaryColorPSC: "rgba(204, 147, 51)",
+                        secondaryColorPSC: "rgba(204, 147, 51, 0.2)",
                     },
                     bluetooth: {
                         primaryColor: "rgba(64, 134, 207)",
@@ -2301,6 +2314,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "9E",
@@ -2329,6 +2343,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "25E",
@@ -2357,6 +2372,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "41E",
@@ -2385,6 +2401,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "57E",
@@ -2413,6 +2430,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "73E",
@@ -2441,6 +2459,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "89E",
@@ -2469,6 +2488,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "105E",
@@ -2497,6 +2517,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "121E",
@@ -2525,6 +2546,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "137E",
@@ -2553,6 +2575,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "153E",
@@ -2581,6 +2604,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "169E",
@@ -2609,6 +2633,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "185E",
@@ -2637,6 +2662,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "201E",
@@ -2665,6 +2691,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "217E",
@@ -2693,6 +2720,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "233E",
@@ -4048,6 +4076,14 @@
 
                 let channelType;
 
+                var primaryColor = style.wifi.primaryColor;
+                var secondaryColor = style.wifi.secondaryColor;
+
+                if (channel.psc && showPSC) {
+                    primaryColor = style.wifi.primaryColorPSC;
+                    secondaryColor = style.wifi.secondaryColorPSC;
+                }
+
                 // Draw subcarriers for S1G (Page 3211 and 3125 in 802.11-2020)
                 if (showS1GSubcarriers && scale >= 50) {
                     switch (channel.width) {
@@ -4191,8 +4227,8 @@
                                 channelType: "VHT-20",
                                 scale: scale,
                                 height: chartSettings.spectralMaskHeight - 2,
-                                color: style.wifi.primaryColor,
-                                fillColor: style.wifi.secondaryColor,
+                                color: primaryColor,
+                                fillColor: secondaryColor,
                             });
                             channelType = "VHT-20";
                             break;
@@ -4254,8 +4290,8 @@
                         width,
                         height,
                         channelType,
-                        style.wifi.primaryColor,
-                        style.wifi.secondaryColor,
+                        primaryColor,
+                        secondaryColor,
                     );
                 }
 
@@ -4269,7 +4305,7 @@
                     centerX,
                     centerY,
                     width,
-                    style.wifi.primaryColor,
+                    primaryColor,
                     style.wifi.textColor,
                     channel.channel,
                 );
@@ -5123,6 +5159,12 @@
                 .getElementById("unii-4-visibility")
                 .addEventListener("change", (e) => {
                     showUNII4 = e.target.checked;
+                });
+
+            document
+                .getElementById("psc-visibility")
+                .addEventListener("change", (e) => {
+                    showPSC = e.target.checked;
                 });
 
             document
