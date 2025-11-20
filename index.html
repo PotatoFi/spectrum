@@ -2301,6 +2301,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "9E",
@@ -2329,6 +2330,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "25E",
@@ -2357,7 +2359,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
-                    },
+                        psc: true,
                     {
                         channel: "41E",
                         frequency: 6155,
@@ -2385,6 +2387,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "57E",
@@ -2413,6 +2416,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "73E",
@@ -2441,6 +2445,7 @@
                         width: 20,
                         domain: ["US", "EU", "AU", "JP"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "89E",
@@ -2469,6 +2474,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "105E",
@@ -2497,6 +2503,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "121E",
@@ -2525,6 +2532,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "137E",
@@ -2553,6 +2561,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "153E",
@@ -2581,6 +2590,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "169E",
@@ -2609,6 +2619,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "185E",
@@ -2637,6 +2648,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "201E",
@@ -2665,6 +2677,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "217E",
@@ -2693,6 +2706,7 @@
                         width: 20,
                         domain: ["US"],
                         modulation: ["HE"],
+                        psc: true,
                     },
                     {
                         channel: "233E",
@@ -3156,7 +3170,7 @@
                     subcarriers: [[2, 58]],
                     pilots: [11, 25, 53],
                     nulls: [0],
-                    inset: 1.25,
+                    inset: 1.875, // 5 guard subcarriers: 0.3125 * 5
                 },
 
                 "VHT-20": {
