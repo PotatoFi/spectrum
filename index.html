@@ -382,6 +382,11 @@
                         ><input type="checkbox" id="lora-500-visibility" /> 500
                         KHz channels
                     </label>
+                    <h4>DECT</h4>
+                    <label
+                        ><input type="checkbox" id="dect-visibility" checked />
+                        DECT</label
+                    >
                     <h4>Band Labels</h4>
                     <label>
                         <input
@@ -587,6 +592,7 @@
             let showLoRa = true;
             let showLoRa125 = false;
             let showLoRa500 = false;
+            let showDect = true;
 
             // Bands
             let showBandFCC = true;
@@ -675,6 +681,11 @@
                         secondaryColor: "rgba(0, 159, 227, 0.2)",
                         textColor: "#FFFFFF",
                     },
+                    dect: {
+                        primaryColor: "rgba(192, 38, 211)",
+                        secondaryColor: "rgba(192, 38, 211, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
                     itu: {
                         primaryColor: "#e5e7eb",
                         textColor: "#000000",
@@ -727,6 +738,11 @@
                     lora: {
                         primaryColor: "rgba(45, 140, 181)",
                         secondaryColor: "rgba(45, 140, 181, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    dect: {
+                        primaryColor: "rgba(182, 49, 199)",
+                        secondaryColor: "rgba(182, 49, 199, 0.2)",
                         textColor: "#FFFFFF",
                     },
                     itu: {
@@ -3124,6 +3140,92 @@
                 ],
             };
 
+            const dectChannels = [
+                // From https://www.electronics-notes.com/articles/connectivity/dect-cordless-telephones/channels-frequencies-bands.php?utm_source=chatgpt.com
+                // EU and most of the world
+                {
+                    channel: 0,
+                    frequency: 1881.792,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1883.52,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 2,
+                    frequency: 1885.248,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 3,
+                    frequency: 1886.976,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 4,
+                    frequency: 1888.704,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 5,
+                    frequency: 1890.432,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 6,
+                    frequency: 1892.16,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 7,
+                    frequency: 1893.888,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 8,
+                    frequency: 1895.616,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 9,
+                    frequency: 1897.344,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+
+                // US
+                {
+                    channel: 0,
+                    frequency: 1921.536,
+                    width: 1.728,
+                    domain: ["BR", "US", "CA"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1923.264,
+                    width: 1.728,
+                    domain: ["BR", "US", "CA"],
+                },
+                {
+                    channel: 2,
+                    frequency: 1924.992,
+                    width: 1.728,
+                    domain: ["BR", "US", "CA"],
+                    smartHopping: true, // This is not correct, just planning for future buildout
+                },
+            ];
+
             const wifiSubcarriers = {
                 "S1G-1": {
                     spacing: 31.25,
@@ -4371,6 +4473,66 @@
                 );
             }
 
+            function drawZigbeeChannel(channel, scale) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.spectralMaskHeight;
+
+                drawParabola(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.zigbee.primaryColor,
+                    style.zigbee.secondaryColor,
+                );
+
+                const rowData = {
+                    id: "zigbee",
+                    type: "zigbee",
+                };
+
+                drawChannelLabel(
+                    centerX,
+                    centerY,
+                    width,
+                    style.zigbee.primaryColor,
+                    style.zigbee.textColor,
+                    channel.channel,
+                );
+            }
+
+            function drawDectChannel(channel, scale, widthForID) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.spectralMaskHeight;
+
+                drawParabola(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.dect.primaryColor,
+                    style.dect.secondaryColor,
+                );
+
+                const rowData = {
+                    id: "dect",
+                    type: widthForID,
+                };
+
+                drawChannelLabel(
+                    centerX,
+                    centerY,
+                    width,
+                    style.dect.primaryColor,
+                    style.dect.textColor,
+                    channel.channel,
+                );
+            }
+
             function drawBluetoothChannel(channel, scale) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
@@ -4490,6 +4652,8 @@
                 }
                 context.stroke();
             }
+
+            function filterByCountry(filter) {}
 
             // Helper function for coordinate conversion
             function mhzToScreenX(mhz) {
@@ -4845,6 +5009,24 @@
                         );
                     });
                 });
+
+                // Draw DECT channels
+                if (showDect) {
+                    dectChannels.forEach((channel) => {
+                        // Regulatory domain filtering
+                        // This code is somewhat repeated in three different places now
+                        // Should consolidate all regulatory filtering into one place
+                        if (channel.domain.includes("US") && showUSDomain) {
+                            drawDectChannel(channel, scale);
+                            return;
+                        }
+
+                        if (channel.domain.includes("EU") && showEUDomain) {
+                            drawDectChannel(channel, scale);
+                            return;
+                        }
+                    });
+                }
 
                 // Draw baseline
                 const baselineY = getBaselineY();
@@ -5278,6 +5460,14 @@
                 .getElementById("lora-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa = e.target.checked;
+                });
+
+            // DECT
+
+            document
+                .getElementById("dect-visibility")
+                .addEventListener("change", (e) => {
+                    showDect = e.target.checked;
                 });
 
             document
