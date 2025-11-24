@@ -3222,7 +3222,18 @@
                     frequency: 1924.992,
                     width: 1.728,
                     domain: ["BR", "US", "CA"],
-                    smartHopping: true, // This is not correct, just planning for future buildout
+                },
+                {
+                    channel: 3,
+                    frequency: 1926.72,
+                    width: 1.728,
+                    domain: ["BR", "US", "CA"],
+                },
+                {
+                    channel: 4,
+                    frequency: 1928.448,
+                    width: 1.728,
+                    domain: ["BR", "US", "CA"],
                 },
             ];
 
@@ -4653,7 +4664,26 @@
                 context.stroke();
             }
 
-            function filterByCountry(filter) {}
+            // Country code filtering
+            function filterByCountry(domain) {
+                if (domain.includes("WW") && showWWDomain) {
+                    return true;
+                }
+                if (domain.includes("US") && showUSDomain) {
+                    return true;
+                }
+                if (domain.includes("EU") && showEUDomain) {
+                    return true;
+                }
+                if (domain.includes("JP") && showJPDomain) {
+                    return true;
+                }
+                if (domain.includes("AU") && showAUDomain) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
 
             // Helper function for coordinate conversion
             function mhzToScreenX(mhz) {
@@ -4853,38 +4883,9 @@
                                 return;
                             }
 
-                            // First verify that channel and domain exist
-                            if (!channel || !channel.domain) {
-                                console.warn(
-                                    `Found channel without domain in band ${band}:`,
-                                    channel,
-                                );
-                                return;
-                            }
-
-                            // Show if channel is worldwide
-                            if (channel.domain.includes("WW") && showWWDomain) {
+                            if (filterByCountry(channel.domain)) {
                                 drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("US") && showUSDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("EU") && showEUDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("JP") && showJPDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("AU") && showAUDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
+                            } else {
                                 return;
                             }
                         });
@@ -4902,22 +4903,11 @@
                 if (showZigbee) {
                     Object.keys(zigbeeChannels).forEach((band) => {
                         zigbeeChannels[band].forEach((channel) => {
-                            // Show if channel is worldwide
-                            if (channel.domain.includes("WW") && showWWDomain) {
+                            if (filterByCountry(channel.domain)) {
                                 drawZigbeeChannel(channel, scale);
+                            } else {
                                 return;
                             }
-
-                            // Filter regulatory domains
-                            if (
-                                (channel.domain.includes("US") &&
-                                    !showUSDomain) ||
-                                (channel.domain.includes("EU") && !showEUDomain)
-                            ) {
-                                return;
-                            }
-
-                            drawZigbeeChannel(channel, scale);
                         });
                     });
                 }
@@ -4933,22 +4923,11 @@
                                 return;
                             }
 
-                            // Show if channel is worldwide
-                            if (channel.domain.includes("WW") && showWWDomain) {
-                                drawZigbeeChannel(channel, scale);
+                            if (filterByCountry(channel.domain)) {
+                                drawLoRaChannel(channel, scale, channel.width);
+                            } else {
                                 return;
                             }
-
-                            // Filter regulatory domains
-                            if (
-                                (channel.domain.includes("US") &&
-                                    !showUSDomain) ||
-                                (channel.domain.includes("EU") && !showEUDomain)
-                            ) {
-                                return;
-                            }
-
-                            drawLoRaChannel(channel, scale, channel.width);
                         });
                     });
                 }
@@ -5013,16 +4992,9 @@
                 // Draw DECT channels
                 if (showDect) {
                     dectChannels.forEach((channel) => {
-                        // Regulatory domain filtering
-                        // This code is somewhat repeated in three different places now
-                        // Should consolidate all regulatory filtering into one place
-                        if (channel.domain.includes("US") && showUSDomain) {
+                        if (filterByCountry(channel.domain)) {
                             drawDectChannel(channel, scale);
-                            return;
-                        }
-
-                        if (channel.domain.includes("EU") && showEUDomain) {
-                            drawDectChannel(channel, scale);
+                        } else {
                             return;
                         }
                     });
