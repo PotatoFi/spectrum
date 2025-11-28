@@ -382,6 +382,11 @@
                         ><input type="checkbox" id="lora-500-visibility" /> 500
                         KHz channels
                     </label>
+                    <h4>DECT</h4>
+                    <label
+                        ><input type="checkbox" id="dect-visibility" checked />
+                        DECT</label
+                    >
                     <h4>Band Labels</h4>
                     <label>
                         <input
@@ -587,6 +592,7 @@
             let showLoRa = true;
             let showLoRa125 = false;
             let showLoRa500 = false;
+            let showDect = true;
 
             // Bands
             let showBandFCC = true;
@@ -675,6 +681,11 @@
                         secondaryColor: "rgba(0, 159, 227, 0.2)",
                         textColor: "#FFFFFF",
                     },
+                    dect: {
+                        primaryColor: "rgba(192, 38, 211)",
+                        secondaryColor: "rgba(192, 38, 211, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
                     itu: {
                         primaryColor: "#e5e7eb",
                         textColor: "#000000",
@@ -727,6 +738,11 @@
                     lora: {
                         primaryColor: "rgba(45, 140, 181)",
                         secondaryColor: "rgba(45, 140, 181, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    dect: {
+                        primaryColor: "rgba(182, 49, 199)",
+                        secondaryColor: "rgba(182, 49, 199, 0.2)",
                         textColor: "#FFFFFF",
                     },
                     itu: {
@@ -858,6 +874,11 @@
                         name: "900 MHz",
                         start: 902,
                         stop: 928,
+                    },
+                    {
+                        name: "UPCS",
+                        start: 1920,
+                        stop: 1930,
                     },
                     {
                         name: "2.4 GHz",
@@ -3124,6 +3145,302 @@
                 ],
             };
 
+            const dectChannels = [
+                //
+                // https://www.electronics-notes.com/articles/connectivity/dect-cordless-telephones/channels-frequencies-bands.php?utm_source=chatgpt.com
+                // https://support.yealink.com/en/portal/knowledge/show?id=64589aadb1fa936c57b5607a
+
+                // EU and most of the world
+                {
+                    channel: 9,
+                    frequency: 1881.792,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 8,
+                    frequency: 1883.52,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 7,
+                    frequency: 1885.248,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 6,
+                    frequency: 1886.976,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 5,
+                    frequency: 1888.704,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 4,
+                    frequency: 1890.432,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 3,
+                    frequency: 1892.16,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 2,
+                    frequency: 1893.888,
+                    width: 1.728,
+                    domain: ["AU", "EU", "TW", "ZA"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1895.616,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+                {
+                    channel: 0,
+                    frequency: 1897.344,
+                    width: 1.728,
+                    domain: ["AU", "EU", "ZA"],
+                },
+
+                // US, Laos, Canada
+                {
+                    channel: 9,
+                    frequency: 1912.896,
+                    width: 1.728,
+                    domain: ["LA"],
+                },
+                {
+                    channel: 8,
+                    frequency: 1914.624,
+                    width: 1.728,
+                    domain: ["LA"],
+                },
+                {
+                    channel: 7,
+                    frequency: 1916.352,
+                    width: 1.728,
+                    domain: ["LA"],
+                },
+                {
+                    channel: 6,
+                    frequency: 1918.08,
+                    width: 1.728,
+                    domain: ["LA"],
+                },
+                {
+                    channel: 5,
+                    frequency: 1919.808,
+                    width: 1.728,
+                    domain: ["LA"],
+                },
+                {
+                    channel: 4,
+                    frequency: 1921.536,
+                    width: 1.728,
+                    domain: ["US", "CA", "LA"],
+                },
+                {
+                    channel: 3,
+                    frequency: 1923.264,
+                    width: 1.728,
+                    domain: ["US", "CA", "LA"],
+                },
+                {
+                    channel: 2,
+                    frequency: 1924.992,
+                    width: 1.728,
+                    domain: ["US", "CA", "LA"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1926.72,
+                    width: 1.728,
+                    domain: ["US", "CA", "LA"],
+                },
+                {
+                    channel: 0,
+                    frequency: 1928.448,
+                    width: 1.728,
+                    domain: ["US", "CA", "LA"],
+                },
+
+                // Brazil
+                {
+                    channel: 4,
+                    frequency: 1911.168,
+                    width: 1.728,
+                    domain: ["BR"],
+                },
+                {
+                    channel: 3,
+                    frequency: 1912.896,
+                    width: 1.728,
+                    domain: ["BR"],
+                },
+                {
+                    channel: 2,
+                    frequency: 1914.624,
+                    width: 1.728,
+                    domain: ["BR"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1916.352,
+                    width: 1.728,
+                    domain: ["BR"],
+                },
+                {
+                    channel: 0,
+                    frequency: 1918.08,
+                    width: 1.728,
+                    domain: ["BR"],
+                },
+
+                // Argentina
+                {
+                    channel: 9,
+                    frequency: 1911.168,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 8,
+                    frequency: 1912.896,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 7,
+                    frequency: 1914.624,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 6,
+                    frequency: 1916.352,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 5,
+                    frequency: 1918.08,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 4,
+                    frequency: 1919.808,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 3,
+                    frequency: 1921.536,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 2,
+                    frequency: 1923.264,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1924.992,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 0,
+                    frequency: 1926.72,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+
+                // Thailand
+                {
+                    channel: 2,
+                    frequency: 1902.528,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1904.256,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+                {
+                    channel: 0,
+                    frequency: 1905.984,
+                    width: 1.728,
+                    domain: ["AR"],
+                },
+
+                // Japan
+                {
+                    channel: 4,
+                    frequency: 1895.616,
+                    width: 1.728,
+                    domain: ["JP"],
+                },
+                {
+                    channel: 3,
+                    frequency: 1897.344,
+                    width: 1.728,
+                    domain: ["JP"],
+                },
+                {
+                    channel: 2,
+                    frequency: 1899.072,
+                    width: 1.728,
+                    domain: ["JP"],
+                },
+                {
+                    channel: 1,
+                    frequency: 1900.8,
+                    width: 1.728,
+                    domain: ["JP"],
+                },
+                {
+                    channel: 0,
+                    frequency: 1902.528,
+                    width: 1.728,
+                    domain: ["JP"],
+                },
+
+                // Korea
+                {
+                    channel: 8,
+                    frequency: 1787.616,
+                    width: 1.728,
+                    domain: ["KR"],
+                },
+                {
+                    channel: 7,
+                    frequency: 1789.344,
+                    width: 1.728,
+                    domain: ["KR"],
+                },
+                {
+                    channel: 6,
+                    frequency: 1791.072,
+                    width: 1.728,
+                    domain: ["KR"],
+                },
+            ];
+
             const wifiSubcarriers = {
                 "S1G-1": {
                     spacing: 31.25,
@@ -4371,6 +4688,66 @@
                 );
             }
 
+            function drawZigbeeChannel(channel, scale) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.spectralMaskHeight;
+
+                drawParabola(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.zigbee.primaryColor,
+                    style.zigbee.secondaryColor,
+                );
+
+                const rowData = {
+                    id: "zigbee",
+                    type: "zigbee",
+                };
+
+                drawChannelLabel(
+                    centerX,
+                    centerY,
+                    width,
+                    style.zigbee.primaryColor,
+                    style.zigbee.textColor,
+                    channel.channel,
+                );
+            }
+
+            function drawDectChannel(channel, scale, widthForID) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.spectralMaskHeight;
+
+                drawParabola(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    style.dect.primaryColor,
+                    style.dect.secondaryColor,
+                );
+
+                const rowData = {
+                    id: "dect",
+                    type: widthForID,
+                };
+
+                drawChannelLabel(
+                    centerX,
+                    centerY,
+                    width,
+                    style.dect.primaryColor,
+                    style.dect.textColor,
+                    channel.channel,
+                );
+            }
+
             function drawBluetoothChannel(channel, scale) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
@@ -4489,6 +4866,27 @@
                     }
                 }
                 context.stroke();
+            }
+
+            // Country code filtering
+            function filterByCountry(domain) {
+                if (domain.includes("WW") && showWWDomain) {
+                    return true;
+                }
+                if (domain.includes("US") && showUSDomain) {
+                    return true;
+                }
+                if (domain.includes("EU") && showEUDomain) {
+                    return true;
+                }
+                if (domain.includes("JP") && showJPDomain) {
+                    return true;
+                }
+                if (domain.includes("AU") && showAUDomain) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
 
             // Helper function for coordinate conversion
@@ -4689,38 +5087,9 @@
                                 return;
                             }
 
-                            // First verify that channel and domain exist
-                            if (!channel || !channel.domain) {
-                                console.warn(
-                                    `Found channel without domain in band ${band}:`,
-                                    channel,
-                                );
-                                return;
-                            }
-
-                            // Show if channel is worldwide
-                            if (channel.domain.includes("WW") && showWWDomain) {
+                            if (filterByCountry(channel.domain)) {
                                 drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("US") && showUSDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("EU") && showEUDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("JP") && showJPDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
-                                return;
-                            }
-
-                            if (channel.domain.includes("AU") && showAUDomain) {
-                                drawWiFiChannel(channel, scale, channel.width);
+                            } else {
                                 return;
                             }
                         });
@@ -4738,22 +5107,11 @@
                 if (showZigbee) {
                     Object.keys(zigbeeChannels).forEach((band) => {
                         zigbeeChannels[band].forEach((channel) => {
-                            // Show if channel is worldwide
-                            if (channel.domain.includes("WW") && showWWDomain) {
+                            if (filterByCountry(channel.domain)) {
                                 drawZigbeeChannel(channel, scale);
+                            } else {
                                 return;
                             }
-
-                            // Filter regulatory domains
-                            if (
-                                (channel.domain.includes("US") &&
-                                    !showUSDomain) ||
-                                (channel.domain.includes("EU") && !showEUDomain)
-                            ) {
-                                return;
-                            }
-
-                            drawZigbeeChannel(channel, scale);
                         });
                     });
                 }
@@ -4769,22 +5127,11 @@
                                 return;
                             }
 
-                            // Show if channel is worldwide
-                            if (channel.domain.includes("WW") && showWWDomain) {
-                                drawZigbeeChannel(channel, scale);
+                            if (filterByCountry(channel.domain)) {
+                                drawLoRaChannel(channel, scale, channel.width);
+                            } else {
                                 return;
                             }
-
-                            // Filter regulatory domains
-                            if (
-                                (channel.domain.includes("US") &&
-                                    !showUSDomain) ||
-                                (channel.domain.includes("EU") && !showEUDomain)
-                            ) {
-                                return;
-                            }
-
-                            drawLoRaChannel(channel, scale, channel.width);
                         });
                     });
                 }
@@ -4845,6 +5192,17 @@
                         );
                     });
                 });
+
+                // Draw DECT channels
+                if (showDect) {
+                    dectChannels.forEach((channel) => {
+                        if (filterByCountry(channel.domain)) {
+                            drawDectChannel(channel, scale);
+                        } else {
+                            return;
+                        }
+                    });
+                }
 
                 // Draw baseline
                 const baselineY = getBaselineY();
@@ -5278,6 +5636,14 @@
                 .getElementById("lora-visibility")
                 .addEventListener("change", (e) => {
                     showLoRa = e.target.checked;
+                });
+
+            // DECT
+
+            document
+                .getElementById("dect-visibility")
+                .addEventListener("change", (e) => {
+                    showDect = e.target.checked;
                 });
 
             document
