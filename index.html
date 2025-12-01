@@ -5229,6 +5229,7 @@
             // Mouse events for panning
             canvas.addEventListener("mousedown", (e) => {
                 isDragging = true;
+                canvas.style.cursor = "grabbing";
                 lastPosition = { x: e.clientX, y: e.clientY };
             });
 
@@ -5241,10 +5242,12 @@
 
             canvas.addEventListener("mouseup", () => {
                 isDragging = false;
+                canvas.style.cursor = "auto";
             });
 
             canvas.addEventListener("mouseleave", () => {
                 isDragging = false;
+                canvas.style.cursor = "auto";
             });
 
             // Touch events for panning and pinch zooming
