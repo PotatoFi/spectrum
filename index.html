@@ -170,10 +170,11 @@
             .subcarrier-options,
             .resource-unit-options,
             .bluetooth-options,
-            .lora-options {
+            .lora-options,
+            .uwb-options {
                 display: none;
                 margin-left: 14px;
-            }
+            },
         </style>
     </head>
     <body>
@@ -387,6 +388,24 @@
                         ><input type="checkbox" id="dect-visibility" checked />
                         DECT</label
                     >
+                    <h4>Ultra-wideband</h4>
+                    <label
+                        ><input type="checkbox" id="uwb-visibility" />
+                        UWB</label
+                    >
+                    <div class="uwb-options">
+                        <label>
+                            <input type="checkbox" id="uwb-500mhz-visibility" />
+                            500 MHz channels
+                        </label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                id="uwb-1000mhz-visibility"
+                            />
+                            1000+ MHz channels
+                        </label>
+                    </div>
                     <h4>Band Labels</h4>
                     <label>
                         <input
@@ -593,6 +612,9 @@
             let showLoRa125 = false;
             let showLoRa500 = false;
             let showDect = true;
+            let showUwb = false;
+            let showUwb500MHz = false;
+            let showUwb1000MHz = false;
 
             // Bands
             let showBandFCC = true;
@@ -686,6 +708,11 @@
                         secondaryColor: "rgba(192, 38, 211, 0.2)",
                         textColor: "#FFFFFF",
                     },
+                    uwb: {
+                        primaryColor: "rgba(139, 92, 246)",
+                        secondaryColor: "rgba(139, 92, 246, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
                     itu: {
                         primaryColor: "#e5e7eb",
                         textColor: "#000000",
@@ -743,6 +770,11 @@
                     dect: {
                         primaryColor: "rgba(182, 49, 199)",
                         secondaryColor: "rgba(182, 49, 199, 0.2)",
+                        textColor: "#FFFFFF",
+                    },
+                    uwb: {
+                        primaryColor: "rgba(148, 117, 220)",
+                        secondaryColor: "rgba(148, 117, 220, 0.2)",
                         textColor: "#FFFFFF",
                     },
                     itu: {
@@ -4102,6 +4134,91 @@
                 ],
             };
 
+            const uwbChannels = [
+                // https://ieeexplore.ieee.org/document/9810941, Table 4
+                // https://www.spectrumwiki.com/wiki/DisplayEntry.aspx?DisplyId=328
+                {
+                    channel: 0,
+                    frequency: 499.2,
+                    width: 499.2,
+                },
+                {
+                    channel: 1,
+                    frequency: 3494.4,
+                    width: 499.2,
+                },
+                {
+                    channel: 2,
+                    frequency: 3993.6,
+                    width: 499.2,
+                },
+                {
+                    channel: 3,
+                    frequency: 4492.8,
+                    width: 499.2,
+                },
+                {
+                    channel: 4,
+                    frequency: 3993.6,
+                    width: 1331.2,
+                },
+                {
+                    channel: 5,
+                    frequency: 6489.6,
+                    width: 499.2,
+                },
+                {
+                    channel: 6,
+                    frequency: 6988.8,
+                    width: 499.2,
+                },
+                {
+                    channel: 7,
+                    frequency: 6489.6,
+                    width: 1081.6,
+                },
+                {
+                    channel: 8,
+                    frequency: 7488.0,
+                    width: 499.2,
+                },
+                {
+                    channel: 9,
+                    frequency: 7987.2,
+                    width: 499.2,
+                },
+                {
+                    channel: 10,
+                    frequency: 8486.4,
+                    width: 499.2,
+                },
+                {
+                    channel: 11,
+                    frequency: 7987.2,
+                    width: 1331.2,
+                },
+                {
+                    channel: 12,
+                    frequency: 8985.6,
+                    width: 499.2,
+                },
+                {
+                    channel: 13,
+                    frequency: 9484.8,
+                    width: 499.2,
+                },
+                {
+                    channel: 14,
+                    frequency: 9984.0,
+                    width: 499.2,
+                },
+                {
+                    channel: 15,
+                    frequency: 9484.8,
+                    width: 1354.97,
+                },
+            ];
+
             function resizeCanvas() {
                 // Increase the size of the canvas
                 canvas.width = window.innerWidth * window.devicePixelRatio;
@@ -4169,8 +4286,8 @@
                 const config = tier.frequency;
                 const baselineY = getBaselineY();
 
-                viewportStart = Math.max(0, Math.min(8000, viewportStart));
-                viewportEnd = Math.max(0, Math.min(8000, viewportEnd));
+                viewportStart = Math.max(0, Math.min(11000, viewportStart));
+                viewportEnd = Math.max(0, Math.min(11000, viewportEnd));
 
                 const startFreq =
                     Math.floor(viewportStart / config.step) * config.step;
@@ -4187,7 +4304,7 @@
                     freq <= endFreq;
                     freq += config.step
                 ) {
-                    if (freq >= 0 && freq <= 8000) {
+                    if (freq >= 0 && freq <= 11000) {
                         const x = mhzToScreenX(freq);
 
                         // Draw tick mark
@@ -4207,7 +4324,8 @@
                         // Draw minor ticks
                         for (
                             let minorFreq = freq + config.minorSteps;
-                            minorFreq < freq + config.step && minorFreq <= 8000;
+                            minorFreq < freq + config.step &&
+                            minorFreq <= 11000;
                             minorFreq += config.minorSteps
                         ) {
                             if (minorFreq >= 0) {
@@ -4748,6 +4866,37 @@
                 );
             }
 
+            function drawUwbChannel(channel, scale, widthForID) {
+                const centerX = mhzToScreenX(channel.frequency);
+                const centerY = getBaselineY();
+                const width = channel.width * 2 * scale;
+                const height = chartSettings.spectralMaskHeight;
+
+                drawZiggurat(
+                    centerX,
+                    centerY,
+                    width,
+                    height,
+                    null, // channelType not defined for UWB
+                    style.uwb.primaryColor,
+                    style.uwb.secondaryColor,
+                );
+
+                const rowData = {
+                    id: "uwb",
+                    type: widthForID,
+                };
+
+                drawChannelLabel(
+                    centerX,
+                    centerY,
+                    width,
+                    style.uwb.primaryColor,
+                    style.uwb.textColor,
+                    channel.channel,
+                );
+            }
+
             function drawBluetoothChannel(channel, scale) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
@@ -4899,7 +5048,7 @@
             function screenXToMhz(screenX) {
                 const pixelsPerMhz = 2 * scale;
                 const freq = (screenX - offset.x) / pixelsPerMhz;
-                return Math.max(0, Math.min(8000, freq));
+                return Math.max(0, Math.min(11000, freq));
             }
 
             // Check if a new channel label overlaps with existing ones
@@ -5204,11 +5353,26 @@
                     });
                 }
 
+                // Draw UWB channels
+                if (showUwb) {
+                    uwbChannels.forEach((channel) => {
+                        if (channel.width > 500 && !showUwb500MHz) {
+                            return;
+                        }
+
+                        if (channel.width < 1000 && !showUwb1000MHz) {
+                            return;
+                        }
+
+                        drawUwbChannel(channel, scale);
+                    });
+                }
+
                 // Draw baseline
                 const baselineY = getBaselineY();
                 context.beginPath();
                 const startX = mhzToScreenX(0);
-                const endX = mhzToScreenX(8000);
+                const endX = mhzToScreenX(11000);
                 context.moveTo(startX, baselineY);
                 context.lineTo(endX, baselineY);
                 context.strokeStyle = style.interface.textColor;
@@ -5633,20 +5797,40 @@
                     showZigbee = e.target.checked;
                 });
 
-            // LoRa
-
-            document
-                .getElementById("lora-visibility")
-                .addEventListener("change", (e) => {
-                    showLoRa = e.target.checked;
-                });
-
             // DECT
 
             document
                 .getElementById("dect-visibility")
                 .addEventListener("change", (e) => {
                     showDect = e.target.checked;
+                });
+
+            // UWB
+
+            document
+                .getElementById("uwb-visibility")
+                .addEventListener("change", (e) => {
+                    showUwb = e.target.checked;
+                });
+
+            document
+                .getElementById("uwb-500mhz-visibility")
+                .addEventListener("change", (e) => {
+                    showUwb1000MHz = e.target.checked;
+                });
+
+            document
+                .getElementById("uwb-1000mhz-visibility")
+                .addEventListener("change", (e) => {
+                    showUwb500MHz = e.target.checked;
+                });
+
+            // LoRa
+
+            document
+                .getElementById("lora-visibility")
+                .addEventListener("change", (e) => {
+                    showLoRa = e.target.checked;
                 });
 
             document
@@ -5816,7 +6000,7 @@
             document
                 .getElementById("full-spectrum-shortcut")
                 .addEventListener("click", (e) => {
-                    setViewportFrequencyRange(-200, 8200);
+                    setViewportFrequencyRange(-300, 11300);
                 });
 
             // Theme selector
