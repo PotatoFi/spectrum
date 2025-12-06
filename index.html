@@ -5138,7 +5138,7 @@
                 const labelStart = centerX - width / 2;
 
                 // Find which row this label should go in
-                const row = findRowForChannelLabel(labelStart, width - 4);
+                const row = findRowForChannelLabel(labelStart, width - 2);
 
                 // Calculate vertical offset based on row
                 const offset = BASE_OFFSET - row * ROW_HEIGHT;
@@ -5321,7 +5321,7 @@
                         const centerX = startX + width / 2;
 
                         // Find which row this label should go in
-                        const row = findRowForBandLabel(startX + 2, stopX - 2);
+                        const row = findRowForBandLabel(startX + 1, stopX - 1);
 
                         // Calculate vertical offset based on row
                         const centerY =
