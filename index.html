@@ -681,6 +681,12 @@
             const BAND_LABEL_OFFSET = 42; // Up from the top of the spectral masks
             const LABEL_HEIGHT = 28; // Height of labels
             const ROW_HEIGHT = LABEL_HEIGHT + 6;
+            const MAX_FREQUENCY_MHZ = 11000; // End of the chart
+            const VERTICAL_PADDING = 20; // Breathing room at the ends of the scroll range
+            const FREQUENCY_MARKER_DEPTH = 40; // Space below the baseline used by frequency markers
+
+            // Vertical extent of everything drawn this frame (canvas y, before offset.y)
+            const contentBounds = { top: 0, bottom: 0 };
 
             const themes = {
                 light: {
@@ -5171,6 +5177,9 @@
                 const height = 30;
                 centerY = centerY - offset;
 
+                const labelBottom = centerY - height / 2 + LABEL_HEIGHT;
+                contentBounds.bottom = Math.max(contentBounds.bottom, labelBottom);
+
                 context.beginPath();
                 context.roundRect(
                     centerX - width / 2,
@@ -5204,6 +5213,8 @@
                 textColor,
                 text,
             ) {
+                contentBounds.top = Math.min(contentBounds.top, centerY);
+
                 // Draw rectangle
                 context.beginPath();
                 context.roundRect(startX, centerY, width, LABEL_HEIGHT, 6);
@@ -5220,9 +5231,57 @@
                 }
             }
 
+            // Pan vertically by deltaY, without moving further out of range.
+            // The range is the same in both directions: enough to bring the
+            // side that overflows the viewport fully into view. If nothing
+            // overflows, there is no range and the chart stays centered.
+            // Moving back toward the range is always allowed, so a change in
+            // the content (zooming, filters) never strands the view.
+            function panVertically(deltaY) {
+                const baselineY = getBaselineY();
+                const above = baselineY - contentBounds.top;
+                const below = contentBounds.bottom - baselineY;
+                const range = Math.max(
+                    0,
+                    Math.max(above, below) + VERTICAL_PADDING - baselineY,
+                );
+
+                const next = offset.y + deltaY;
+                offset.y = Math.max(
+                    Math.min(next, Math.max(range, offset.y)),
+                    Math.min(-range, offset.y),
+                );
+            }
+
+            // Keep either end of the chart from moving past the viewport's center
+            function clampHorizontalOffset() {
+                const centerX = canvas.width / window.devicePixelRatio / 2;
+                const pixelsPerMhz = 2 * scale;
+                const maxOffset = centerX; // 0 MHz at the center
+                const minOffset = centerX - MAX_FREQUENCY_MHZ * pixelsPerMhz; // 11000 MHz at the center
+                offset.x = Math.min(Math.max(offset.x, minOffset), maxOffset);
+            }
+
             function draw() {
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Clamp before drawing, so input that overshoots is never rendered
+                clampHorizontalOffset();
+
+                // Reset the content bounds to the baseline area
+                contentBounds.top = getBaselineY() - chartSettings.spectralMaskHeight;
+                contentBounds.bottom = getBaselineY() + FREQUENCY_MARKER_DEPTH;
+
+                // Everything below scrolls vertically with offset.y
+                context.save();
+                context.translate(0, offset.y);
+
+                // Text style for everything drawn below. Band labels and frequency
+                // markers don't set their own, so don't rely on leftover state.
+                context.font = "14px Quicksand";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
 
                 channelLabelPositions.length = 0;
                 bandLabelPositions.length = 0;
@@ -5411,6 +5470,8 @@
                     screenXToMhz(canvas.width),
                 );
 
+                context.restore();
+
                 requestAnimationFrame(draw);
             }
 
@@ -5425,6 +5486,8 @@
                 if (isDragging) {
                     offset.x += e.clientX - lastPosition.x;
                     lastPosition.x = e.clientX;
+                    panVertically(e.clientY - lastPosition.y);
+                    lastPosition.y = e.clientY;
                 }
             });
 
@@ -5504,6 +5567,8 @@
 
                     offset.x += deltaX;
                     lastPosition.x = e.touches[0].clientX;
+                    panVertically(e.touches[0].clientY - lastPosition.y);
+                    lastPosition.y = e.touches[0].clientY;
                     e.preventDefault();
                 }
 
