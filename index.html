@@ -681,6 +681,12 @@
             const BAND_LABEL_OFFSET = 42; // Up from the top of the spectral masks
             const LABEL_HEIGHT = 28; // Height of labels
             const ROW_HEIGHT = LABEL_HEIGHT + 6;
+            const MAX_FREQUENCY_MHZ = 11000; // End of the chart
+            const VERTICAL_PADDING = 20; // Space at the scroll range ends
+            const FREQUENCY_MARKER_DEPTH = 40; // Space used below the baseline
+
+            // Vertical extent of everything drawn this frame (before offset.y)
+            const contentBounds = { top: 0, bottom: 0 };
 
             const themes = {
                 light: {
@@ -4302,8 +4308,14 @@
                 const config = tier.frequency;
                 const baselineY = getBaselineY();
 
-                viewportStart = Math.max(0, Math.min(11000, viewportStart));
-                viewportEnd = Math.max(0, Math.min(11000, viewportEnd));
+                viewportStart = Math.max(
+                    0,
+                    Math.min(MAX_FREQUENCY_MHZ, viewportStart),
+                );
+                viewportEnd = Math.max(
+                    0,
+                    Math.min(MAX_FREQUENCY_MHZ, viewportEnd),
+                );
 
                 const startFreq =
                     Math.floor(viewportStart / config.step) * config.step;
@@ -4320,7 +4332,7 @@
                     freq <= endFreq;
                     freq += config.step
                 ) {
-                    if (freq >= 0 && freq <= 11000) {
+                    if (freq >= 0 && freq <= MAX_FREQUENCY_MHZ) {
                         const x = mhzToScreenX(freq);
 
                         // Draw tick mark
@@ -4341,7 +4353,7 @@
                         for (
                             let minorFreq = freq + config.minorSteps;
                             minorFreq < freq + config.step &&
-                            minorFreq <= 11000;
+                            minorFreq <= MAX_FREQUENCY_MHZ;
                             minorFreq += config.minorSteps
                         ) {
                             if (minorFreq >= 0) {
@@ -5072,7 +5084,7 @@
             function screenXToMhz(screenX) {
                 const pixelsPerMhz = 2 * scale;
                 const freq = (screenX - offset.x) / pixelsPerMhz;
-                return Math.max(0, Math.min(11000, freq));
+                return Math.max(0, Math.min(MAX_FREQUENCY_MHZ, freq));
             }
 
             // Check if a new channel label overlaps with existing ones
@@ -5165,11 +5177,17 @@
                 const row = findRowForChannelLabel(labelStart, width - 2);
 
                 // Calculate vertical offset based on row
-                const offset = BASE_OFFSET - row * ROW_HEIGHT;
+                const rowOffset = BASE_OFFSET - row * ROW_HEIGHT;
 
                 // Draw the label
                 const height = 30;
-                centerY = centerY - offset;
+                centerY = centerY - rowOffset;
+
+                const labelBottom = centerY - height / 2 + LABEL_HEIGHT;
+                contentBounds.bottom = Math.max(
+                    contentBounds.bottom,
+                    labelBottom,
+                );
 
                 context.beginPath();
                 context.roundRect(
@@ -5204,6 +5222,8 @@
                 textColor,
                 text,
             ) {
+                contentBounds.top = Math.min(contentBounds.top, centerY);
+
                 // Draw rectangle
                 context.beginPath();
                 context.roundRect(startX, centerY, width, LABEL_HEIGHT, 6);
@@ -5220,9 +5240,63 @@
                 }
             }
 
+            // Pan vertically by deltaY, without moving further out of range.
+            // The range is the same in both directions: enough to bring the
+            // side that overflows the viewport fully into view. If nothing
+            // overflows, there is no range and the chart stays centered.
+            // Moving back toward the range is always allowed, so a change in
+            // the content (zooming, filters) never strands the view.
+            function panVertically(deltaY) {
+                const baselineY = getBaselineY();
+                const above = baselineY - contentBounds.top;
+                const below = contentBounds.bottom - baselineY;
+                const range = Math.max(
+                    0,
+                    Math.max(above, below) + VERTICAL_PADDING - baselineY,
+                );
+
+                // Don't pass the range, unless we're already outside of it
+                const upperLimit = Math.max(range, offset.y);
+                const lowerLimit = Math.min(-range, offset.y);
+
+                const next = offset.y + deltaY;
+                offset.y = Math.min(Math.max(next, lowerLimit), upperLimit);
+            }
+
+            // Keep either end of the chart from passing the viewport's center.
+            // Unlike vertical panning, this is clamped every frame: the limits
+            // depend only on the scale, never on which labels are visible.
+            function clampHorizontalOffset() {
+                const centerX = canvas.width / window.devicePixelRatio / 2;
+                const pixelsPerMhz = 2 * scale;
+                const maxOffset = centerX; // 0 MHz at the center
+                // Last MHz at the center
+                const minOffset = centerX - MAX_FREQUENCY_MHZ * pixelsPerMhz;
+                offset.x = Math.min(Math.max(offset.x, minOffset), maxOffset);
+            }
+
             function draw() {
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Clamp before drawing, so input that overshoots is never rendered
+                clampHorizontalOffset();
+
+                // Reset the content bounds to the baseline area
+                const baselineY = getBaselineY();
+                const maskTop = baselineY - chartSettings.spectralMaskHeight;
+                contentBounds.top = maskTop;
+                contentBounds.bottom = baselineY + FREQUENCY_MARKER_DEPTH;
+
+                // Everything below scrolls vertically with offset.y
+                context.save();
+                context.translate(0, offset.y);
+
+                // Text style for everything drawn below. Band labels and frequency
+                // markers don't set their own, so don't rely on leftover state.
+                context.font = "14px Quicksand";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
 
                 channelLabelPositions.length = 0;
                 bandLabelPositions.length = 0;
@@ -5393,10 +5467,9 @@
                 }
 
                 // Draw baseline
-                const baselineY = getBaselineY();
                 context.beginPath();
                 const startX = mhzToScreenX(0);
-                const endX = mhzToScreenX(11000);
+                const endX = mhzToScreenX(MAX_FREQUENCY_MHZ);
                 context.moveTo(startX, baselineY);
                 context.lineTo(endX, baselineY);
                 context.strokeStyle = style.interface.textColor;
@@ -5410,6 +5483,8 @@
                     screenXToMhz(0),
                     screenXToMhz(canvas.width),
                 );
+
+                context.restore();
 
                 requestAnimationFrame(draw);
             }
@@ -5425,6 +5500,8 @@
                 if (isDragging) {
                     offset.x += e.clientX - lastPosition.x;
                     lastPosition.x = e.clientX;
+                    panVertically(e.clientY - lastPosition.y);
+                    lastPosition.y = e.clientY;
                 }
             });
 
@@ -5504,6 +5581,8 @@
 
                     offset.x += deltaX;
                     lastPosition.x = e.touches[0].clientX;
+                    panVertically(e.touches[0].clientY - lastPosition.y);
+                    lastPosition.y = e.touches[0].clientY;
                     e.preventDefault();
                 }
 
