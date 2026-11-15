@@ -677,6 +677,20 @@
             // Rowless labels
             const channelLabelPositions = [];
             const bandLabelPositions = [];
+
+            // Inspector: channel and band label rectangles drawn this frame (in
+            // content coordinates, i.e. before offset.y), and the inspected
+            // point in screen coordinates: the mouse pointer, or a tap on a
+            // touchscreen (null when inactive).
+            const labelHitBoxes = [];
+            let inspectPosition = null;
+            let inspectFromTouch = false; // Tap-activated, not mouse hover
+
+            // A touch that might turn out to be a tap (see touch handlers)
+            let tapCandidate = null;
+            const TAP_MAX_MOVEMENT = 10; // px
+            const TAP_MAX_DURATION = 300; // ms
+            const TOUCH_HIT_TOLERANCE = 6; // px, around labels
             const BASE_OFFSET = -56; // Down from center
             const BAND_LABEL_OFFSET = 42; // Up from the top of the spectral masks
             const LABEL_HEIGHT = 28; // Height of labels
@@ -732,26 +746,32 @@
                     },
                     itu: {
                         primaryColor: "#e5e7eb",
+                        secondaryColor: "#f7f8f9",
                         textColor: "#000000",
                     },
                     fcc: {
                         primaryColor: "#e5e7eb",
+                        secondaryColor: "#f7f8f9",
                         textColor: "#000000",
                     },
                     etsi: {
                         primaryColor: "#6b7280",
+                        secondaryColor: "#d3d5d9",
                         textColor: "#FFFFFF",
                     },
                     gsm: {
                         primaryColor: "#2dd4bf",
+                        secondaryColor: "#c0f2ec",
                         textColor: "#FFFFFF",
                     },
                     lte: {
                         primaryColor: "#38bdf8",
+                        secondaryColor: "#c3ebfd",
                         textColor: "#FFFFFF",
                     },
                     nr: {
                         primaryColor: "#818cf8",
+                        secondaryColor: "#d9dcfd",
                         textColor: "#FFFFFF",
                     },
                 },
@@ -798,26 +818,32 @@
                     },
                     itu: {
                         primaryColor: "#374151",
+                        secondaryColor: "#c3c6cb",
                         textColor: "#FFFFFF",
                     },
                     fcc: {
                         primaryColor: "#374151",
+                        secondaryColor: "#c3c6cb",
                         textColor: "#FFFFFF",
                     },
                     etsi: {
                         primaryColor: "#64748b",
+                        secondaryColor: "#d0d5dc",
                         textColor: "#FFFFFF",
                     },
                     gsm: {
                         primaryColor: "#34ccb9",
+                        secondaryColor: "#c2f0ea",
                         textColor: "#FFFFFF",
                     },
                     lte: {
                         primaryColor: "#5aafd5",
+                        secondaryColor: "#cee7f2",
                         textColor: "#FFFFFF",
                     },
                     nr: {
                         primaryColor: "#949be4",
+                        secondaryColor: "#dfe1f7",
                         textColor: "#FFFFFF",
                     },
                 },
@@ -1455,7 +1481,6 @@
                         frequency: 2402,
                         width: 2,
                         application: "Primary Advertising",
-                        advertising: true,
                     },
                     {
                         channel: 0,
@@ -1528,7 +1553,6 @@
                         frequency: 2426,
                         width: 2,
                         application: "Primary Advertising",
-                        advertising: true,
                     },
                     {
                         channel: 11,
@@ -1691,7 +1715,6 @@
                         frequency: 2480,
                         width: 2,
                         application: "Primary Advertising",
-                        advertising: true,
                     },
                 ],
             };
@@ -1895,7 +1918,7 @@
                         frequency: 2412,
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 2,
@@ -1903,7 +1926,7 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 3,
@@ -1911,7 +1934,7 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 4,
@@ -1919,7 +1942,7 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 5,
@@ -1927,14 +1950,14 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 6,
                         frequency: 2437,
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 7,
@@ -1942,7 +1965,7 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 8,
@@ -1950,7 +1973,7 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 9,
@@ -1958,7 +1981,7 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 10,
@@ -1966,14 +1989,14 @@
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 11,
                         frequency: 2462,
                         width: 20,
                         domain: ["WW", "US", "EU", "AU", "JP"],
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 12,
@@ -1981,7 +2004,7 @@
                         width: 20,
                         domain: ["EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 13,
@@ -1989,14 +2012,14 @@
                         width: 20,
                         domain: ["EU", "AU", "JP"],
                         overlapping: true,
-                        modulation: ["OFDM", "HT", "HE"],
+                        modulation: ["DSSS", "OFDM", "HT", "HE"],
                     },
                     {
                         channel: 14,
                         frequency: 2484,
                         width: 20,
                         domain: ["JP"],
-                        dsss: true,
+                        modulation: ["DSSS"],
                     },
                 ],
                 "5 GHz": [
@@ -4531,6 +4554,15 @@
                 context.stroke();
             }
 
+            // True when DSSS is the channel's only modulation (e.g. 2.4 GHz
+            // channel 14), which is drawn as a parabola instead of a ziggurat
+            function isDsssOnly(channel) {
+                return (
+                    channel.modulation?.length === 1 &&
+                    channel.modulation[0] === "DSSS"
+                );
+            }
+
             function drawWiFiChannel(channel, scale, widthForID) {
                 const centerX = mhzToScreenX(channel.frequency);
                 const centerY = getBaselineY();
@@ -4622,7 +4654,7 @@
                     scale >= 9 &&
                     channel.modulation?.includes("OFDM") &&
                     channel.width == 20 &&
-                    !channel.dsss
+                    !isDsssOnly(channel)
                 ) {
                     drawSubcarriers({
                         centerX: mhzToScreenX(channel.frequency),
@@ -4641,7 +4673,7 @@
                     showSubcarriers &&
                     subCarrierMode == "HT" &&
                     scale >= 9 &&
-                    !channel.dsss &&
+                    !isDsssOnly(channel) &&
                     channel.modulation?.includes("HT")
                 ) {
                     switch (channel.width) {
@@ -4679,7 +4711,7 @@
                     showSubcarriers &&
                     subCarrierMode == "VHT" &&
                     scale >= 9 &&
-                    !channel.dsss &&
+                    !isDsssOnly(channel) &&
                     channel.modulation?.includes("VHT")
                 ) {
                     switch (channel.width) {
@@ -4736,8 +4768,8 @@
                     }
                 }
 
-                // Use parabola for DSSS channels, ziggurat for others
-                if (channel.dsss) {
+                // Use parabola for DSSS-only channels, ziggurat for others
+                if (isDsssOnly(channel)) {
                     drawParabola(
                         centerX,
                         centerY,
@@ -4771,6 +4803,7 @@
                     primaryColor,
                     style.wifi.textColor,
                     channel.channel,
+                    channel,
                 );
             }
 
@@ -4801,6 +4834,7 @@
                     style.zigbee.primaryColor,
                     style.zigbee.textColor,
                     channel.channel,
+                    channel,
                 );
             }
 
@@ -4831,6 +4865,7 @@
                     style.lora.primaryColor,
                     style.lora.textColor,
                     channel.channel,
+                    channel,
                 );
             }
 
@@ -4861,6 +4896,7 @@
                     style.zigbee.primaryColor,
                     style.zigbee.textColor,
                     channel.channel,
+                    channel,
                 );
             }
 
@@ -4891,6 +4927,7 @@
                     style.dect.primaryColor,
                     style.dect.textColor,
                     channel.channel,
+                    channel,
                 );
             }
 
@@ -4922,6 +4959,7 @@
                     style.uwb.primaryColor,
                     style.uwb.textColor,
                     channel.channel,
+                    channel,
                 );
             }
 
@@ -4934,7 +4972,10 @@
                 let primaryColor = style.bluetooth.primaryColor;
                 let secondaryColor = style.bluetooth.secondaryColor;
 
-                if (channel.advertising && showBluetoothAdv) {
+                if (
+                    channel.application === "Primary Advertising" &&
+                    showBluetoothAdv
+                ) {
                     primaryColor = style.bluetooth.primaryColorAdv;
                     secondaryColor = style.bluetooth.secondaryColorAdv;
                 }
@@ -4962,7 +5003,7 @@
                     primaryColor,
                     style.bluetooth.textColor,
                     channel.channel,
-                    technology,
+                    channel,
                 );
             }
 
@@ -5165,7 +5206,7 @@
                 backgroundColor,
                 foregroundColor,
                 text,
-                technology,
+                channel,
             ) {
                 // If the label is too narrow, don't draw it
                 if (width < 4) return;
@@ -5200,6 +5241,20 @@
                 context.fillStyle = backgroundColor;
                 context.fill();
 
+                // Remember where this label is, for mouseover hit testing
+                labelHitBoxes.push({
+                    x: centerX - width / 2,
+                    y: centerY - height / 2,
+                    width: width - 2,
+                    height: LABEL_HEIGHT,
+                    hoverColor: lightenColor(backgroundColor, 0.7),
+                    text,
+                    textX: centerX,
+                    textY: centerY,
+                    fitWidth: width,
+                    rows: () => describeChannel(channel),
+                });
+
                 // Stop-gap, temporary fix
                 context.font = "14px Quicksand";
                 context.textAlign = "center";
@@ -5219,10 +5274,25 @@
                 centerY,
                 width,
                 primaryColor,
+                secondaryColor,
                 textColor,
                 text,
+                band,
             ) {
                 contentBounds.top = Math.min(contentBounds.top, centerY);
+
+                labelHitBoxes.push({
+                    x: startX,
+                    y: centerY,
+                    width,
+                    height: LABEL_HEIGHT,
+                    hoverColor: secondaryColor,
+                    text,
+                    textX: centerX,
+                    textY: centerY + LABEL_HEIGHT / 2,
+                    fitWidth: width,
+                    rows: () => describeBand(band),
+                });
 
                 // Draw rectangle
                 context.beginPath();
@@ -5275,6 +5345,177 @@
                 offset.x = Math.min(Math.max(offset.x, minOffset), maxOffset);
             }
 
+            // Mix a CSS rgb()/rgba() color toward white. amount: 0 = unchanged,
+            // 1 = white. The result is always opaque.
+            function lightenColor(color, amount) {
+                const [r, g, b] = color.match(/[\d.]+/g).slice(0, 3).map(Number);
+                const mix = (c) => Math.round(c + (255 - c) * amount);
+                return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+            }
+
+            // Format a frequency value with up to 3 decimals, e.g. "2437 MHz"
+            function formatMhz(value) {
+                return `${Number(value.toFixed(3))} MHz`;
+            }
+
+            // [label, value] pairs for a channel's tooltip
+            function describeChannel(channel) {
+                const rows = [["Channel", channel.channel]];
+
+                if (channel.frequency !== undefined && channel.width !== undefined) {
+                    rows.push(
+                        ["Center", formatMhz(channel.frequency)],
+                        ["Start", formatMhz(channel.frequency - channel.width / 2)],
+                        ["Stop", formatMhz(channel.frequency + channel.width / 2)],
+                        ["Width", formatMhz(channel.width)],
+                    );
+                }
+
+                // Any other attributes (domain, psc, advertising, ...)
+                const shown = ["channel", "frequency", "width"];
+                Object.entries(channel).forEach(([key, value]) => {
+                    if (shown.includes(key)) return;
+                    const name = key.charAt(0).toUpperCase() + key.slice(1);
+                    rows.push([name, Array.isArray(value) ? value.join(", ") : value]);
+                });
+
+                return rows;
+            }
+
+            // [label, value] pairs for a band's tooltip
+            function describeBand(band) {
+                const rows = [
+                    ["Band", band.name],
+                    ["Center", formatMhz((band.start + band.stop) / 2)],
+                    ["Start", formatMhz(band.start)],
+                    ["Stop", formatMhz(band.stop)],
+                    ["Width", formatMhz(band.stop - band.start)],
+                ];
+
+                // Any other attributes
+                const shown = ["name", "start", "stop"];
+                Object.entries(band).forEach(([key, value]) => {
+                    if (shown.includes(key)) return;
+                    const name = key.charAt(0).toUpperCase() + key.slice(1);
+                    rows.push([name, Array.isArray(value) ? value.join(", ") : value]);
+                });
+
+                return rows;
+            }
+
+            // Place a tooltip near the pointer (screen coordinates), flipping to
+            // the other side of the pointer and clamping so it stays fully
+            // inside the viewport.
+            function placeTooltip(pointerX, pointerY, width, height, fromTouch) {
+                const GAP = 14;
+                const viewportWidth = canvas.width / window.devicePixelRatio;
+                const viewportHeight = canvas.height / window.devicePixelRatio;
+
+                let x = pointerX + GAP;
+                if (x + width > viewportWidth) x = pointerX - GAP - width;
+
+                // A finger covers what is below it, so touch prefers above
+                const gapY = fromTouch ? GAP * 3 : GAP;
+                let y = fromTouch ? pointerY - gapY - height : pointerY + gapY;
+                if (fromTouch && y < 0) y = pointerY + gapY;
+                else if (!fromTouch && y + height > viewportHeight)
+                    y = pointerY - gapY - height;
+
+                return {
+                    x: Math.max(0, Math.min(x, viewportWidth - width)),
+                    y: Math.max(0, Math.min(y, viewportHeight - height)),
+                };
+            }
+
+            // Lighten the channel or band label under the pointer and show all of its
+            // attributes as plain text. Called inside the offset.y translate.
+            function drawHoveredLabel() {
+                if (!inspectPosition || isDragging) return;
+
+                const x = inspectPosition.x;
+                const y = inspectPosition.y - offset.y;
+
+                const tolerance = inspectFromTouch ? TOUCH_HIT_TOLERANCE : 0;
+
+                // Later labels are drawn on top, so search from the end
+                const hit = [...labelHitBoxes]
+                    .reverse()
+                    .find(
+                        (box) =>
+                            x >= box.x - tolerance &&
+                            x <= box.x + box.width + tolerance &&
+                            y >= box.y - tolerance &&
+                            y <= box.y + box.height + tolerance,
+                    );
+                if (!hit) return;
+
+                // Repaint the label box in a lighter tint of its own color
+                context.beginPath();
+                context.roundRect(hit.x, hit.y, hit.width, hit.height, 6);
+                context.fillStyle = hit.hoverColor;
+                context.fill();
+
+                context.font = "14px Quicksand";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
+                if (hit.fitWidth >= context.measureText(hit.text).width + 4) {
+                    context.fillStyle = "#000000";
+                    context.fillText(hit.text, hit.textX, hit.textY);
+                }
+
+                const lines = hit.rows();
+
+                const lineHeight = 18;
+                const padding = 8;
+                context.font = "14px Quicksand";
+                context.textAlign = "left";
+                context.textBaseline = "middle";
+                const BOLD_FONT = "bold 14px Quicksand";
+                const REGULAR_FONT = "14px Quicksand";
+
+                // Each row is a bold "Label:" followed by a regular value
+                const rowWidths = lines.map(([label, value]) => {
+                    context.font = BOLD_FONT;
+                    const labelWidth = context.measureText(`${label}:`).width;
+                    context.font = REGULAR_FONT;
+                    const valueWidth = context.measureText(` ${value}`).width;
+                    return { labelWidth, total: labelWidth + valueWidth };
+                });
+                const boxWidth =
+                    Math.max(...rowWidths.map((r) => r.total)) + padding * 2;
+                const boxHeight = lines.length * lineHeight + padding * 2;
+
+                const { x: boxX, y: boxY } = placeTooltip(
+                    inspectPosition.x,
+                    inspectPosition.y,
+                    boxWidth,
+                    boxHeight,
+                    inspectFromTouch,
+                );
+
+                context.beginPath();
+                context.roundRect(boxX, boxY - offset.y, boxWidth, boxHeight, 6);
+                context.fillStyle = "#000000";
+                context.fill();
+
+                context.fillStyle = "#ffffff";
+                lines.forEach(([label, value], i) => {
+                    const rowY = boxY - offset.y + padding + lineHeight * (i + 0.5);
+                    context.font = BOLD_FONT;
+                    context.fillText(`${label}:`, boxX + padding, rowY);
+                    context.font = REGULAR_FONT;
+                    context.fillText(
+                        ` ${value}`,
+                        boxX + padding + rowWidths[i].labelWidth,
+                        rowY,
+                    );
+                });
+
+                // Restore the text style the rest of draw() relies on
+                context.font = "14px Quicksand";
+                context.textAlign = "center";
+            }
+
             function draw() {
                 // Clear the canvas and label positions
                 context.clearRect(0, 0, canvas.width, canvas.height);
@@ -5299,6 +5540,7 @@
                 context.textBaseline = "middle";
 
                 channelLabelPositions.length = 0;
+                labelHitBoxes.length = 0;
                 bandLabelPositions.length = 0;
 
                 // Draw WiFi channels
@@ -5434,8 +5676,10 @@
                             centerY,
                             width,
                             style[bandType].primaryColor,
+                            style[bandType].secondaryColor,
                             style[bandType].textColor,
                             band.name,
+                            band,
                         );
                     });
                 });
@@ -5484,6 +5728,8 @@
                     screenXToMhz(canvas.width),
                 );
 
+                drawHoveredLabel();
+
                 context.restore();
 
                 requestAnimationFrame(draw);
@@ -5494,6 +5740,23 @@
                 isDragging = true;
                 canvas.style.cursor = "grabbing";
                 lastPosition = { x: e.clientX, y: e.clientY };
+            });
+
+            // Hover tracking. Pointer events say what kind of device it was, so
+            // the fake mouse events browsers send after a tap are ignored.
+            canvas.addEventListener("pointermove", (e) => {
+                if (e.pointerType !== "mouse") return;
+                inspectPosition = { x: e.clientX, y: e.clientY };
+                inspectFromTouch = false;
+            });
+
+            canvas.addEventListener("pointerleave", (e) => {
+                if (e.pointerType === "mouse") inspectPosition = null;
+            });
+
+            // Anything outside the canvas (buttons, menus) dismisses a tap
+            document.addEventListener("pointerdown", (e) => {
+                if (e.target !== canvas) inspectPosition = null;
             });
 
             canvas.addEventListener("mousemove", (e) => {
@@ -5623,6 +5886,7 @@
             // Mouse wheel zooming
             canvas.addEventListener("wheel", (e) => {
                 e.preventDefault();
+                inspectPosition = null;
 
                 const currentTime = Date.now();
 
@@ -6147,6 +6411,11 @@
                 isCoasting = false;
                 velocity = 0;
 
+                // Any new touch dismisses the inspector; a tap re-opens it
+                // in touchend. Only a lone, non-double-tap touch can be a tap.
+                inspectPosition = null;
+                tapCandidate = null;
+
                 if (e.touches.length === 2) {
                     // Two fingers - this is a pinch gesture
                     isDragging = false;
@@ -6188,6 +6457,11 @@
                             y: e.touches[0].clientY,
                         };
                         lastTimestamp = Date.now();
+                        tapCandidate = {
+                            x: e.touches[0].clientX,
+                            y: e.touches[0].clientY,
+                            time: currentTime,
+                        };
                     }
 
                     lastTapTime = currentTime;
@@ -6197,6 +6471,17 @@
             canvas.addEventListener("touchmove", (e) => {
                 // Track velocity
                 const currentTimestamp = Date.now();
+
+                // Moved too far to be a tap
+                if (
+                    tapCandidate &&
+                    Math.hypot(
+                        e.touches[0].clientX - tapCandidate.x,
+                        e.touches[0].clientY - tapCandidate.y,
+                    ) > TAP_MAX_MOVEMENT
+                ) {
+                    tapCandidate = null;
+                }
 
                 if (pinchZooming && e.touches.length === 2) {
                     // Handle pinch zooming
@@ -6285,6 +6570,17 @@
             });
 
             canvas.addEventListener("touchend", (e) => {
+                // A quick, nearly stationary single touch is a tap
+                if (
+                    tapCandidate &&
+                    e.touches.length === 0 &&
+                    Date.now() - tapCandidate.time < TAP_MAX_DURATION
+                ) {
+                    inspectPosition = { x: tapCandidate.x, y: tapCandidate.y };
+                    inspectFromTouch = true;
+                }
+                tapCandidate = null;
+
                 isDragging = false;
                 doubleTapZooming = false;
                 pinchZooming = false;
