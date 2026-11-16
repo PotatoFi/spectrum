@@ -367,46 +367,7 @@
                 </button>
                 <div class="dropdown-menu">
                     <h4>Regulatory Domains</h4>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="ww-domain-visibility"
-                            checked
-                        />
-                        🌍 Show Worldwide (harmonized)
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="us-domain-visibility"
-                            checked
-                        />
-                        🇺🇸 Show US
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="eu-domain-visibility"
-                            checked
-                        />
-                        🇪🇺 Show EU
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="au-domain-visibility"
-                            checked
-                        />
-                        🇦🇺 Show AU
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            id="jp-domain-visibility"
-                            checked
-                        />
-                        🇯🇵 Show JP
-                    </label>
+                    <div id="domain-options"></div>
                 </div>
             </div>
             <div class="dropdown-button">
@@ -518,12 +479,17 @@
             let showBandCellularLTE = false;
             let showBandITU = false;
 
-            // Domains
-            let showWWDomain = true;
-            let showUSDomain = true;
-            let showEUDomain = true;
-            let showJPDomain = true;
-            let showAUDomain = true;
+            // Domains (visibility is keyed by domain code)
+            const domains = [
+                { code: "WW", label: "🌍 Show Worldwide (harmonized)" },
+                { code: "US", label: "🇺🇸 Show US" },
+                { code: "EU", label: "🇪🇺 Show EU" },
+                { code: "GB", label: "🇬🇧 Show GB" },
+                { code: "AU", label: "🇦🇺 Show AU" },
+                { code: "JP", label: "🇯🇵 Show JP" },
+            ];
+            const domainVisibility = {};
+            domains.forEach((d) => (domainVisibility[d.code] = true));
 
             // Other variables
             let offset = { x: 0, y: 0 };
@@ -1575,23 +1541,7 @@
 
             // Country code filtering
             function filterByCountry(domain) {
-                if (domain.includes("WW") && showWWDomain) {
-                    return true;
-                }
-                if (domain.includes("US") && showUSDomain) {
-                    return true;
-                }
-                if (domain.includes("EU") && showEUDomain) {
-                    return true;
-                }
-                if (domain.includes("JP") && showJPDomain) {
-                    return true;
-                }
-                if (domain.includes("AU") && showAUDomain) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return domain.some((code) => domainVisibility[code]);
             }
 
             // Helper function for coordinate conversion
@@ -2648,35 +2598,20 @@
                     showBandITU = e.target.checked;
                 });
 
-            document
-                .getElementById("ww-domain-visibility")
-                .addEventListener("change", (e) => {
-                    showWWDomain = e.target.checked;
+            // Regulatory domain checkboxes
+            const domainOptions = document.getElementById("domain-options");
+            domains.forEach(({ code, label }) => {
+                const input = document.createElement("input");
+                input.type = "checkbox";
+                input.id = `${code.toLowerCase()}-domain-visibility`;
+                input.checked = domainVisibility[code];
+                input.addEventListener("change", (e) => {
+                    domainVisibility[code] = e.target.checked;
                 });
-
-            document
-                .getElementById("us-domain-visibility")
-                .addEventListener("change", (e) => {
-                    showUSDomain = e.target.checked;
-                });
-
-            document
-                .getElementById("eu-domain-visibility")
-                .addEventListener("change", (e) => {
-                    showEUDomain = e.target.checked;
-                });
-
-            document
-                .getElementById("au-domain-visibility")
-                .addEventListener("change", (e) => {
-                    showAUDomain = e.target.checked;
-                });
-
-            document
-                .getElementById("jp-domain-visibility")
-                .addEventListener("change", (e) => {
-                    showJPDomain = e.target.checked;
-                });
+                const labelEl = document.createElement("label");
+                labelEl.append(input, ` ${label}`);
+                domainOptions.appendChild(labelEl);
+            });
 
             // Spectral mask height slider
 
