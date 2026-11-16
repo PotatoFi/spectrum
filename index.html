@@ -549,7 +549,6 @@
             // Touch coasting/momentum variables
             let velocity = 0;
             let lastTimestamp = 0;
-            let animationFrameId = null;
             let isCoasting = false;
 
             // Visual settings
@@ -2258,92 +2257,6 @@
                 canvas.style.cursor = "auto";
             });
 
-            // Touch events for panning and pinch zooming
-            canvas.addEventListener("touchstart", (e) => {
-                isCoasting = false;
-                velocity = 0;
-
-                if (e.touches.length === 1) {
-                    isDragging = true;
-                    lastPosition = {
-                        x: e.touches[0].clientX,
-                        y: e.touches[0].clientY,
-                    };
-                    lastTimestamp = Date.now();
-                }
-            });
-
-            // Touch input handler
-            canvas.addEventListener("touchmove", (e) => {
-                // Track velocity
-                const currentTimestamp = Date.now();
-
-                if (e.touches.length === 2) {
-                    // Handle pinch zooming
-                    const touch1 = e.touches[0];
-                    const touch2 = e.touches[1];
-
-                    // Calculate center of pinch in screen coordinates
-                    const pinchCenterX = (touch1.clientX + touch2.clientX) / 2;
-
-                    // Calculate current pinch distance
-                    const currentDistance = Math.hypot(
-                        touch2.clientX - touch1.clientX,
-                        touch2.clientY - touch1.clientY,
-                    );
-
-                    if (lastPinchDistance) {
-                        // Calculate scale change
-                        const scaleChange = currentDistance / lastPinchDistance;
-                        const oldScale = scale;
-
-                        // Store the frequency at pinch center before scaling
-                        const freqAtPinch = screenXToMhz(pinchCenterX);
-
-                        // Update scale
-                        scale *= scaleChange;
-                        scale = Math.min(Math.max(minZoom, scale), maxZoom);
-
-                        // Calculate the new x position for the same frequency after scaling
-                        const newPinchX = mhzToScreenX(freqAtPinch);
-
-                        // Adjust offset to maintain pinch center
-                        offset.x += pinchCenterX - newPinchX;
-                    }
-
-                    lastPinchDistance = currentDistance;
-                    e.preventDefault();
-                } else if (e.touches.length === 1 && isDragging) {
-                    const deltaX = e.touches[0].clientX - lastPosition.x;
-                    const deltaTime = currentTimestamp - lastTimestamp;
-
-                    if (deltaTime > 0) {
-                        // Update velocity (pixels per millisecond)
-                        velocity = deltaX / deltaTime;
-                    }
-
-                    offset.x += deltaX;
-                    lastPosition.x = e.touches[0].clientX;
-                    panVertically(e.touches[0].clientY - lastPosition.y);
-                    lastPosition.y = e.touches[0].clientY;
-                    e.preventDefault();
-                }
-
-                lastTimestamp = currentTimestamp;
-            });
-
-            // Add a touch end handler to initiate coasting
-            canvas.addEventListener("touchend", (e) => {
-                isDragging = false;
-                lastPinchDistance = null;
-
-                // Only start coasting if there is significant velocity
-                if (Math.abs(velocity) > 0.1) {
-                    isCoasting = true;
-                    coastingAnimation();
-                }
-            });
-
             function coastingAnimation() {
                 if (!isCoasting) return;
 
@@ -3043,6 +2956,8 @@
 
                     offset.x += deltaX;
                     lastPosition.x = e.touches[0].clientX;
+                    panVertically(e.touches[0].clientY - lastPosition.y);
+                    lastPosition.y = e.touches[0].clientY;
                     e.preventDefault();
                 }
 
